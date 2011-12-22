@@ -1,7 +1,7 @@
 var rules = require('rules.js');
 
-default_location = '/index.html';
-urlparser = function (url) {
+var default_location = '/index.html';
+var urlparser = function (url) {
 	return {
 		href: url,
 		search: '',
@@ -9,55 +9,39 @@ urlparser = function (url) {
 		pathname: url
 	}
 }
-
-var r = rules.inject(default_location, urlparser);
-var rest_rule = r[0];
-var default_rule = r[1];
-var static_rule = r[2];
-
-function test_valid(url) {
-	test.ok(rest_rule.valid({req:{'url':url}}),"must validate: "+url);
+var rest = function() {}
+var fs = {
+	readFile: function () {},
+	stat: function () {}
 }
-function test_not_valid(url) {
-	test.ok( ! rest_rule.valid({req:{'url':url}}),"must not validate: "+url);
+var mime = function () {}
+
+var rest_rule = rules.rest(rest);
+var static_rule = rules.static(default_location, urlparser, mime, fs);
+
+function test_valid(test, rule, url) {
+	test.ok(rule.valid({req:{'url':url}}),"must validate: "+url);
+}
+function test_not_valid(test, rule, url) {
+	test.ok( ! rule.valid({req:{'url':url}}),"must not validate: "+url);
 }
 
 exports['should valid rest_rule'] = function (test) {
-	test_valid('/j/');
-	test_valid('/j/u');
-	test_valid('/j/u/42');
-	test_valid('/j/u/42?o=u');
+	test_valid(test, rest_rule, '/j/');
+	test_valid(test, rest_rule, '/j/u');
+	test_valid(test, rest_rule, '/j/u/42');
+	test_valid(test, rest_rule, '/j/u/42?o=u');
 	test.done();
 };
 exports['should not valid rest_rule'] = function (test) {
-	test_not_valid('/');
-	test_not_valid('/plop');
-	test_not_valid('/plop/42');
-	test_not_valid('/plop/42?o=u');
+	test_not_valid(test, rest_rule, '/');
+	test_not_valid(test, rest_rule, '/plop');
+	test_not_valid(test, rest_rule, '/plop/42');
+	test_not_valid(test, rest_rule, '/plop/42?o=u');
 	test.done();
 };
-exports['should valid default_rule'] = function (test) {	
-	test_valid('/');
-	test.done();
-};
-exports['should not valid default_rule'] = function (test) {
-	test_not_valid('/j/');
-	test_not_valid('/j/u');
-	test_not_valid('/j/u/42');
-	test_not_valid('/j/u/42?o=u');
-	test_not_valid('/plop');
-	test_not_valid('/plop/42');
-	test_not_valid('/plop/42?o=u');
-	test.done();
-};
-
 
 exports['should run rest_rule'] = function (test) {
-	test.ok(false,'test to be written');
-	test.done();
-};
-
-exports['should run default_rule'] = function (test) {
 	test.ok(false,'test to be written');
 	test.done();
 };

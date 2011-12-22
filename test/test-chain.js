@@ -1,8 +1,8 @@
-var play = require('chain.js').play;
+var chain = require('chain.js');
 
 exports['should run first only'] = function (test) {
 	var o = {};
-	play(o, [
+	chain.build([
 		{
 			valid : function (u) {true;},
 			run : function (u) {
@@ -22,14 +22,14 @@ exports['should run first only'] = function (test) {
 				test.ok(false,"Third method should never be called");
 			}
 		}
-	]);
+	])(o);
 	
     test.done();
 };
 
 exports['should run second only'] = function (test) {
 	var o = {};
-	play(o, [
+	chain.build([
 		{
 			valid : function (u) {false;},
 			run : function (u) {
@@ -49,7 +49,7 @@ exports['should run second only'] = function (test) {
 				test.ok(false,"Third method should never be called");
 			}
 		}
-	]);
+	])(o);
 		
     test.done();
 };
@@ -57,7 +57,7 @@ exports['should run second only'] = function (test) {
 exports['should skip first and second change value for third'] = function (test) {
 	var o = {};
 	var x = {};
-	play(o, [
+	chain.build([
 		{
 			valid : function (u) {false;},
 			run : function (u) {
@@ -79,7 +79,7 @@ exports['should skip first and second change value for third'] = function (test)
 				test.strictEqual(u,x);
 			}
 		}
-	]);
+	])(o);
 	
     test.done();
 };
