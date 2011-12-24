@@ -9,33 +9,24 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-exports.inject = function (logger, http_status, urlparser) {
-	var injected = {}
-	
-	injected.get = function (parsed, req, res) {
-		
-		http_status(200)(res, type, data);
-		
-		http_status(404)(res);
+var logger = require('cnlogger').logger(module);
+
+var http_status = function(){return function(){}}
+
+var urlparser = function(){}
+
+var rest = require('rest.js').inject(logger, http_status, urlparser);
+
+var urlparser = function (url) {
+	return {
+		href: url,
+		search: '',
+		query: '',
+		pathname: url
 	}
-	injected.post = function(parsed, req, res) {
-		
-	}
-	injected.put = function (parsed, req, res) {
-		
-	}
-	injected.delete = function (parsed, req, res) {
-		
-	}
-	
-	injected.build = function (root,db) {
-		
-		db
-		
-		return function (u) {
-			injected[u.req.method.toLowerCase()](urlparser(u.req.url.substring(root.length)), u.req, u.res);
-		}
-	}
-	
-	return injected;
 }
+
+exports['should run rest_rule'] = function (test) {
+	test.ok(false,'test to be written');
+	test.done();
+};
