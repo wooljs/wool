@@ -9,6 +9,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
+var counter = require('counter.js');
 var logger = require('cnlogger').logger(module);
 
 var status_code = {}
@@ -29,21 +30,29 @@ var urlparser = function (url) {
 
 var fs = {}
 
+var counter = require('counter.js');
 var static = require('static.js').inject(logger, http_status, urlparser, fs);
 
 exports['should run_path ./static/'] = function (test) {
 
+	var c = counter.build();
+
+	// GIVEN
+	var path = './static/';
+	var url = 'http://localhost:8000';
 	var data = "plop";
 
 	status_code[200] = function(res, p, d) {
 		logger.trace("http_status(200)({}, {}, {})", res, p, d);
 		
+		test.equal(p,'./static/index.html');
 		test.strictEqual(d,data);
 	}
 
 	fs.stat = function (path, fun) {
 		fun (false , {
 			isDirectory : function () {
+				c.inc();
 				return path.match('^./static/$');
 			}
 		});
@@ -52,12 +61,12 @@ exports['should run_path ./static/'] = function (test) {
 		fun (false , data);
 	}
 	
-	static.run_path(
-		'./static/',
-		'http://localhost:8000',
-		{}
-	);
+	// WHEN
+	static.run_path(path, url, {});
 
+	// THEN
+	
+	test.equal(c.check(), 1);
 	test.done();
 };
 

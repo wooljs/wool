@@ -9,14 +9,12 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
+var counter = require('counter.js');
 var logger = require('cnlogger').logger(module); 
 var dispatch = require('dispatch.js').inject(logger);
 
 exports['should delegate call to chain'] = function (test) {
-	var count={};
-	var inc = function(context) {
-		count[context] = (count[context] || 0) + 1;
-	}
+	var c = counter.build();
 	
 	var x = {url:'/plop.html',method:'GET'};
 	var y = {};
@@ -27,7 +25,7 @@ exports['should delegate call to chain'] = function (test) {
 	}
 
 	var chain = function (a) {
-		inc('chain');
+		c.inc();
 		test.ok(true,"chain was called");
 		test.equal(a.req, x);
 		test.equal(a.res, y);
@@ -35,7 +33,7 @@ exports['should delegate call to chain'] = function (test) {
 	
 	dispatch.build(chain)(x,y);
 	
-    test.equal(count['chain'], 1);
+    test.equal(c.check(), 1);
     test.done();
 };
 

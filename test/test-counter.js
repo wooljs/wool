@@ -10,24 +10,20 @@
  */
 
 var counter = require('counter.js');
-var logger = require('cnlogger').logger(module);
 
-var http_status = function(){return function(){}}
-
-var urlparser = function(){}
-
-var rest = require('rest.js').inject(logger, http_status, urlparser);
-
-var urlparser = function (url) {
-	return {
-		href: url,
-		search: '',
-		query: '',
-		pathname: url
-	}
+exports['should count'] = function (test) {
+	
+	var c = counter.build();
+	
+	test.equal(c.check(), 0);
+	test.equal(c.check(), 0);
+	
+	c.inc();
+	test.equal(c.check(), 1);
+	
+	c.inc();
+	test.equal(c.check(), 2);
+	
+	test.done();
 }
 
-exports['should run rest_rule'] = function (test) {
-	test.ok(false,'test to be written');
-	test.done();
-};

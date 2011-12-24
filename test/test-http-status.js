@@ -10,16 +10,12 @@
  */
 
 var logger = require('cnlogger').logger(module); 
+var counter = require('counter'); 
 
 var mime = function (file) {
 	if (file.match(/\.html$/)) return 'text/html';
 }
 var http_status = require('http-status.js').inject(logger,mime);
-
-var count={};
-var inc = function(context) {
-	count[context] = (count[context] || 0) + 1;
-}
 
 var c = "code";
 var t = "text";
@@ -28,84 +24,84 @@ var data = "data";
 var url = "url";
 
 exports['should process data'] = function (test) {	
-	var data_writeHead = 'data writeHead';
-	var data_end = 'data end';
+	var c_writeHead = counter.build();
+	var c_end = counter.build();
 	
 	var res = {
 		writeHead : function (code, ct) {
-			inc(data_writeHead);
+			c_writeHead.inc();
 			test.strictEqual(code,c);
 			test.deepEqual(ct,{'Content-Type' : mime(path)});
 		},
 		end : function(d) {
-			inc(data_end);
+			c_end.inc();
 			test.strictEqual(d,data);
 		}
 	}
 	
 	http_status.data(c,t)(res, path, data);
 	
-	test.equal(1, count[data_writeHead]);
-	test.equal(1, count[data_end]);
+	test.equal(1, c_writeHead.check());
+	test.equal(1, c_end.check());
 	
 	test.done();
 }
 
 exports['should process created'] = function (test) {
-	var created_writeHead = 'created writeHead';
-	var created_end = 'created end';
+	var c_writeHead = counter.build();
+	var c_end = counter.build();
 	
 	var res = {
 		writeHead : function (code, ct) {
-			inc(created_writeHead);
+			c_writeHead.inc();
 			test.strictEqual(code,c);
 			test.deepEqual(ct,{'Content-Type' : 'text/html'});
 		},
 		end : function(d) {
-			inc(created_end);
+			c_end.inc();
 			test.strictEqual(d,url);
 		}
 	}
 	
 	http_status.created(c,t)(res, url);
 	
-	test.equal(1, count[created_writeHead]);
-	test.equal(1, count[created_end]);
+	test.equal(1, c_writeHead.check());
+	test.equal(1, c_end.check());
 	
 	test.done();
 }
 
 exports['should process no_response'] = function (test) {
-	var no_response_writeHead = 'no_response writeHead';
-	var no_response_end = 'no_response end';
+	var c_writeHead = counter.build();
+	var c_end = counter.build();
 	
 	var res = {
 		writeHead : function (code, ct) {
-			inc(no_response_writeHead);
+			c_writeHead.inc();
 			test.strictEqual(code,c);
 			test.ok(typeof ct == 'undefined');
 		},
 		end : function(d) {
-			inc(no_response_end);
+			c_end.inc();
 			test.ok(typeof d == 'undefined');
 		}
 	}
 	
 	http_status.no_response(c,t)(res);
 	
-	test.equal(1, count[no_response_writeHead]);
-	test.equal(1, count[no_response_end]);
+	test.equal(1, c_writeHead.check());
+	test.equal(1, c_end.check());
 	
 	test.done();
 }
 
 exports['should process error'] = function (test) {
-	var error_writeHead = 'error writeHead';
-	var error_end = 'error end';
-	var error_provide = 'error provide';
+	var c_writeHead = counter.build();
+	var c_end = counter.build();
+	var c_provide = counter.build();
 	
 	var provide = function (code, text) {
-		inc(error_provide);
+		c_provide.inc();
 		test.strictEqual(code,c);
 		test.strictEqual(text,t);
 		return data;
@@ -115,12 +111,12 @@ exports['should process error'] = function (test) {
 
 	var res = {
 		writeHead : function (code, ct) {
-			inc(error_writeHead);
+			c_writeHead.inc();
 			test.strictEqual(code,c);
 			test.deepEqual(ct,{'Content-Type' : 'text/html'});
 		},
 		end : function(d) {
-			inc(error_end);
+			c_end.inc();
 			test.equal(d,data);
 		}
 	}
@@ -128,9 +124,9 @@ exports['should process error'] = function (test) {
 	http_status.error(c,t)(res);
 	http_status.error(c,t)(res, provide);
 	
-	test.equal(2, count[error_writeHead]);
-	test.equal(2, count[error_end]);
-	test.equal(2, count[error_provide]);
+	test.equal(2, c_writeHead.check());
+	test.equal(2, c_end.check());
+	test.equal(2, c_provide.check());
 	
 	test.done();
 }
