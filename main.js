@@ -29,19 +29,19 @@ var PORT = 8000;
 
 // Prepare the
 logger.info("Starting Server.");
-https.createServer(
+https
+.createServer(
 	{
 		key: fs.readFileSync('server-key.pem'),
 		cert: fs.readFileSync('server-cert.pem')
 	},
 	dispatch.build(
-		Date,
 		dispatch.chain([
-			dispatch.rule(/^\/u\/.*$/g, rest.build('/u/',userdb)),
+			dispatch.rule(/^\/u\/.*$/g, rest.build('/u/',userdb={})),
 			dispatch.rule(true, static.build())
 		])
 	)
-).
-listen(PORT);
+)
+.listen(PORT);
 
 logger.info("Server is ready.");

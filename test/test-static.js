@@ -31,11 +31,13 @@ var urlparser = function (url) {
 var fs = {}
 
 var counter = require('counter.js');
-var static = require('static.js').inject(logger, http_status, urlparser, fs);
+var static = require('static.js').inject(logger, http_status, urlparser, fs, 'index.html');
 
 exports['should run_path ./static/'] = function (test) {
 
-	var c = counter.build();
+	var c_match = counter.build();
+	var c_200 = counter.build();
+	var c_unmatch = counter.build();
 
 	// GIVEN
 	var path = './static/';
@@ -44,7 +46,7 @@ exports['should run_path ./static/'] = function (test) {
 
 	status_code[200] = function(res, p, d) {
 		logger.trace("http_status(200)({}, {}, {})", res, p, d);
-		
+		c_200.inc();
 		test.equal(p,'./static/index.html');
 		test.strictEqual(d,data);
 	}
@@ -52,8 +54,13 @@ exports['should run_path ./static/'] = function (test) {
 	fs.stat = function (path, fun) {
 		fun (false , {
 			isDirectory : function () {
-				c.inc();
-				return path.match('^./static/$');
+				var matching = path.match('^./static/$');
+				if (matching) {
+					c_match.inc();
+				} else {
+					c_unmatch.inc();
+				}
+				return matching;
 			}
 		});
 	}
@@ -66,9 +73,11 @@ exports['should run_path ./static/'] = function (test) {
 
 	// THEN
 	
-	test.equal(c.check(), 1);
+	test.equal(c_match.check(), 1);
+	test.equal(c_unmatch.check(), 1);
+	test.equal(c_200.check(), 1);
 	test.done();
-};
+}
 
 /*
 
