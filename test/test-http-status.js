@@ -71,6 +71,30 @@ exports['should process created'] = function (test) {
 	test.done();
 }
 
+exports['should process moved'] = function (test) {
+	var c_writeHead = counter.build();
+	var c_end = counter.build();
+	
+	var res = {
+		writeHead : function (code, ct) {
+			c_writeHead.inc();
+			test.strictEqual(code,c);
+			test.deepEqual(ct,{'Location' : url});
+		},
+		end : function(d) {
+			c_end.inc();
+			test.ok(typeof d == 'undefined');
+		}
+	}
+	
+	http_status.moved(c,t)(res, url);
+	
+	test.equal(1, c_writeHead.check());
+	test.equal(1, c_end.check());
+	
+	test.done();
+}
+
 exports['should process no_response'] = function (test) {
 	var c_writeHead = counter.build();
 	var c_end = counter.build();

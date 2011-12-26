@@ -38,6 +38,7 @@ https
 	dispatch.build(
 		dispatch.chain([
 			dispatch.rule(/^\/u\/.*$/g, rest.build('/u/',userdb={})),
+			dispatch.rule(/^\/game.*$/g, static.build('/game'.length,'./game')),
 			dispatch.rule(true, static.build())
 		])
 	)

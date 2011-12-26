@@ -27,7 +27,7 @@ var urlparser = function (url) {
 	}
 }
 
-exports['should run rest_rule'] = function (test) {
+exports['should '] = function (test) {
 	test.ok(false,'test to be written');
 	test.done();
 };

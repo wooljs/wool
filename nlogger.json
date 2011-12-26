@@ -1,7 +1,7 @@
 {
 	"color": "true",
 	"level": {
-		"*": "trace",
+		"*": "debug",
 		"test/test-dispatch": "trace",
 		"test/test-http-status": "debug",
 		"test/test-rest": "trace",
