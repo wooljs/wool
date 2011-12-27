@@ -13,148 +13,159 @@ var counter = require('counter.js');
 var logger = require('cnlogger').logger(module); 
 var dispatch = require('dispatch.js').inject(logger);
 
-exports['should delegate call to chain'] = function (test) {
-	var c = counter.build();
-	
-	var x = {url:'/plop.html',method:'GET'};
-	var y = {};
-	var z = "XX";
-	
-	var date = function () {
-		return z;
-	}
-
-	var chain = function (a) {
-		c.inc();
-		test.ok(true,"chain was called");
-		test.equal(a.req, x);
-		test.equal(a.res, y);
-	}
-	
-	dispatch.build(chain)(x,y);
-	
-    test.equal(c.check(), 1);
-    test.done();
-};
-
 exports['should chain first only'] = function (test) {
-	var o = {};
+	var c_1st_valid = counter.build();
+	var c_1st_run = counter.build();
+
+	var req = {};
+	var res = {};
 	dispatch.chain([
 		{
-			valid : function (u) {true;},
-			run : function (u) {
+			valid : function (r) {
+				c_1st_valid.inc();
+				return true;
+			},
+			run : function (r, s) {
+				c_1st_run.inc();
 				test.ok(true,"First method is called");
-				test.strictEqual(u,o);
+				test.strictEqual(req,r);
+				test.strictEqual(res,s);
 			}
 		},
 		{
-			valid : function (u) {true;},
-			run : function (u) {
+			valid : function (r) {
+				test.ok(false,"Second method should never be called");
+				return true;
+			},
+			run : function (r,s) {
 				test.ok(false,"Second method should never be called");
 			}
 		},
 		{
-			valid : function (u) {true;},
-			run : function (u) {
+			valid : function (r) {
+				test.ok(false,"Third method should never be called");
+				true;
+			},
+			run : function (r,s) {
 				test.ok(false,"Third method should never be called");
 			}
 		}
-	])(o);
-	
+	])(req,res);
+
+	test.equal(c_1st_run.check(), 1);
+	test.equal(c_1st_valid.check(), 1);
     test.done();
 };
 
 exports['should chain second only'] = function (test) {
-	var o = {};
+	var c_1st_valid = counter.build();
+	var c_2nd_valid = counter.build();
+	var c_2nd_run = counter.build();
+	
+	var req = {};
+	var res = {};
 	dispatch.chain([
 		{
-			valid : function (u) {false;},
-			run : function (u) {
+			valid : function (r) {
+				c_1st_valid.inc();
+				return false;
+			},
+			run : function (r,s) {
 				test.ok(false,"First method should never be called");
 			}
 		},
 		{
-			valid : function (u) {true;},
-			run : function (u) {
+			valid : function (r) {
+				c_2nd_valid.inc();
+				return true;
+			},
+			run : function (r,s) {
+				c_2nd_run.inc();
 				test.ok(true,"Second method is called");
-				test.strictEqual(u,o);
+				test.strictEqual(req,r);
+				test.strictEqual(res,s);
+				return {};
 			}
 		},
 		{
-			valid : function (u) {true;},
-			run : function (u) {
+			valid : function (r) {
+				test.ok(false,"Third method should never be called");
+				return true;
+			},
+			run : function (r,s) {
 				test.ok(false,"Third method should never be called");
 			}
 		}
-	])(o);
+	])(req,res);
 		
-    test.done();
-};
-
-exports['should skip first and second change value for third'] = function (test) {
-	var o = {};
-	var x = {};
-	dispatch.chain([
-		{
-			valid : function (u) {false;},
-			run : function (u) {
-				test.ok(false,"First method should never be called");
-			}
-		},
-		{
-			valid : function (u) {true;},
-			run : function (u) {
-				test.ok(true,"Second method is called");
-				test.strictEqual(u,o);
-				return x;
-			}
-		},
-		{
-			valid : function (u) {true;},
-			run : function (u) {
-				test.ok(true,"Third method is called");
-				test.strictEqual(u,x);
-			}
-		}
-	])(o);
-	
+	test.equal(c_1st_valid.check(), 1);
+	test.equal(c_2nd_valid.check(), 1);
+	test.equal(c_2nd_run.check(), 1);
     test.done();
 };
 
 var action = function() {}
 
 exports['should always accept filter true'] = function (test) {
-	var r = dispatch.rule(true,action);
-	test.ok(r.valid());
-	test.ok(r.valid('/'));
-	test.ok(r.valid('plop'));
+	var f = dispatch.filter(true);
+	test.ok(f());
+	test.ok(f('/'));
+	test.ok(f('plop'));
 	test.done();
 }
 
-exports['should use function filter as valid method'] = function (test) {
+exports['should use function to filter'] = function (test) {
 	var fun = function() {}
-	var r = dispatch.rule(fun,action);
-	test.equals(r.valid,fun);
+	var f = dispatch.filter(fun);
+	test.equals(f,fun);
 	test.done();
 }
 
 var test_rx = function (regex) {
 	return function (test) {
-		var r = dispatch.rule(regex,action);
-		test.throws(function () {r.valid()});
-		test.throws(function () {r.valid('plop')});
-		test.ok(! r.valid({req:{url:'/'}}));
-		test.ok(! r.valid({req:{url:'plop'}}));
-		test.ok(! r.valid({req:{url:'/plop'}}));
-		test.ok(r.valid({req:{url:'/a'}}));
-		test.ok(r.valid({req:{url:'/abba'}}));
+		var f = dispatch.filter(regex);
+		test.throws(function () {f.valid()});
+		test.throws(function () {f.valid('plop')});
+		test.ok(! f({url:'/'}));
+		test.ok(! f({url:'plop'}));
+		test.ok(! f({url:'/plop'}));
+		test.ok(f({url:'/a'}));
+		test.ok(f({url:'/abba'}));
 		test.done();
 	}
 }
-exports['should use regex filter to match u.req.url'] = test_rx(/^\/a/);
-exports['should use string filter as regex to match u.req.url'] = test_rx('^\/a');
-
-exports['should fail to match u.req.url if filter object is no regex'] = function (test) {
-	test.throws(function () {dispatch.rule({},action)});
+exports['should use regex filter to match req.url'] = test_rx(/^\/a/);
+exports['should use string filter as regex to match req.url'] = test_rx('^\/a');
+exports['should fail to match req.url if filter object is no regex'] = function (test) {
+	test.throws(function () {dispatch.filter({})});
 	test.done();
 }
+
+exports['should pipe array definition to filter'] = function (test) {
+	var c_call = counter.build();
+
+	dispatch.filter([
+		function() {c_call.inc();return true;},
+		function() {c_call.inc();return true;},
+		function() {c_call.inc();return true;},
+		function() {c_call.inc();return false;},
+		function() {c_call.inc();return false;}
+	])();
+	
+	test.equals(c_call.check(),4);
+	
+	test.ok(dispatch.filter([
+		function() {return true;},
+		'^pl',
+		true,
+		/op$/
+	])({url:'plop'}));	
+
+	test.throws(function () {dispatch.filter([
+		true,
+		{}
+	])});
+	
+	test.done();
+}
+

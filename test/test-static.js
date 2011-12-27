@@ -71,7 +71,7 @@ exports['should manage root path /'] = function (test) {
 	}
 	
 	// WHEN
-	static.build()({req:{'url':url},res:{}});
+	static.build()({'url':url},{});
 
 	// THEN
 	
@@ -124,7 +124,7 @@ exports['should manage redirect url http://.../foo to http://.../foo/'] = functi
 	}
 	
 	// WHEN
-	static.build()({req:{'url':url},res:{}});
+	static.build()({'url':url},{});
 
 	// THEN
 	
@@ -172,7 +172,7 @@ exports['should manage path to file /test.html '] = function (test) {
 	}
 	
 	// WHEN
-	static.build()({req:{'url':url},res:{}});
+	static.build()({'url':url},{});
 
 	// THEN
 	
@@ -228,7 +228,7 @@ exports['should manage secondary root path /plop'] = function (test) {
 	}
 	
 	// WHEN
-	static.build(new_root.length,"./x")({req:{'url':url},res:{}});
+	static.build(new_root.length,"./x")({'url':url},{});
 
 	// THEN
 	

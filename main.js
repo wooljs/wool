@@ -35,13 +35,11 @@ https
 		key: fs.readFileSync('server-key.pem'),
 		cert: fs.readFileSync('server-cert.pem')
 	},
-	dispatch.build(
-		dispatch.chain([
-			dispatch.rule(/^\/u\/.*$/g, rest.build('/u/',userdb={})),
-			dispatch.rule(/^\/game.*$/g, static.build('/game'.length,'./game')),
-			dispatch.rule(true, static.build())
-		])
-	)
+	dispatch.chain([
+		dispatch.rule(/^\/u\/.*$/g, rest.build('/u/',userdb={})),
+		dispatch.rule(/^\/game.*$/g, static.build('/game'.length,'./game')),
+		dispatch.rule(true, static.build())
+	])
 )
 .listen(PORT);
 
