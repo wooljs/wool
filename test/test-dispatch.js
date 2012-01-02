@@ -11,7 +11,13 @@
 
 var counter = require('counter.js');
 var logger = require('cnlogger').logger(module); 
-var dispatch = require('dispatch.js').inject(logger);
+
+var _filter;
+var filter = function (x) {
+	return _filter(x);
+}
+
+var dispatch = require('dispatch.js').inject(logger, filter);
 
 exports['should chain first only'] = function (test) {
 	var c_1st_valid = counter.build();
@@ -27,27 +33,27 @@ exports['should chain first only'] = function (test) {
 			},
 			run : function (r, s) {
 				c_1st_run.inc();
-				test.ok(true,"First method is called");
+				test.ok(true,"First function is called");
 				test.strictEqual(req,r);
 				test.strictEqual(res,s);
 			}
 		},
 		{
 			valid : function (r) {
-				test.ok(false,"Second method should never be called");
+				test.ok(false,"Second function should never be called");
 				return true;
 			},
 			run : function (r,s) {
-				test.ok(false,"Second method should never be called");
+				test.ok(false,"Second function should never be called");
 			}
 		},
 		{
 			valid : function (r) {
-				test.ok(false,"Third method should never be called");
+				test.ok(false,"Third function should never be called");
 				true;
 			},
 			run : function (r,s) {
-				test.ok(false,"Third method should never be called");
+				test.ok(false,"Third function should never be called");
 			}
 		}
 	])(req,res);
@@ -71,7 +77,7 @@ exports['should chain second only'] = function (test) {
 				return false;
 			},
 			run : function (r,s) {
-				test.ok(false,"First method should never be called");
+				test.ok(false,"First function should never be called");
 			}
 		},
 		{
@@ -81,7 +87,7 @@ exports['should chain second only'] = function (test) {
 			},
 			run : function (r,s) {
 				c_2nd_run.inc();
-				test.ok(true,"Second method is called");
+				test.ok(true,"Second function is called");
 				test.strictEqual(req,r);
 				test.strictEqual(res,s);
 				return {};
@@ -89,11 +95,11 @@ exports['should chain second only'] = function (test) {
 		},
 		{
 			valid : function (r) {
-				test.ok(false,"Third method should never be called");
+				test.ok(false,"Third function should never be called");
 				return true;
 			},
 			run : function (r,s) {
-				test.ok(false,"Third method should never be called");
+				test.ok(false,"Third function should never be called");
 			}
 		}
 	])(req,res);
@@ -106,66 +112,25 @@ exports['should chain second only'] = function (test) {
 
 var action = function() {}
 
-exports['should always accept filter true'] = function (test) {
-	var f = dispatch.filter(true);
-	test.ok(f());
-	test.ok(f('/'));
-	test.ok(f('plop'));
-	test.done();
-}
-
-exports['should use function to filter'] = function (test) {
-	var fun = function() {}
-	var f = dispatch.filter(fun);
-	test.equals(f,fun);
-	test.done();
-}
-
-var test_rx = function (regex) {
-	return function (test) {
-		var f = dispatch.filter(regex);
-		test.throws(function () {f.valid()});
-		test.throws(function () {f.valid('plop')});
-		test.ok(! f({url:'/'}));
-		test.ok(! f({url:'plop'}));
-		test.ok(! f({url:'/plop'}));
-		test.ok(f({url:'/a'}));
-		test.ok(f({url:'/abba'}));
-		test.done();
+exports['should build rule'] = function (test) {
+	var f = function() {}
+	var rule1 = dispatch.rule(f, action);
+	test.strictEqual(rule1.valid, f);
+	test.strictEqual(rule1.run, action);
+	
+	
+	var c_filter = counter.build();
+	var def = "xx";
+	var res = function() {}
+	_filter = function (x) {
+		c_filter.inc();
+		test.equal(def, x);
+		return res;
 	}
-}
-exports['should use regex filter to match req.url'] = test_rx(/^\/a/);
-exports['should use string filter as regex to match req.url'] = test_rx('^\/a');
-exports['should fail to match req.url if filter object is no regex'] = function (test) {
-	test.throws(function () {dispatch.filter({})});
+
+	var rule2 = dispatch.rule(def, action);
+	test.strictEqual(rule2.valid, res);
+	test.strictEqual(rule2.run, action);
+	test.equal(c_filter.check(), 1);
 	test.done();
 }
-
-exports['should pipe array definition to filter'] = function (test) {
-	var c_call = counter.build();
-
-	dispatch.filter([
-		function() {c_call.inc();return true;},
-		function() {c_call.inc();return true;},
-		function() {c_call.inc();return true;},
-		function() {c_call.inc();return false;},
-		function() {c_call.inc();return false;}
-	])();
-	
-	test.equals(c_call.check(),4);
-	
-	test.ok(dispatch.filter([
-		function() {return true;},
-		'^pl',
-		true,
-		/op$/
-	])({url:'plop'}));	
-
-	test.throws(function () {dispatch.filter([
-		true,
-		{}
-	])});
-	
-	test.done();
-}
-

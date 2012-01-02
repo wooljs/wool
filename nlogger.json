@@ -5,6 +5,7 @@
 		"test/test-dispatch": "trace",
 		"test/test-http-status": "debug",
 		"test/test-rest": "trace",
-		"test/test-static": "info"
+		"test/test-static": "info",
+		"test/test-filter": "info"
 	}
 }
