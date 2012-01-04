@@ -42,10 +42,10 @@ https
 		cert: fs.readFileSync('server-cert.pem')
 	},
 	dispatch.chain([
-		dispatch.rule({ method: rest_methods, url: rest_url_filter }, rest.build('/u/',userdb={})),
-		dispatch.rule({ method: static_methods, url : /^\/game.*$/g }, static.build('/game'.length,'./game')),
-		dispatch.rule({ method: static_methods}, static.build()),
-		dispatch.rule([{ method: filter.not(rest_methods), url: rest_url_filter}, { method: not(static_methods)}], function(req,res) { http_status(500)(res); })
+		dispatch.rule({method: rest_methods, url: rest_url_filter }, rest.build('/u/',userdb={})),
+		dispatch.rule({method: static_methods, url : /^\/game.*$/g }, static.build('/game'.length,'./game')),
+		dispatch.rule({method: static_methods}, static.build()),
+		dispatch.rule([{method: filter.not(rest_methods), url: rest_url_filter}, {method: filter.not(static_methods)}], function(req,res) { http_status(405)(res); }),
 		dispatch.rule(true, function(req,res) { http_status(500)(res); })
 	])
 )
