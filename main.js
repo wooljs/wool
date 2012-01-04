@@ -19,13 +19,19 @@ var mime = require('mime');
 var logger = require('cnlogger').logger(module); 
 
 // Home made modules
-var dispatch = require('dispatch.js').inject(logger);
+var filter = require('filter.js').inject(logger,'url');
+var dispatch = require('dispatch.js').inject(logger, filter.root_filter);
 var http_status = require('http-status.js').inject(logger, mime.lookup).status;
 var rest = require('rest.js').inject(logger, http_status);
 var static = require('static.js').inject(logger, http_status, urlparser, fs);
 
 // initialize a few constant
 var PORT = 8000;
+
+var rest_methods = ['HEAD', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'];
+var rest_url_filter = /^\/u\/.*$/g;
+
+var static_methods = ['HEAD', 'GET']
 
 // Prepare the
 logger.info("Starting Server.");
@@ -36,9 +42,11 @@ https
 		cert: fs.readFileSync('server-cert.pem')
 	},
 	dispatch.chain([
-		dispatch.rule(/^\/u\/.*$/g, rest.build('/u/',userdb={})),
-		dispatch.rule(/^\/game.*$/g, static.build('/game'.length,'./game')),
-		dispatch.rule(true, static.build())
+		dispatch.rule({ method: rest_methods, url: rest_url_filter }, rest.build('/u/',userdb={})),
+		dispatch.rule({ method: static_methods, url : /^\/game.*$/g }, static.build('/game'.length,'./game')),
+		dispatch.rule({ method: static_methods}, static.build()),
+		dispatch.rule([{ method: filter.not(rest_methods), url: rest_url_filter}, { method: not(static_methods)}], function(req,res) { http_status(500)(res); })
+		dispatch.rule(true, function(req,res) { http_status(500)(res); })
 	])
 )
 .listen(PORT);

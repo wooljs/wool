@@ -11,11 +11,13 @@
 
 var counter = require('counter.js');
 var logger = require('cnlogger').logger(module); 
-var filter = require('filter.js').inject(logger).build('url');
+var filter_module = require('filter.js').inject(logger,'url');
+var filter = filter_module.root_filter;
+var not = filter_module.not;
 
 exports['should always accept filter true'] = function (test) {
 	var f = filter(true);
-	test.ok(f(), 'could not filter nothing');
+	test.ok(f(), 'could filter nothing');
 	test.ok(f('/'), 'could not filter /');
 	test.ok(f('plop'), 'could not filter plop');
 	test.ok(f('+qf%??df'), 'could not filter +qf%??df');
@@ -46,7 +48,7 @@ exports['should use string filter as equal req.url'] = function (test) {
 exports['should use regex filter to match req.url'] = function (test) {
 	var f = filter(/^\/a/);
 	test.throws(function () {f()});
-	test.throws(function () {f('plop')});
+	test.ok(! f('plop'));
 	test.ok(! f({url:'/'}));
 	test.ok(! f({url:'plop'}));
 	test.ok(! f({url:'/plop'}));
@@ -80,12 +82,17 @@ exports['should accept if any filter is ok on req.url'] = function (test) {
 		/op$/
 	])({url:'plop'}));	
 
+	test.ok(filter([
+		{b:'yy'},
+		{a:'x'},
+		{b:'y'}
+	])({a:'xx', b:'yy'}));
+
 	test.ok(!filter([
 		false,
 		function() {return false;},
 		/u/
 	])({url:'xx'}));
-
 
 	test.throws(function () {filter([true, 42])});
 	
@@ -103,11 +110,41 @@ exports['should tempt to match req if filter object is {x: <regex> }'] = functio
 	test.done();
 }
 
-/*
-exports['should '] = function (test) {
-	var treat_object = _build_treat_object();
+exports['should tempt complex stuff'] = function (test) {
+	var f = filter([
+		{'x': /\.html$/, 'h': {'a' : function(x){ return x.indexOf('x')!=-1 },'b': ['o','u','e']}},
+		{'u':'plop'}
+	]);
+
+	test.ok(! f({x:'/'}));
+	test.ok(! f({y:'plop'}));
+	test.ok(! f({x: 'xxx', y:'PLOP'}));
+	test.ok(! f({x: 'test/plip.html', y:'xxx'}));
+	test.ok(! f({x:'plop.html',h:{a:'ooooxooo',b:'i'}}));
+	test.ok(f({u:'plop'}));
+	test.ok(f({x:'plop.html',h:{a:'ooooxooo',b:'u'}}));
 	
-	treat_object();
-	
+	test.done();
 }
- */
+
+exports['should negate filter'] = function (test) {
+	
+	test.ok(not(false)(undefined));
+
+	test.ok(not(/x/)('j'));
+	test.ok(! not(/x/)({url:'x'}));
+
+	test.ok(not('u')('j'));
+	test.ok(! not('u')({url:'u'}));
+
+	test.ok(not(function(a) {return a=='g'})('j'));
+	test.ok(! not(function(a) {return a=='g'})({url:'g'}));
+
+	test.ok(not(['g','v'])('j'));
+	test.ok(! not(['g','v'])({url:'g'}));
+
+	test.ok(not({a:'u'})('j'));
+	test.ok(! not({a:'u'})({a:'u'}));
+	
+	test.done();
+}
