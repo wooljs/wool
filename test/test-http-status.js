@@ -51,11 +51,13 @@ exports['should process created'] = function (test) {
 	var c_writeHead = counter.build();
 	var c_end = counter.build();
 	
+	var type = 'text/plain';
+	
 	var res = {
 		writeHead : function (code, ct) {
 			c_writeHead.inc();
 			test.strictEqual(code,c);
-			test.deepEqual(ct,{'Content-Type' : 'text/html'});
+			test.deepEqual(ct,{'Content-Type' : type});
 		},
 		end : function(d) {
 			c_end.inc();
@@ -63,7 +65,7 @@ exports['should process created'] = function (test) {
 		}
 	}
 	
-	http_status.created(c,t)(res, url);
+	http_status.created(c,t)(res, type, url);
 	
 	test.equal(1, c_writeHead.check());
 	test.equal(1, c_end.check());

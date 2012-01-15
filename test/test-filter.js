@@ -10,8 +10,7 @@
  */
 
 var counter = require('counter.js');
-var logger = require('cnlogger').logger(module); 
-var filter_module = require('filter.js').inject(logger,'url');
+var filter_module = require('filter.js').inject('url');
 var filter = filter_module.root_filter;
 var not = filter_module.not;
 
