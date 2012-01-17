@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Winds Of Legends - 传说之风</title>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	
+	<link rel="stylesheet" href="./js/ui/css/ui-lightness/jquery-ui-1.8.16.custom.css" type="text/css" />
+	<link rel="stylesheet" href="./css/screen.css" type="text/css" />
+	
+	<script type="text/javascript">/** Avoid bug when console unavailable in the browser */ if (typeof console == 'undefined'){console={log:function(){},error:function(x){alert(x)}}}</script>
+	
+	<script src="./js/jquery-1.7.1.min.js"></script>
+	<script src="./js/ui/js/jquery-ui-1.8.16.custom.min.js"></script>
+	
+	<script src="./js/main.js"></script>
+	<script type="text/javascript">
+	
+	var wol = inject($);
+	var l10n = wol.i18n_full({});
+	
+	$(function () {
+		wol.init(function(loader, content, complete) {
+			var welcomeView = wol.view(
+				'welcome', './include/welcome.html', l10n, 
+				function () {bar("Welcome loaded.");}
+			);
+			var subView = wol.view(
+				'subscribe', './include/subscribe_form.html', l10n,
+				function () {bar("Subscribe loaded.");},
+				function (container) {
+					console.log('subscribe loaded');
+					$('input[type="text"]',container).each(function(i, elt) {
+						
+					});
+					$('input[type="submit"]',container).submit(function(evt) {
+						
+					});
+				}
+			);
+			var views_mapping = [
+				{valid:function(h){return h.match('^#?$')},run: welcomeView},
+				{valid:function(h){return h.match('^#sub$')},run: subView}
+			];
+			var view_from_hash = wol.history_mapper(window, content, views_mapping);
+
+			var bar = wol.progress(loader, views_mapping.length+1, function () { complete();view_from_hash(); } );
+			bar('launch ready');
+		});			
+	});
+	
+	</script>
+</head>
+<body>
+	<noscript>If you see this, sorry but this website do not work without javascript.</noscript>
+</body>
+</html>

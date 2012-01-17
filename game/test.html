@@ -1,0 +1,56 @@
+<style>
+.post-it.float {
+    -moz-box-shadow: 1px 1px 10px #CFCFCF;
+}
+
+.post-it .wrapper {
+    -moz-border-radius: 6px 6px 6px 6px;
+    border: 1px solid #FFFFFF;
+    padding: 0 !important;
+}
+
+.curl, .curl .wrapper {
+    -moz-border-radius-bottomright: 150px 25px;
+}
+
+.post-it {
+    -moz-border-radius: 6px 6px 6px 6px;
+    -moz-border-radius-bottomright: 150px 25px;
+    background: -moz-linear-gradient(113deg, #E5D387, #FFFCD8 28%) repeat scroll 0 0 transparent;
+    border: 1px solid #E5D387;
+
+    position: absolute;
+    left: 150px;
+    top: -20px;
+    width: 232px;
+}
+.post-it.point-left .pointer {
+    background-position: 3px -6px;
+    left: -18px;
+}
+.post-it .dismiss {
+    background: url("http://static01.linkedin.com/scds/common/u/img/sprite/sprite_global_v6.png") no-repeat scroll 100% -1300px transparent;
+    cursor: pointer;
+    height: 14px;
+    position: absolute;
+    right: 8px;
+    text-indent: -12345px;
+    top: 8px;
+    width: 14px;
+}
+.attn {
+    font-family: 'LazyDogRegular',Arial,sans-serif;
+    padding: 10px;
+}
+
+</style>
+<div style="position: absolute; top: 50px;">
+	<div id="yui-gen3" class="post-it curl float point-left">
+		<p id="post_it_dismiss" class="dismiss">Close</p>
+		<div class="wrapper">
+			<div class="content">
+				<p class="attn">PLOP !</p>
+			</div>
+		</div>
+	</div>
+</div>

@@ -43,7 +43,7 @@ https
 	},
 	dispatch.chain([
 		dispatch.rule({method: rest_methods, url: rest_url_filter }, rest.build('/r/',userdb={})),
-		dispatch.rule({method: static_methods, url : /^\/g\/.*$/g }, static.build('/g'.length,'./game')),
+		dispatch.rule({method: static_methods, url : /^\/g.*$/g }, static.build('/g'.length,'./game')),
 		dispatch.rule({method: static_methods}, static.build()),
 		dispatch.rule([{method: filter.not(rest_methods), url: rest_url_filter}, {method: filter.not(static_methods)}], function(req,res) { http_status(405)(res); }),
 		dispatch.rule(true, function(req,res) { http_status(500)(res); })

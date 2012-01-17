@@ -1,0 +1,64 @@
+body {margin:0}
+
+#progressbar {position:fixed; top: 30%; width: 200px; height: 10px; margin-left: 45%; margin-right: 50%;}
+
+.userbar {position:fixed; top: 0px; left:0px; height: 20px; width: 100%; border-bottom:1px solid black;text-align:right;}
+.userstatus {}
+
+#content {position:fixed; top: 0px; left:0px; width: 100%; height: 100%;}
+#mainView {position:fixed; top: 30%; margin-top: 20px; margin-left: 45%; margin-right: 50%;}
+
+#welcome {
+	width: 350px; margin-left: auto; margin-top: 10%; margin-right: auto; text-align:center;
+}
+
+fieldset {
+	width: 230px; margin-left: auto; margin-top: 10%; margin-right: auto; text-align:center;
+
+	background: linear-gradient(bottom, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
+	background: -o-linear-gradient(bottom, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
+	background: -moz-linear-gradient(bottom, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
+	background: -webkit-linear-gradient(bottom, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
+	background: -ms-linear-gradient(bottom, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
+
+    border: 1px solid rgb(229, 229, 229);
+	border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px;
+	box-shadow: 0 8px 6px -6px black; -moz-box-shadow: 0 8px 6px -6px black; -webkit-box-shadow: 0 8px 6px -6px black;
+}
+legend {
+    padding: 2px;
+	
+	background: linear-gradient(top, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
+	background: -o-linear-gradient(top, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
+	background: -moz-linear-gradient(top, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
+	background: -webkit-linear-gradient(top, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
+	background: -ms-linear-gradient(top, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
+	
+    border: 1px solid #E5E5E5;
+	border-radius: 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px;
+	box-shadow: 0 8px 6px -6px black; -moz-box-shadow: 0 8px 6px -6px black; -webkit-box-shadow: 0 8px 6px -6px black;
+}
+input {
+	width: 200px; margin: 2px;
+	border-radius: 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px;
+	
+	/* Fallback for web browsers that doesn't support RGBa */
+	background: rgb(0, 0, 0) transparent;
+	/* RGBa with 0.6 opacity */
+	background: rgba(0, 0, 0, 0.05);
+	/* For IE 5.5 - 7*/
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+	/* For IE 8*/
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
+}
+input:focus {
+	/* Fallback for web browsers that doesn't support RGBa */
+	background: rgb(255, 255, 255);
+	/* RGBa with 0.6 opacity */
+	background: rgba(255, 255, 255, 0.5);
+	/* For IE 5.5 - 7*/
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+	/* For IE 8*/
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
+}
+

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test history</title>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	
+	<script type="text/javascript">/** Avoid bug when console unavailable in the browser */ if (typeof console == 'undefined'){console={log:function(){}}}</script>
+	
+	<script src="./js/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript">
+	
+	$(function () {
+		$(window).bind('hashchange', function(){
+			alert(location.hash);
+		});
+	});
+	
+	</script>
+</head>
+<body>
+	<a href="#plip">plip</a>
+	<a href="#plap">plap</a>
+	<a href="#plop">plop</a>
+	<a href="#plup">plup</a>
+	<a href="#plep">plep</a>
+</body>
+</html>
