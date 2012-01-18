@@ -1,4 +1,4 @@
-body {margin:0}
+body {margin:0; font-family:Book Antiqua;}
 
 #progressbar {position:fixed; top: 30%; width: 200px; height: 10px; margin-left: 45%; margin-right: 50%;}
 
@@ -7,12 +7,10 @@ body {margin:0}
 
 #content {position:fixed; top: 0px; left:0px; width: 100%; height: 100%;}
 #mainView {position:fixed; top: 30%; margin-top: 20px; margin-left: 45%; margin-right: 50%;}
-
-#welcome {
-	width: 350px; margin-left: auto; margin-top: 10%; margin-right: auto; text-align:center;
-}
+#welcome { width: 350px; margin-left: auto; margin-top: 10%; margin-right: auto; text-align:center; }
 
 fieldset {
+	z-index: 0;
 	width: 230px; margin-left: auto; margin-top: 10%; margin-right: auto; text-align:center;
 
 	background: linear-gradient(bottom, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
@@ -38,8 +36,11 @@ legend {
 	border-radius: 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px;
 	box-shadow: 0 8px 6px -6px black; -moz-box-shadow: 0 8px 6px -6px black; -webkit-box-shadow: 0 8px 6px -6px black;
 }
-input {
-	width: 200px; margin: 2px;
+fieldset div { margin: 1px 15px 1px 15px; padding: 2px; height: 20px; width: 200px; }
+fieldset div span {	font-size: small; font-family:Arial; color: rgb(242, 242, 242);text-align:left; position:relative; top: -21px; left: 10px; width: auto; height: 15px; z-index: 1; display:block; }
+fieldset div input  {
+	position:relative; top: 0px;left: 0px; z-index: 2;display:block; 
+	width: 200px;
 	border-radius: 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px;
 	
 	/* Fallback for web browsers that doesn't support RGBa */
@@ -51,7 +52,10 @@ input {
 	/* For IE 8*/
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
 }
-input:focus {
+fieldset div input[type="submit"] {
+	margin: 1px 2px 1px 2px;
+}
+fieldset p input:focus {
 	/* Fallback for web browsers that doesn't support RGBa */
 	background: rgb(255, 255, 255);
 	/* RGBa with 0.6 opacity */
@@ -61,4 +65,3 @@ input:focus {
 	/* For IE 8*/
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
 }
-
