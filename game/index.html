@@ -29,8 +29,10 @@
 				function () {bar("Subscribe loaded.");},
 				function (container) {
 					console.log('subscribe loaded');
-					$('input[type="text"]',container).each(function(i, elt) {
-						
+					$('input[type="text"],input[type="password"]',container).each(function(i, elt) {
+						var span = $('<span/>').text(elt.alt).appendTo($(elt).parent());
+						$(elt).focusin(function () { $(span).fadeOut('fast'); });
+						$(elt).focusout(function () { $(span).fadeIn('fast'); }).focusout();
 					});
 					$('input[type="submit"]',container).submit(function(evt) {
 						
@@ -40,7 +42,7 @@
 			var views_mapping = [
 				{valid:function(h){return h.match('^#?$')},run: welcomeView},
 				{valid:function(h){return h.match('^#sub$')},run: subView}
-			];
+			]
 			var view_from_hash = wol.history_mapper(window, content, views_mapping);
 
 			var bar = wol.progress(loader, views_mapping.length+1, function () { complete();view_from_hash(); } );
