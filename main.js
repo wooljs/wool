@@ -16,14 +16,14 @@ var urlparser = require('url').parse;
 
 // Npm imported modules
 var mime = require('mime');
-var logger = require('cnlogger').logger(module); 
 
 // Home made modules
 var filter = require('filter.js').inject('url');
-var dispatch = require('dispatch.js').inject(logger, filter.root_filter);
-var http_status = require('http-status.js').inject(logger, mime.lookup).status;
-var rest = require('rest.js').inject(http_status, urlparser, logger);
-var static = require('static.js').inject(logger, http_status, urlparser, fs);
+var dispatch = require('dispatch.js').inject(filter.root_filter);
+var http_status = require('http-status.js').inject().status;
+var rest = require('rest.js').inject(http_status, urlparser);
+var auth = require('auth.js').inject(http_status, urlparser);
+var static = require('static.js').inject(http_status, mime.lookup, urlparser, fs);
 
 // initialize a few constant
 var PORT = 8000;
@@ -31,10 +31,13 @@ var PORT = 8000;
 var rest_methods = ['HEAD', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'];
 var rest_url_filter = /^\/r\/.*$/g;
 
-var static_methods = ['HEAD', 'GET']
+var static_methods = ['HEAD', 'GET'];
+var biz = {};
+var rest_handler = rest.build('/r/', biz);
+var auth_handler = auth.build(biz, '/r/', filter.root_filter({method: 'POST', url: '/r/u/'}), rest_handler);
 
 // Prepare the
-logger.info("Starting Server.");
+console.log("Starting Server.");
 https
 .createServer(
 	{
@@ -42,7 +45,7 @@ https
 		cert: fs.readFileSync('server-cert.pem')
 	},
 	dispatch.chain([
-		dispatch.rule({method: rest_methods, url: rest_url_filter }, rest.build('/r/',userdb={})),
+		dispatch.rule({method: rest_methods, url: rest_url_filter }, auth_handler),
 		dispatch.rule({method: static_methods, url : /^\/g.*$/g }, static.build('/g'.length,'./game')),
 		dispatch.rule({method: static_methods}, static.build()),
 		dispatch.rule([{method: filter.not(rest_methods), url: rest_url_filter}, {method: filter.not(static_methods)}], function(req,res) { http_status(405)(res); }),
@@ -51,4 +54,4 @@ https
 )
 .listen(PORT);
 
-logger.info("Server is ready.");
+console.log("Server is ready.");

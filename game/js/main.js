@@ -15,11 +15,11 @@ function inject($) {
 		 *  ( (<loader tag>, (mainView) -> .) ) -> .
 		 */
 		init: function (onLoad) {
-			var body = $('body');
+			var container = $('#container');
 			var loader = $('<div id="loader"/>');
-			body.append(loader);
+			container.append(loader);
 			var content = $('<div id="content"/>');
-			body.append(content);
+			container.append(content);
 			content.hide();
 			
 			onLoad(loader, content, function () {

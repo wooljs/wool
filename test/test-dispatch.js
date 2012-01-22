@@ -10,14 +10,13 @@
  */
 
 var counter = require('counter.js');
-var logger = require('cnlogger').logger(module); 
 
 var _filter;
 var filter = function (x) {
 	return _filter(x);
 }
 
-var dispatch = require('dispatch.js').inject(logger, filter);
+var dispatch = require('dispatch.js').inject(filter);
 
 exports['should chain first only'] = function (test) {
 	var c_1st_valid = counter.build();

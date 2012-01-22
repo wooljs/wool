@@ -1,17 +1,20 @@
-body {margin:0; font-family:Book Antiqua;}
+body { margin:0; font-family:Book Antiqua; }
 
-#progressbar {position:fixed; top: 30%; width: 200px; height: 10px; margin-left: 45%; margin-right: 50%;}
+#progressbar { position:fixed; top: 30%; width: 200px; height: 10px; margin-left: 45%; margin-right: 50%; }
 
-.userbar {position:fixed; top: 0px; left:0px; height: 20px; width: 100%; border-bottom:1px solid black;text-align:right;}
+.userbar { position:fixed; top: 0px; left:0px; height: 20px; width: 100%; border-bottom:1px solid black;text-align:right; }
 .userstatus {}
 
-#content {position:fixed; top: 0px; left:0px; width: 100%; height: 100%;}
-#mainView {position:fixed; top: 30%; margin-top: 20px; margin-left: 45%; margin-right: 50%;}
-#welcome { width: 350px; margin-left: auto; margin-top: 10%; margin-right: auto; text-align:center; }
+#content { position:fixed; top: 0px; left:0px; width: 100%; height: 100%; }
+#welcome { width: 650px; margin-left: auto; margin-top: 20%; margin-right: auto; text-align:center; }
+#confirm { width: 350px; margin-left: auto; margin-top: 20%; margin-right: auto; text-align:center; }
 
+#welcome h1 {font-size: 3em;}
+
+fieldset#login { padding-top: 10px;  }
 fieldset {
 	z-index: 0;
-	width: 230px; margin-left: auto; margin-top: 10%; margin-right: auto; text-align:center;
+	width: 230px; margin-left: auto; margin-top: 20%; margin-right: auto; text-align:center;
 
 	background: linear-gradient(bottom, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
 	background: -o-linear-gradient(bottom, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
@@ -65,3 +68,9 @@ fieldset p input:focus {
 	/* For IE 8*/
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
 }
+
+#back {z-index: -2; position: absolute; top: 0px; left:0px; width: 100%; height: 100%; }
+#logo {z-index: -3; position: absolute; top: 0px; left:10px; width: 101px; height: 308px; background-image:url('../images/logo.png');background-repeat:no-repeat; }
+/*/#sword {z-index: -4; position: absolute; top: -300px; left:200px; width: 134px; height: 1015px; background-image:url('../images/sword.png');background-repeat:no-repeat; }/**/
+#dandelion {z-index: -3; position: absolute; top: 50px; left:50px; width: 602px; height: 630px;  background-image:url('../images/dandelion.png');background-repeat:no-repeat; }
+#cross {z-index: -3; position: absolute; top: 10px; left:90%; width: 91px; height: 90px; background-image:url('../images/cross.png');background-repeat:no-repeat; }

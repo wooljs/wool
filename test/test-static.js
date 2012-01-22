@@ -10,12 +10,10 @@
  */
 
 var counter = require('counter.js');
-var logger = require('cnlogger').logger(module);
 
 var status_code = {}
 
 var http_status = function(code){
-	logger.trace("http_status({})",code);
 	return status_code[code];
 }
 
@@ -30,7 +28,9 @@ var counter = require('counter.js');
 var default_path = './static';
 var default_location = 'index.html';
 
-var static = require('static.js').inject(logger, http_status, urlparser, fs, default_path, default_location);
+var mime = function() { return 'text/html'; }
+
+var static = require('static.js').inject(http_status, mime, urlparser, fs, default_path, default_location);
 
 exports['should manage root path /'] = function (test) {
 
@@ -40,26 +40,21 @@ exports['should manage root path /'] = function (test) {
 
 	// GIVEN
 	var url = 'http://localhost:8000';
-	urlparser_real = function () {
-		return {pathname:"/"};
-	}
+	urlparser_real = function () { return {pathname:"/"}; }
 	
 	var data = "plop";
 
-	status_code[200] = function(res, p, d) {
-		logger.trace("http_status(200)({}, {}, {})", res, p, d);
-		c_200.inc();
-		test.equal(p,'./static/index.html');
-		test.strictEqual(d,data);
-	}
+	status_code[200] = function(res, t, d) { c_200.inc(); test.equal(t,'text/html'); test.strictEqual(d,data); }
 
 	fs.stat = function (path, fun) {
 		fun (false , {
 			isDirectory : function () {
 				var matching = path.match('^./static/$');
 				if (matching) {
+					test.equal(path,'./static/');
 					c_match.inc();
 				} else {
+					test.equal(path,'./static/index.html');
 					c_unmatch.inc();
 				}
 				return matching;
@@ -101,7 +96,6 @@ exports['should manage redirect url http://.../foo to http://.../foo/'] = functi
 	var data = "plop";
 
 	status_code[302] = function(res, u) {
-		logger.trace("http_status(302)({}, {})", res, u);
 		c_302.inc();
 		test.equal(u,'http://localhost:8000/foo/');
 	}
@@ -136,7 +130,7 @@ exports['should manage redirect url http://.../foo to http://.../foo/'] = functi
 	delete urlparser_real;
 	delete fs.stat;
 	delete fs.readFile;
-	delete status_code[200];
+	delete status_code[302];
 }
 
 exports['should manage path to file /test.html '] = function (test) {
@@ -153,13 +147,13 @@ exports['should manage path to file /test.html '] = function (test) {
 	var data = "plop";
 
 	status_code[200] = function(res, p, d) {
-		logger.trace("http_status(200)({}, {}, {})", res, p, d);
 		c_200.inc();
-		test.equal(p,'./static/test.html');
+		test.equal(p,'text/html');
 		test.strictEqual(d,data);
 	}
 
 	fs.stat = function (path, fun) {
+		test.equal(path,'./static/test.html');
 		fun (false , {
 			isDirectory : function () {
 				c_match.inc();
@@ -203,10 +197,9 @@ exports['should manage secondary root path /plop'] = function (test) {
 	
 	var data = "plop";
 
-	status_code[200] = function(res, p, d) {
-		logger.trace("http_status(200)({}, {}, {})", res, p, d);
+	status_code[200] = function(res, t, d) {
 		c_200.inc();
-		test.equal(p,'./x/index.html');
+		test.equal(t,'text/html');
 		test.strictEqual(d,data);
 	}
 
@@ -215,8 +208,10 @@ exports['should manage secondary root path /plop'] = function (test) {
 			isDirectory : function () {
 				var matching = path.match('^./x/$');
 				if (matching) {
+					test.equal(path,'./x/');
 					c_match.inc();
 				} else {
+					test.equal(path,'./x/index.html');
 					c_unmatch.inc();
 				}
 				return matching;

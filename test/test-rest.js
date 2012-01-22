@@ -10,7 +10,6 @@
  */
 
 var verifier = require('verifier.js');
-var logger = require('cnlogger').logger(module);
 
 var _http_status = {};
 var http_status = function(v){if (! _http_status.hasOwnProperty(v)) { http_status.test.ok(false, 'No mock was defined for '+v+' status');} else return _http_status[v];}
@@ -18,99 +17,42 @@ var http_status = function(v){if (! _http_status.hasOwnProperty(v)) { http_statu
 var _urlparser = {};
 var urlparser = function(u){ return _urlparser.run(u);}
 
-var rest = require('rest.js').inject(http_status, urlparser, logger);
+var rest = require('rest.js').inject(http_status, urlparser);
 
-function test_method_unauthentified_call_on_resource(tested_method, tested_url) {
-	exports['should refuse un-authentified call with no header '+tested_method+' on '+tested_url] = function (test) {
-		http_status.test = test;
-		var verify = verifier.build(test);
-		
-		// GIVEN
-		// should refuse even with systematic acceptation
-		var biz={valid:function() {return true;}}
+var _mime_type_json = 'application/json';
 
-		// under test
-		var rest_u = rest.build('/r/',biz);
-
-		_http_status[401] = verify.add('http status 401 handler', function (res) {test.strictEqual(res,s);res.writeHead(401);});
-		var q = {method: tested_method, url: tested_url, headers: {}}		
-		var s = {writeHead : verify.add('receive 401 code',function(code) {test.equal(code,401);})};
-		
-		// WHEN
-		rest_u(q,s);
-		
-		// THEN
-		verify.check();
-		test.expect(4);
-		test.done();
-		delete _urlparser.run;
-		delete _http_status[401];
-	};
-	exports['should refuse un-authentified call with invalid header '+tested_method+' on '+tested_url] = function (test) {
-		http_status.test = test;
-		var verify = verifier.build(test);
-		
-		// GIVEN
-		var invalid_session_id = 'XX';
-		var biz={valid: verify.add('biz.valid()',function(v) {test.strictEqual(v,invalid_session_id); return false})};
-		
-		// under test
-		var rest_u = rest.build('/r/',biz);
-		
-		_http_status[401] = verify.add('http status 401 handler', function (res) {test.strictEqual(res,s);res.writeHead(401);});
-		_urlparser.run = verify.add('urlparser()', function(v) { test.strictEqual(v, tested_url.substring('/r/'.length)); return {} } );
-		var q = {method: tested_method, url: tested_url, headers: {'X-Token':invalid_session_id}};
-		var s = {writeHead : verify.add('receive 401 code',function(code) {test.equal(code,401);})};
-		
-		// WHEN
-		rest_u(q,s);
-		
-		// THEN
-		verify.check();
-		test.expect(8);
-		test.done();
-		delete _urlparser.run;
-		delete _http_status[401];
-	};
-}
-
-['HEAD', 'GET', 'PUT', 'DELETE'].forEach(function(m) {	
-	test_method_unauthentified_call_on_resource(m,'/r/');
-});
-
-function test_all_method_unauthentified_call_on_resource(url) {
-	['HEAD', 'GET', 'POST', 'PUT', 'DELETE'].forEach(function(m) {	
-		test_method_unauthentified_call_on_resource(m, url);
-	});	
-}
-
-test_all_method_unauthentified_call_on_resource('/r/42');
-test_all_method_unauthentified_call_on_resource('/r/a/42');
-test_all_method_unauthentified_call_on_resource('/r/42?a=n');
-
-exports['should accept authentification tentative with POST on root'] = function (test) {
+exports['should treat GET /r/x/{id} and return 200 with header and data'] = function (test) {
 	var verify = verifier.build(test);
+	http_status.test = test;
 	
 	// GIVEN
-	http_status.test = test;
-	var session_id = "XXXX";
-	var biz = { login: verify.add('biz.login',function (o, c) { test.deepEqual(o,{l:'x',p:'y'}); c(session_id); }) };
-	var q,s;	
-	_http_status[201] = verify.add('http status 201 handler',function (res,t,v) {test.strictEqual(res,s);res.writeHead(201, {'Content-Type': t});res.end(v)});
-	
-	// under test
-	var rest_u = rest.build('/r/',biz);
-	
-	var body = '{"l":"x","p":"y"}';
+	var _d = '{"a":"bbb","c":"dddd"}';
 
-	q = { method:'POST', url: '/r/', headers: {},
-		on: function (d,c) { var o={
-			data: function() { c(body); },
-			end: function() { c(); } }; o[d](); }
-	};
-	s = {
-		writeHead : verify.add('response write header' ,function(code,t) {test.equal(code,201);test.deepEqual(t,{'Content-Type': 'application/json'})}),
-		end: verify.add('response end', function(data) {test.equal(data,'"'+session_id+'"');})
+	var _mapping = {'x':'plop'};
+	var _biz = { on: verify.add('biz.on()', function(type) {
+		test.equal(type, 'plop');
+		return { getOne: verify.add('biz.getOne()',function (id) { test.equal(id, 42); return _d;}) };
+	}) };
+	
+	var _u = '/r/x/42';
+	var _sub_u = 'x/42'
+	_urlparser.run = verify.add('urlparser()',function (u) {test.equal(u, _sub_u); return {href:_sub_u, search:'', query:{}, pathname:_sub_u}; });
+
+	// under test
+	var rest_u = rest.build('/r/' ,_biz, _mapping);
+	
+	var q,s;
+	var _t = _mime_type_json;
+	
+	_http_status[200] = verify.add('http status 200 handler',function (res, type, data, headers) {
+		test.strictEqual(res,s); test.strictEqual(type,_t); test.strictEqual(data,_d);test.equal(headers,undefined);
+		headers = headers || {}; headers['Content-Type']= type; res.writeHead(200, headers);res.end(data);
+	});
+
+	q = { method:'GET', url: _u, headers: {} };
+	s = { 
+		writeHead : verify.add('response write header' ,function(code,t) {test.equal(code,200);test.deepEqual(t,{'Content-Type': _mime_type_json})}),
+		end: verify.add('response end', function(data) {test.equal(data,_d);})
 	};
 	
 	// WHEN
@@ -118,51 +60,129 @@ exports['should accept authentification tentative with POST on root'] = function
 	
 	// THEN
 	verify.check();
-	test.expect(9);
+	test.expect(16);
 	test.done();
 	delete _urlparser.run;
-	delete _http_status[201];
+	delete _http_status[200];
 };
 
-function test_method_authentified_call_on_unauthorized_resource(tested_method, tested_url, tested_parsed) {
-	exports['should accept authentified '+tested_method+' call on unauthorized resource '+tested_url] = function (test) {
-		http_status.test = test;
-		var verify = verifier.build(test);
+exports['should treat GET /r/x/ and return 200 with header and data'] = function (test) {
+	var verify = verifier.build(test);
+	http_status.test = test;
+	
+	// GIVEN
+	var _d = '[{"a":"bbb","c":"dddd"},{"a":"bbb","c":"dddd"},{"a":"bbb","c":"dddd"},{"a":"bbb","c":"dddd"}]';
 
-		// GIVEN
-		var tested_url_root = '/r/'
-		var valid_session_id = 'XX';
+	var _crit = {};
+	var _mapping = {'x':'plop'};
+	var _biz = { on: verify.add('biz.on()', function(type) {
+		test.equal(type, 'plop');
+		return { getAll: verify.add('biz.getAll()',function (crit) { test.deepEqual(crit, _crit); return _d;}) };
+	}) };
+	
+	var _u = '/r/x/';
+	var _sub_u = 'x/'
+	_urlparser.run = verify.add('urlparser()',function (u) {test.equal(u, _sub_u); return {href:_sub_u, search:'', query:{}, pathname:_sub_u}; });
 
-		var biz = {
-			valid: verify.add('biz.valid()',function(v) {test.strictEqual(v,valid_session_id); return true}),
-			auth: verify.add('biz.auth()',function(v,u) {test.strictEqual(v,valid_session_id); test.strictEqual(u,tested_parsed.pathname); return false})
-		};
-		
-		_http_status[401] = verify.add('http status 401 handler', function (res) {test.strictEqual(res,s);res.writeHead(401);});
-		
-		_urlparser.run = verify.add('urlparser()', function(v) { test.equal(v, tested_parsed.href); return tested_parsed } );
-		
-		var q = {method: tested_method, url: tested_url, headers: {'X-Token': valid_session_id}};
-		var s = {writeHead : verify.add('receive 401 code',function(code) {test.equal(code,401);})};
-		
-		// under test
-		var rest_u = rest.build(tested_url_root,biz);
-		
-		// WHEN
-		rest_u(q,s);
-		
-		// THEN
-		verify.check();
-		test.expect(11);
-		test.done();
+	// under test
+	var rest_u = rest.build('/r/' ,_biz, _mapping);
+	
+	var q,s;
+	var _t = _mime_type_json;
+	
+	_http_status[200] = verify.add('http status 200 handler',function (res, type, data, headers) {
+		test.strictEqual(res,s); test.strictEqual(type,_t); test.strictEqual(data,_d);test.equal(headers,undefined);
+		headers = headers || {}; headers['Content-Type']= type; res.writeHead(200, headers);res.end(data);
+	});
+
+	q = { method:'GET', url: _u, headers: {} };
+	s = { 
+		writeHead : verify.add('response write header' ,function(code,t) {test.equal(code,200);test.deepEqual(t,{'Content-Type': _mime_type_json})}),
+		end: verify.add('response end', function(data) {test.equal(data,_d);})
 	};
+	
+	// WHEN
+	rest_u(q,s);
+	
+	// THEN
+	verify.check();
+	test.expect(16);
+	test.done();
+	delete _urlparser.run;
+	delete _http_status[200];
 }
 
-function test_all_method_authentified_call_on_unauthorized_resource(url, parsed) {
-	['HEAD', 'GET', 'POST', 'PUT', 'DELETE'].forEach(function(m) {	
-		test_method_authentified_call_on_unauthorized_resource(m, url, parsed);
-	});	
+exports['should treat GET /r/x/?a=12&b=plop and return 200 with header and data'] = function (test) {
+	var verify = verifier.build(test);
+	http_status.test = test;
+	
+	// GIVEN
+	var _d = '[{"a":"bbb","c":"dddd"},{"a":"bbb","c":"dddd"},{"a":"bbb","c":"dddd"}]';
+
+	var _crit = {a:12,b:'plop'};
+	var _mapping = {'x':'plop'};
+	var _biz = { on: verify.add('biz.on()', function(type) {
+		test.equal(type, 'plop');
+		return { getAll: verify.add('biz.getAll()',function (crit) { test.deepEqual(crit, _crit); return _d;}) };
+	}) };
+	
+	var _u = '/r/x/?a=12&b=plop';
+	var _sub_u = 'x/?a=12&b=plop';
+	var _sub_u_pathname = 'x/';
+	_urlparser.run = verify.add('urlparser()',function (u) {test.equal(u, _sub_u); return {href:_sub_u, search:'?a=12&b=plop', query:{a:12,b:'plop'}, pathname:_sub_u_pathname}; });
+
+	// under test
+	var rest_u = rest.build('/r/' ,_biz, _mapping);
+	
+	var q,s;
+	var _t = _mime_type_json;
+	
+	_http_status[200] = verify.add('http status 200 handler',function (res, type, data, headers) {
+		test.strictEqual(res,s); test.strictEqual(type,_t); test.strictEqual(data,_d);test.equal(headers,undefined);
+		headers = headers || {}; headers['Content-Type']= type; res.writeHead(200, headers);res.end(data);
+	});
+
+	q = { method:'GET', url: _u, headers: {} };
+	s = { 
+		writeHead : verify.add('response write header' ,function(code,t) {test.equal(code,200);test.deepEqual(t,{'Content-Type': _mime_type_json})}),
+		end: verify.add('response end', function(data) {test.equal(data,_d);})
+	};
+	
+	// WHEN
+	rest_u(q,s);
+	
+	// THEN
+	verify.check();
+	test.expect(16);
+	test.done();
+	delete _urlparser.run;
+	delete _http_status[200];
+	
 }
-test_all_method_authentified_call_on_unauthorized_resource('/r/a/', {href: 'a/', search: '', query: {}, pathname: 'a/'});
-test_all_method_authentified_call_on_unauthorized_resource('/r/a/42', {href: 'a/42', search: '', query: {}, pathname: 'a/42'});
-test_all_method_authentified_call_on_unauthorized_resource('/r/a/?a=n', {href: 'a/?a=n', search: '?a=n', query: {a:'n'}, pathname: 'a/'});
+
+/*
+exports['should treat HEAD /r/x/{id} and return 200 with header but no data'] = function (test) {test.ok(false);test.done();}
+exports['should treat HEAD /r/x/ and return 200 with header but no data'] = function (test) {test.ok(false);test.done();}
+exports['should treat HEAD /r/x/? and return 200 with header but no data'] = function (test) {test.ok(false);test.done();}
+
+exports['should treat POST /r/x/'] = function (test) {
+	var body = '{"l":"x","p":"y"}';
+
+	var q = { method:'POST', url: '/r/', headers: {},
+		on: function (d,c) { var o={
+			data: function() { c(body); },
+			end: function() { c(); } }; o[d](); }
+	};
+	var s = {
+		writeHead : verify.add('response write header' ,function(code,t) {test.equal(code,201);test.deepEqual(t,{'Content-Type': 'application/json'})}),
+		end: verify.add('response end', function(data) {test.equal(data,'"'+session_id+'"');})
+	};
+	
+	test.ok(false);
+	test.done();
+}
+exports['should treat PUT /r/x/{id}'] = function (test) {test.ok(false);test.done();}
+exports['should treat PUT /r/x/{id}'] = function (test) {test.ok(false);test.done();}
+
+exports['should treat DELETE /r/x/?'] = function (test) {test.ok(false);test.done();}
+//*/

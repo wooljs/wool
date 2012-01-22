@@ -29,7 +29,7 @@ $(function(){
 		var loader = { append: function() {}, fadeOut: function() {}	}
 		var content = { append: function(e) {}, fadeIn: function() {}, hide: function() {} }
 		var _jquery = function (s) { return {
-			'body' : { append : function(e) { body_elt.push(e);} },
+			'#container' : { append : function(e) { body_elt.push(e);} },
 			'<div id="loader"/>' : loader,
 			'<div id="content"/>' : content
 		}[s];}

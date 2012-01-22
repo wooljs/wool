@@ -19,6 +19,8 @@
 	var l10n = wol.i18n_full({});
 	
 	$(function () {
+		$('#back').hide();
+		
 		wol.init(function(loader, content, complete) {
 			var welcomeView = wol.view(
 				'welcome', './include/welcome.html', l10n, 
@@ -28,24 +30,80 @@
 				'subscribe', './include/subscribe_form.html', l10n,
 				function () {bar("Subscribe loaded.");},
 				function (container) {
-					console.log('subscribe loaded');
 					$('input[type="text"],input[type="password"]',container).each(function(i, elt) {
 						var span = $('<span/>').text(elt.alt).appendTo($(elt).parent());
 						$(elt).focusin(function () { $(span).fadeOut('fast'); });
 						$(elt).focusout(function () { $(span).fadeIn('fast'); }).focusout();
 					});
-					$('input[type="submit"]',container).submit(function(evt) {
-						
+					$('input[type="submit"]',container).click(function(evt) {
+						var subscribe_form_data = {};
+						$('input[type="text"],input[type="password"]').each(function(i, elt) {
+							subscribe_form_data[$(elt).attr('name')] = $(elt).val();
+						});
+						console.dir(subscribe_form_data);
+						console.log(JSON.stringify(subscribe_form_data));
+						window.location.hash='#confirm';
+						/*
+						$.ajax({
+							url: '/r/u/',
+							type: 'POST',
+							contentType: 'application/json',
+							dataType: 'json',
+							data: JSON.stringify(subscribe_form_data),
+							success: function (data) {
+								window.location.hash='#confirm'
+							},
+							error: function (xhr, status, err) {
+								console.error('/r/u/',status,err);
+							}
+						});
+						*/
 					});
 				}
 			);
+			var confirmView = wol.view(
+				'confirm', './include/subscribe_confirm.html', l10n,
+				function () {bar("Confirm loaded.");}
+			);
+			var logView = wol.view(
+				'login', './include/login_form.html', l10n,
+				function () {bar("Confirm loaded.");},
+				function (container) {
+					$('input[type="text"],input[type="password"]',container).each(function(i, elt) {
+						var span = $('<span/>').text(elt.alt).appendTo($(elt).parent());
+						$(elt).focusin(function () { $(span).fadeOut('fast'); });
+						$(elt).focusout(function () { $(span).fadeIn('fast'); }).focusout();
+					});
+					$('input[type="submit"]',container).click(function(evt) {
+						/*
+						$.ajax({
+							url: '/r/',
+							type: 'POST',
+							contentType: 'application/json',
+							dataType: 'json',
+							data: JSON.stringify({}),
+							success: function (data) {
+								views[name]=data;
+								if (onData) onData(onReady, data);
+							},
+							error: function (xhr, status, err) {
+								console.error('/r/',status,err);
+							}
+						});
+						*/
+					});
+				}
+			);
+			
 			var views_mapping = [
-				{valid:function(h){return h.match('^#?$')},run: welcomeView},
-				{valid:function(h){return h.match('^#sub$')},run: subView}
-			]
+				{valid:function(h){return h.match('^#confirm$')},run: confirmView},
+				{valid:function(h){return h.match('^#sub$')},run: subView},
+				{valid:function(h){return h.match('^#log$')},run: logView},
+				{valid:function(h){return true},run: welcomeView}
+			];
 			var view_from_hash = wol.history_mapper(window, content, views_mapping);
 
-			var bar = wol.progress(loader, views_mapping.length+1, function () { complete();view_from_hash(); } );
+			var bar = wol.progress(loader, views_mapping.length+1, function () { complete();view_from_hash();$('#back').fadeIn(1000); } );
 			bar('launch ready');
 		});			
 	});
@@ -54,5 +112,12 @@
 </head>
 <body>
 	<noscript>If you see this, sorry but this website do not work without javascript.</noscript>
+	<div id="container"></div>
+	<div id="back">
+		<div id="logo"></div>
+		<div id="sword"></div>
+		<div id="dandelion"></div>
+		<div id="cross"></div>
+	</div>
 </body>
 </html>

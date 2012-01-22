@@ -9,17 +9,13 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-var logger = require('cnlogger').logger(module); 
 var counter = require('counter'); 
 
-var mime = function (file) {
-	if (file.match(/\.html$/)) return 'text/html';
-}
-var http_status = require('http-status.js').inject(logger,mime);
+var http_status = require('http-status.js').inject();
 
 var c = "code";
 var t = "text";
-var path = "/index.html";
+var mime_type = "text/html";
 var data = "data";
 var url = "url";
 
@@ -31,7 +27,7 @@ exports['should process data'] = function (test) {
 		writeHead : function (code, ct) {
 			c_writeHead.inc();
 			test.strictEqual(code,c);
-			test.deepEqual(ct,{'Content-Type' : mime(path)});
+			test.deepEqual(ct,{'Content-Type' : mime_type});
 		},
 		end : function(d) {
 			c_end.inc();
@@ -39,7 +35,31 @@ exports['should process data'] = function (test) {
 		}
 	}
 	
-	http_status.data(c,t)(res, path, data);
+	http_status.data(c,t)(res, mime_type, data);
+	
+	test.equal(1, c_writeHead.check());
+	test.equal(1, c_end.check());
+	
+	test.done();
+}
+
+exports['should process data with additional headers'] = function (test) {	
+	var c_writeHead = counter.build();
+	var c_end = counter.build();
+	
+	var res = {
+		writeHead : function (code, ct) {
+			c_writeHead.inc();
+			test.strictEqual(code,c);
+			test.deepEqual(ct,{'Content-Type' : mime_type, 'Extra-Header' : 'plip'});
+		},
+		end : function(d) {
+			c_end.inc();
+			test.strictEqual(d,data);
+		}
+	}
+	
+	http_status.data(c,t)(res, mime_type, data, {'Extra-Header' : 'plip'});
 	
 	test.equal(1, c_writeHead.check());
 	test.equal(1, c_end.check());
