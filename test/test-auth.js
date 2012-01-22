@@ -87,7 +87,7 @@ test_all_method_unauthentified_call_on_resource('/r/42');
 test_all_method_unauthentified_call_on_resource('/r/a/42');
 test_all_method_unauthentified_call_on_resource('/r/42?a=n');
 
-exports['should accept authentification valid tentative with POST on login_url'] = function (test) {
+exports['should accept valid tentative of authentification with POST on login_url'] = function (test) {
 	var verify = verifier.build(test);
 	
 	// GIVEN
@@ -123,13 +123,13 @@ exports['should accept authentification valid tentative with POST on login_url']
 	delete _http_status[201];
 };
 
-exports['should refuse authentification invalid tentative with POST on login_url'] = function (test) {
+exports['should refuse invalid tentative of authentification with POST on login_url'] = function (test) {
 	var verify = verifier.build(test);
 	
 	// GIVEN
 	http_status.test = test;
 	var session_id = "XXXX";
-	var biz = { login: verify.add('biz.login',function (o, _success, _error) { test.notDeepEqual(o,{l:'x',p:'y'}); _error(); }) };
+	var biz = { login: verify.add('biz.login',function (o, _success, _error) {test.ok(typeof o['l'] == 'undefined');test.ok(typeof o['p'] == 'undefined'); _error(); }) };
 	var q,s;	
 	_http_status[401] = verify.add('http status 401 handler',function (res,t) {test.strictEqual(res,s);res.writeHead(401, {'Content-Type': t});res.end()});
 	
@@ -153,7 +153,7 @@ exports['should refuse authentification invalid tentative with POST on login_url
 	
 	// THEN
 	verify.check();
-	test.expect(8);
+	test.expect(9);
 	test.done();
 	delete _urlparser.run;
 	delete _http_status[401];
