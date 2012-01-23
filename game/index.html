@@ -14,13 +14,20 @@
 	
 	<script src="./js/main.js"></script>
 	<script type="text/javascript">
-	
+	"use strict";
 	var wol = inject($);
 	var l10n = wol.i18n_full({});
 	
+	function prepare_input(container) {
+		$('input[type="text"],input[type="password"]',container).each(function(i, elt) {
+			var span = $('<span/>').text(elt.alt).appendTo($(elt).parent());
+			$(elt).focusin(function () { $(span).fadeOut('fast'); });
+			$(elt).focusout(function () { if ($(elt).val()=='') {$(span).fadeIn('fast');} }).focusout();
+		});
+	}
+	
 	$(function () {
 		$('#back').hide();
-		
 		wol.init(function(loader, content, complete) {
 			var welcomeView = wol.view(
 				'welcome', './include/welcome.html', l10n, 
@@ -30,11 +37,18 @@
 				'subscribe', './include/subscribe_form.html', l10n,
 				function () {bar("Subscribe loaded.");},
 				function (container) {
-					$('input[type="text"],input[type="password"]',container).each(function(i, elt) {
-						var span = $('<span/>').text(elt.alt).appendTo($(elt).parent());
-						$(elt).focusin(function () { $(span).fadeOut('fast'); });
-						$(elt).focusout(function () { $(span).fadeIn('fast'); }).focusout();
+					prepare_input(container);
+					var login = $('[name="login"]'); //login.keyup(function () {});
+					var email = $('[name="email"]');
+					email.keyup(function () {
+						if (email.val().match(/^.+@.+$/)) { email.css('color','green'); }
+						else { email.css('color','red');}
 					});
+					var pwd_1 = $('[name="pwd_1"]');
+					var pwd_2 = $('[name="pwd_2"]');
+					function valid_pwd_2() { if (pwd_1.val() != pwd_2.val()) { pwd_2.css('color','red'); } else { pwd_2.css('color','green');} }
+					pwd_2.keyup(valid_pwd_2).change(valid_pwd_2);
+					
 					$('input[type="submit"]',container).click(function(evt) {
 						var subscribe_form_data = {};
 						$('input[type="text"],input[type="password"]').each(function(i, elt) {
@@ -42,8 +56,6 @@
 						});
 						console.dir(subscribe_form_data);
 						console.log(JSON.stringify(subscribe_form_data));
-						window.location.hash='#confirm';
-						/*
 						$.ajax({
 							url: '/r/u/',
 							type: 'POST',
@@ -57,7 +69,6 @@
 								console.error('/r/u/',status,err);
 							}
 						});
-						*/
 					});
 				}
 			);
@@ -69,28 +80,25 @@
 				'login', './include/login_form.html', l10n,
 				function () {bar("Confirm loaded.");},
 				function (container) {
-					$('input[type="text"],input[type="password"]',container).each(function(i, elt) {
-						var span = $('<span/>').text(elt.alt).appendTo($(elt).parent());
-						$(elt).focusin(function () { $(span).fadeOut('fast'); });
-						$(elt).focusout(function () { $(span).fadeIn('fast'); }).focusout();
-					});
+					prepare_input(container);
 					$('input[type="submit"]',container).click(function(evt) {
-						/*
+						var login_form_data = {};
+						$('input[type="text"],input[type="password"]').each(function(i, elt) {
+							login_form_data[$(elt).attr('name')] = $(elt).val();
+						});
 						$.ajax({
 							url: '/r/',
 							type: 'POST',
 							contentType: 'application/json',
 							dataType: 'json',
-							data: JSON.stringify({}),
+							data: JSON.stringify(login_form_data),
 							success: function (data) {
-								views[name]=data;
-								if (onData) onData(onReady, data);
+								window.location.href="./play.html";
 							},
 							error: function (xhr, status, err) {
 								console.error('/r/',status,err);
 							}
 						});
-						*/
 					});
 				}
 			);

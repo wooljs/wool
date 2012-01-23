@@ -32,9 +32,21 @@ var rest_methods = ['HEAD', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'];
 var rest_url_filter = /^\/r\/.*$/g;
 
 var static_methods = ['HEAD', 'GET'];
-var biz = {};
-var rest_handler = rest.build('/r/', biz);
-var auth_handler = auth.build(biz, '/r/', filter.root_filter({method: 'POST', url: '/r/u/'}), rest_handler);
+var biz = { login: function(o,s,e) {console.log('login:',o);s('plop')},
+	on : function(x) {console.log('on:'+x); return {
+		getOne:function(id,cb) {console.log('getOne:'+id); cb('plop');},
+		getAll:function(crit,cb) {console.log('getAll:',crit); cb('plop');},
+		create:function(obj,cb) {console.log('create:',obj); cb('plop');}
+	}
+}};
+
+var rest_basic_handler = rest.build('/r/', biz, { u: 'user' });
+var auth_handler = auth.build(biz, '/r/', rest_basic_handler);
+
+var rest_handler = dispatch.chain([
+	dispatch.rule({method: 'POST', url:'/r/u/'}, rest_basic_handler),
+	dispatch.rule(true, auth_handler)
+]);
 
 // Prepare the
 console.log("Starting Server.");
@@ -44,13 +56,16 @@ https
 		key: fs.readFileSync('server-key.pem'),
 		cert: fs.readFileSync('server-cert.pem')
 	},
-	dispatch.chain([
-		dispatch.rule({method: rest_methods, url: rest_url_filter }, auth_handler),
-		dispatch.rule({method: static_methods, url : /^\/g.*$/g }, static.build('/g'.length,'./game')),
-		dispatch.rule({method: static_methods}, static.build()),
-		dispatch.rule([{method: filter.not(rest_methods), url: rest_url_filter}, {method: filter.not(static_methods)}], function(req,res) { http_status(405)(res); }),
-		dispatch.rule(true, function(req,res) { http_status(500)(res); })
-	])
+	function (req,res) {
+		console.log('%s %s %s',Date(), req.method, req.url);
+		dispatch.chain([
+			dispatch.rule({method: rest_methods, url: rest_url_filter }, rest_handler),
+			dispatch.rule({method: static_methods, url : /^\/g.*$/g }, static.build('/g'.length,'./game')),
+			dispatch.rule({method: static_methods}, static.build()),
+			dispatch.rule([{method: filter.not(rest_methods), url: rest_url_filter}, {method: filter.not(static_methods)}], function(req,res) { http_status(405)(res); }),
+			dispatch.rule(true, function(req,res) { http_status(500)(res); })
+		])(req,res);
+	}
 )
 .listen(PORT);
 

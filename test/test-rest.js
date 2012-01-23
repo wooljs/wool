@@ -31,11 +31,10 @@ exports['should treat GET /r/x/{id} and return 200 with header and data'] = func
 	var _mapping = {'x':'plop'};
 	var _biz = { on: verify.add('biz.on()', function(type) {
 		test.equal(type, 'plop');
-		return { getOne: verify.add('biz.getOne()',function (id) { test.equal(id, 42); return _d;}) };
+		return { getOne: verify.add('biz.getOne()',function (id, cb) { test.equal(id, 42); cb(_d);}) };
 	}) };
 	
-	var _u = '/r/x/42';
-	var _sub_u = 'x/42'
+	var _u = '/r/x/42', _sub_u = 'x/42'
 	_urlparser.run = verify.add('urlparser()',function (u) {test.equal(u, _sub_u); return {href:_sub_u, search:'', query:{}, pathname:_sub_u}; });
 
 	// under test
@@ -77,11 +76,10 @@ exports['should treat GET /r/x/ and return 200 with header and data'] = function
 	var _mapping = {'x':'plop'};
 	var _biz = { on: verify.add('biz.on()', function(type) {
 		test.equal(type, 'plop');
-		return { getAll: verify.add('biz.getAll()',function (crit) { test.deepEqual(crit, _crit); return _d;}) };
+		return { getAll: verify.add('biz.getAll()',function (crit, cb) { test.deepEqual(crit, _crit); cb(_d);}) };
 	}) };
 	
-	var _u = '/r/x/';
-	var _sub_u = 'x/'
+	var _u = '/r/x/', _sub_u = 'x/'
 	_urlparser.run = verify.add('urlparser()',function (u) {test.equal(u, _sub_u); return {href:_sub_u, search:'', query:{}, pathname:_sub_u}; });
 
 	// under test
@@ -123,12 +121,10 @@ exports['should treat GET /r/x/?a=12&b=plop and return 200 with header and data'
 	var _mapping = {'x':'plop'};
 	var _biz = { on: verify.add('biz.on()', function(type) {
 		test.equal(type, 'plop');
-		return { getAll: verify.add('biz.getAll()',function (crit) { test.deepEqual(crit, _crit); return _d;}) };
+		return { getAll: verify.add('biz.getAll()',function (crit,cb) { test.deepEqual(crit, _crit); cb(_d);}) };
 	}) };
 	
-	var _u = '/r/x/?a=12&b=plop';
-	var _sub_u = 'x/?a=12&b=plop';
-	var _sub_u_pathname = 'x/';
+	var _u = '/r/x/?a=12&b=plop', _sub_u = 'x/?a=12&b=plop', _sub_u_pathname = 'x/';
 	_urlparser.run = verify.add('urlparser()',function (u) {test.equal(u, _sub_u); return {href:_sub_u, search:'?a=12&b=plop', query:{a:12,b:'plop'}, pathname:_sub_u_pathname}; });
 
 	// under test
@@ -164,23 +160,51 @@ exports['should treat GET /r/x/?a=12&b=plop and return 200 with header and data'
 exports['should treat HEAD /r/x/{id} and return 200 with header but no data'] = function (test) {test.ok(false);test.done();}
 exports['should treat HEAD /r/x/ and return 200 with header but no data'] = function (test) {test.ok(false);test.done();}
 exports['should treat HEAD /r/x/? and return 200 with header but no data'] = function (test) {test.ok(false);test.done();}
+//*/
 
 exports['should treat POST /r/x/'] = function (test) {
-	var body = '{"l":"x","p":"y"}';
+	var verify = verifier.build(test);
+	http_status.test = test;
 
-	var q = { method:'POST', url: '/r/', headers: {},
+	// GIVEN
+	var _obj = {x:42,y:["plop","plip"]};
+	var _created_obj_id = 42;
+	
+	var _mapping = {'x':'plop'};
+	var _biz = { on: verify.add('biz.on()', function(type) {
+		test.equal(type, 'plop');
+		return { create: verify.add('biz.create()',function (obj,cb) { test.deepEqual(obj, _obj); obj.id=_created_obj_id; cb(obj.id);}) };
+	}) };
+	
+	var _sub_u = 'x/', _sub_u_pathname = 'x/';
+	_urlparser.run = verify.add('urlparser()',function (u) {test.equal(u, _sub_u); return {href: _sub_u, search: '?a=12&b=plop', query: {a:12,b:'plop'}, pathname: _sub_u_pathname}; });
+	
+	// under test
+	var rest_u = rest.build('/r/' ,_biz, _mapping);
+	var body = '{"x":42,"y":["plop","plip"]}';
+
+	_http_status[201] = verify.add('http status 201 handler',function (res, type, data) {res.writeHead(201,{'Content-Type':'application/json'}); res.end(data); })
+
+	var q = { method:'POST', url: '/r/x/', headers: {},
 		on: function (d,c) { var o={
 			data: function() { c(body); },
 			end: function() { c(); } }; o[d](); }
 	};
 	var s = {
 		writeHead : verify.add('response write header' ,function(code,t) {test.equal(code,201);test.deepEqual(t,{'Content-Type': 'application/json'})}),
-		end: verify.add('response end', function(data) {test.equal(data,'"'+session_id+'"');})
+		end: verify.add('response end', function(data) {test.equal(data,'"'+_created_obj_id+'"');})
 	};
 	
-	test.ok(false);
+	// WHEN
+	rest_u(q,s);
+	
+	// THEN
+	verify.check();
+	test.expect(12);
 	test.done();
 }
+
+/*
 exports['should treat PUT /r/x/{id}'] = function (test) {test.ok(false);test.done();}
 exports['should treat PUT /r/x/{id}'] = function (test) {test.ok(false);test.done();}
 
