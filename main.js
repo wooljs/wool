@@ -32,7 +32,8 @@ var rest_methods = ['HEAD', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'];
 var rest_url_filter = /^\/r\/.*$/g;
 
 var static_methods = ['HEAD', 'GET'];
-var biz = { login: function(o,s,e) {console.log('login:',o);s('plop')},
+var biz = {
+	login: function(o,s,e) {console.log('login:',o);s('plop')},
 	on : function(x) {console.log('on:'+x); return {
 		getOne:function(id,cb) {console.log('getOne:'+id); cb('plop');},
 		getAll:function(crit,cb) {console.log('getAll:',crit); cb('plop');},
