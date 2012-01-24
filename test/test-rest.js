@@ -180,7 +180,7 @@ exports['should treat POST /r/x/'] = function (test) {
 	_urlparser.run = verify.add('urlparser()',function (u) {test.equal(u, _sub_u); return {href: _sub_u, search: '?a=12&b=plop', query: {a:12,b:'plop'}, pathname: _sub_u_pathname}; });
 	
 	// under test
-	var rest_u = rest.build('/r/' ,_biz, _mapping);
+	var rest_u = rest.build('/r/',_biz, _mapping);
 	var body = '{"x":42,"y":["plop","plip"]}';
 
 	_http_status[201] = verify.add('http status 201 handler',function (res, type, data) {res.writeHead(201,{'Content-Type':'application/json'}); res.end(data); })
@@ -202,11 +202,51 @@ exports['should treat POST /r/x/'] = function (test) {
 	verify.check();
 	test.expect(12);
 	test.done();
+	delete _urlparser.run;
+	delete _http_status[201];
 }
 
 /*
 exports['should treat PUT /r/x/{id}'] = function (test) {test.ok(false);test.done();}
 exports['should treat PUT /r/x/{id}'] = function (test) {test.ok(false);test.done();}
 
-exports['should treat DELETE /r/x/?'] = function (test) {test.ok(false);test.done();}
 //*/
+exports['should treat DELETE /r/x/{id}'] = function (test) {
+	var verify = verifier.build(test);
+	http_status.test = test;
+
+	// GIVEN
+	var _mapping = {'x':'plop'};
+	var _biz = { on: verify.add('biz.on()', function(type) {
+		test.equal(type, 'plop');
+		return { delete: verify.add('biz.delete()',function (id,cb) { test.equal(id, 42); cb();}) };
+	}) };
+	
+	var _u = '/r/x/42', _sub_u = 'x/42'
+	_urlparser.run = verify.add('urlparser()',function (u) {test.equal(u, _sub_u); return {href:_sub_u, search:'', query:{}, pathname:_sub_u}; });
+	
+	var q,s;
+	var _t = _mime_type_json;
+	
+	_http_status[204] = verify.add('http status 200 handler',function (res) {test.strictEqual(res,s);res.writeHead(204);res.end();});
+
+	q = { method:'DELETE', url: _u, headers: {} };
+	s = { 
+		writeHead : verify.add('response write header' ,function(code,t) {test.equal(code,204);test.equal(t,undefined)}),
+		end: verify.add('response end', function(data) {test.equal(data,undefined);})
+	};
+	
+	
+	// under test
+	var rest_u = rest.build('/r/',_biz, _mapping);
+	
+	// WHEN
+	rest_u(q,s);
+	
+	// THEN
+	verify.check();
+	test.expect(13);
+	test.done();
+	delete _urlparser.run;
+	delete _http_status[204];
+}
