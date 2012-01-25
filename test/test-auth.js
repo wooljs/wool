@@ -26,7 +26,7 @@ function test_method_unauthentified_call_on_resource(tested_method, tested_url) 
 		
 		// GIVEN
 		// should refuse even with systematic acceptation
-		var biz={valid:function() {return true;}}
+		var biz={auth:function(a,b,c) {c(true);}}
 
 		// under test
 		var auth_u = auth.build(biz,'/r/',function(){});
@@ -51,7 +51,7 @@ function test_method_unauthentified_call_on_resource(tested_method, tested_url) 
 		
 		// GIVEN
 		var invalid_session_id = 'XX';
-		var biz={valid: verify.add('biz.valid()',function(v) {test.strictEqual(v,invalid_session_id); return false})};
+		var biz={auth: verify.add('biz.auth()',function(v,p,c) {test.strictEqual(v,invalid_session_id); c(false);})};
 		
 		// under test
 		var auth_u = auth.build(biz,'/r/',function(){});
@@ -129,7 +129,7 @@ exports['should refuse invalid tentative of authentification with POST on login_
 	// GIVEN
 	http_status.test = test;
 	var session_id = "XXXX";
-	var biz = { login: verify.add('biz.login',function (o, _success, _error) {test.ok(typeof o['l'] == 'undefined');test.ok(typeof o['p'] == 'undefined'); _error(); }) };
+	var biz = { login: verify.add('biz.login',function (o, cb) {test.ok(typeof o['l'] == 'undefined');test.ok(typeof o['p'] == 'undefined'); cb(undefined); }) };
 	var q,s;	
 	_http_status[401] = verify.add('http status 401 handler',function (res,t) {test.strictEqual(res,s);res.writeHead(401, {'Content-Type': t});res.end()});
 	
@@ -170,8 +170,7 @@ function test_method_authentified_call_on_unauthorized_resource(tested_method, t
 		var valid_session_id = 'XX';
 
 		var biz = {
-			valid: verify.add('biz.valid()',function(v) {test.strictEqual(v,valid_session_id); return true}),
-			auth: verify.add('biz.auth()',function(v,u) {test.strictEqual(v,valid_session_id); test.strictEqual(u,tested_parsed.pathname); return false})
+			auth: verify.add('biz.auth()',function(v,u,c) {test.strictEqual(v,valid_session_id); test.strictEqual(u,tested_parsed.pathname); c(false);})
 		};
 		
 		_http_status[401] = verify.add('http status 401 handler', function (res) {test.strictEqual(res,s);res.writeHead(401);});
@@ -189,7 +188,7 @@ function test_method_authentified_call_on_unauthorized_resource(tested_method, t
 		
 		// THEN
 		verify.check();
-		test.expect(11);
+		test.expect(9);
 		test.done();
 		delete _http_status[401];
 	};
@@ -216,8 +215,7 @@ function test_all_method_authentified_call_on_authorized_resource(tested_url, te
 			var valid_session_id = 'XX';
 
 			var biz = {
-				valid: verify.add('biz.valid()',function(v) {test.strictEqual(v,valid_session_id); return true}),
-				auth: verify.add('biz.auth()',function(v,u) {test.strictEqual(v,valid_session_id); test.strictEqual(u,tested_parsed.pathname); return true})
+				auth: verify.add('biz.auth()',function(v,u,c) {test.strictEqual(v,valid_session_id); test.strictEqual(u,tested_parsed.pathname); c(true);})
 			};
 			
 			_urlparser.run = verify.add('urlparser()', function(v) { test.equal(v, tested_parsed.href); return tested_parsed } );
@@ -233,7 +231,7 @@ function test_all_method_authentified_call_on_authorized_resource(tested_url, te
 			
 			// THEN
 			verify.check();
-			test.expect(10);
+			test.expect(8);
 			test.done();
 		}
 	});
