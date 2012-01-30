@@ -28,9 +28,8 @@ exports['should treat GET /r/x/{id} and return 200 with header and data'] = func
 	// GIVEN
 	var _d = '{"a":"bbb","c":"dddd"}';
 
-	var _mapping = {'x':'plop'};
 	var _biz = { on: verify.add('biz.on()', function(type) {
-		test.equal(type, 'plop');
+		test.equal(type, 'x');
 		return { getOne: verify.add('biz.getOne()',function (id, cb) { test.equal(id, 42); cb(_d);}) };
 	}) };
 	
@@ -38,7 +37,7 @@ exports['should treat GET /r/x/{id} and return 200 with header and data'] = func
 	_urlparser.run = verify.add('urlparser()',function (u) {test.equal(u, _sub_u); return {href:_sub_u, search:'', query:{}, pathname:_sub_u}; });
 
 	// under test
-	var rest_u = rest.build('/r/' ,_biz, _mapping);
+	var rest_u = rest.build('/r/' ,_biz);
 	
 	var q,s;
 	var _t = _mime_type_json;
@@ -73,9 +72,8 @@ exports['should treat GET /r/x/ and return 200 with header and data'] = function
 	var _d = '[{"a":"bbb","c":"dddd"},{"a":"bbb","c":"dddd"},{"a":"bbb","c":"dddd"},{"a":"bbb","c":"dddd"}]';
 
 	var _crit = {};
-	var _mapping = {'x':'plop'};
 	var _biz = { on: verify.add('biz.on()', function(type) {
-		test.equal(type, 'plop');
+		test.equal(type, 'x');
 		return { getAll: verify.add('biz.getAll()',function (crit, cb) { test.deepEqual(crit, _crit); cb(_d);}) };
 	}) };
 	
@@ -83,7 +81,7 @@ exports['should treat GET /r/x/ and return 200 with header and data'] = function
 	_urlparser.run = verify.add('urlparser()',function (u) {test.equal(u, _sub_u); return {href:_sub_u, search:'', query:{}, pathname:_sub_u}; });
 
 	// under test
-	var rest_u = rest.build('/r/' ,_biz, _mapping);
+	var rest_u = rest.build('/r/' ,_biz);
 	
 	var q,s;
 	var _t = _mime_type_json;
@@ -118,9 +116,8 @@ exports['should treat GET /r/x/?a=12&b=plop and return 200 with header and data'
 	var _d = '[{"a":"bbb","c":"dddd"},{"a":"bbb","c":"dddd"},{"a":"bbb","c":"dddd"}]';
 
 	var _crit = {a:12,b:'plop'};
-	var _mapping = {'x':'plop'};
 	var _biz = { on: verify.add('biz.on()', function(type) {
-		test.equal(type, 'plop');
+		test.equal(type, 'x');
 		return { getAll: verify.add('biz.getAll()',function (crit,cb) { test.deepEqual(crit, _crit); cb(_d);}) };
 	}) };
 	
@@ -128,7 +125,7 @@ exports['should treat GET /r/x/?a=12&b=plop and return 200 with header and data'
 	_urlparser.run = verify.add('urlparser()',function (u) {test.equal(u, _sub_u); return {href:_sub_u, search:'?a=12&b=plop', query:{a:12,b:'plop'}, pathname:_sub_u_pathname}; });
 
 	// under test
-	var rest_u = rest.build('/r/' ,_biz, _mapping);
+	var rest_u = rest.build('/r/' ,_biz);
 	
 	var q,s;
 	var _t = _mime_type_json;
@@ -170,9 +167,8 @@ exports['should treat POST /r/x/'] = function (test) {
 	var _obj = {x:42,y:["plop","plip"]};
 	var _created_obj_id = 42;
 	
-	var _mapping = {'x':'plop'};
 	var _biz = { on: verify.add('biz.on()', function(type) {
-		test.equal(type, 'plop');
+		test.equal(type, 'x');
 		return { create: verify.add('biz.create()',function (obj,cb) { test.deepEqual(obj, _obj); obj.id=_created_obj_id; cb(obj.id);}) };
 	}) };
 	
@@ -180,7 +176,7 @@ exports['should treat POST /r/x/'] = function (test) {
 	_urlparser.run = verify.add('urlparser()',function (u) {test.equal(u, _sub_u); return {href: _sub_u, search: '?a=12&b=plop', query: {a:12,b:'plop'}, pathname: _sub_u_pathname}; });
 	
 	// under test
-	var rest_u = rest.build('/r/',_biz, _mapping);
+	var rest_u = rest.build('/r/',_biz);
 	var body = '{"x":42,"y":["plop","plip"]}';
 
 	_http_status[201] = verify.add('http status 201 handler',function (res, type, data) {res.writeHead(201,{'Content-Type':'application/json'}); res.end(data); })
@@ -216,9 +212,8 @@ exports['should treat DELETE /r/x/{id}'] = function (test) {
 	http_status.test = test;
 
 	// GIVEN
-	var _mapping = {'x':'plop'};
 	var _biz = { on: verify.add('biz.on()', function(type) {
-		test.equal(type, 'plop');
+		test.equal(type, 'x');
 		return { delete: verify.add('biz.delete()',function (id,cb) { test.equal(id, 42); cb();}) };
 	}) };
 	
@@ -238,7 +233,7 @@ exports['should treat DELETE /r/x/{id}'] = function (test) {
 	
 	
 	// under test
-	var rest_u = rest.build('/r/',_biz, _mapping);
+	var rest_u = rest.build('/r/',_biz);
 	
 	// WHEN
 	rest_u(q,s);

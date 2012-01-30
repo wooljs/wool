@@ -41,7 +41,7 @@ var biz = {
 	}
 }};
 
-var rest_basic_handler = rest.build('/r/', biz, { u: 'user' });
+var rest_basic_handler = rest.build('/r/', biz);
 var auth_handler = auth.build(biz, '/r/', rest_basic_handler);
 
 var rest_handler = dispatch.chain([
