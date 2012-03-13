@@ -9,8 +9,8 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-var counter = require('counter.js');
-var filter_module = require('filter.js').inject('url');
+var counter = require('../lib/counter.js');
+var filter_module = require('../lib/filter.js').inject('url');
 var filter = filter_module.root_filter;
 var not = filter_module.not;
 

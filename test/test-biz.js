@@ -9,9 +9,9 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
  
-var verifier = require('verifier.js');
+var verifier = require('../lib/verifier.js');
 
-var biz = require('biz.js').inject();
+var biz = require('../lib/biz.js').inject();
 
 exports['should start unit test'] = function (test) {
 	test.ok(false);

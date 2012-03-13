@@ -1,4 +1,7 @@
-body { margin:0; font-family:Book Antiqua; }
+body { margin:0; font-family:Arial; }
+
+h1 {color: rgb(0,0,0); font-family: times; font-style: italic;}
+a {color: rgb(142, 142, 142); text-decoration: none;}
 
 #progressbar { position:fixed; top: 30%; width: 200px; height: 10px; margin-left: 45%; margin-right: 50%; }
 
@@ -6,71 +9,54 @@ body { margin:0; font-family:Book Antiqua; }
 .userstatus {}
 
 #content { position:fixed; top: 0px; left:0px; width: 100%; height: 100%; }
-#welcome { width: 650px; margin-left: auto; margin-top: 20%; margin-right: auto; text-align:center; }
-#confirm { width: 350px; margin-left: auto; margin-top: 20%; margin-right: auto; text-align:center; }
-
-#welcome h1 {font-size: 3em;}
+#mainView { position:fixed; top: 30%; margin-top: 20px; margin-left: 45%; margin-right: 50%; }
+#welcome { width: 350px; margin-left: auto; margin-top: 10%; margin-right: auto; text-align:center; }
+#confirm { width: 350px; margin-left: auto; margin-top: 10%; margin-right: auto; text-align:center; }
 
 fieldset#login { padding-top: 10px;  }
+
 fieldset {
-	z-index: 0;
-	width: 230px; margin-left: auto; margin-top: 20%; margin-right: auto; text-align:center;
-
-	background: linear-gradient(bottom, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
-	background: -o-linear-gradient(bottom, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
-	background: -moz-linear-gradient(bottom, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
-	background: -webkit-linear-gradient(bottom, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
-	background: -ms-linear-gradient(bottom, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
-
-    border: 1px solid rgb(229, 229, 229);
-	border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px;
-	box-shadow: 0 8px 6px -6px black; -moz-box-shadow: 0 8px 6px -6px black; -webkit-box-shadow: 0 8px 6px -6px black;
+	z-index: 0;	width: 230px; margin-left: auto; margin-top: 10%; margin-right: auto; text-align:center;border: 0;
+	/* Fallback no RGBa */ background: rgb(255, 255, 255);
+	/* RGBa */ background: rgba(255, 255, 255, 0.5);
+	/* For IE 5.5 - 7*/	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+	/* For IE 8*/ -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
 }
 legend {
-    padding: 2px;
-	
-	background: linear-gradient(top, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
-	background: -o-linear-gradient(top, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
-	background: -moz-linear-gradient(top, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
-	background: -webkit-linear-gradient(top, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
-	background: -ms-linear-gradient(top, rgb(239, 239, 239), rgb(200, 200, 200) 75%) repeat scroll 0 0 transparent;
-	
-    border: 1px solid #E5E5E5;
-	border-radius: 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px;
-	box-shadow: 0 8px 6px -6px black; -moz-box-shadow: 0 8px 6px -6px black; -webkit-box-shadow: 0 8px 6px -6px black;
+    padding: 2px;  color: rgb(142, 142, 142);
 }
-fieldset div { margin: 1px 15px 1px 15px; padding: 2px; height: 20px; width: 200px; }
-fieldset div span {	font-size: small; font-family:Arial; color: rgb(242, 242, 242);text-align:left; position:relative; top: -21px; left: 10px; width: auto; height: 15px; z-index: 1; display:block; }
+fieldset div { margin: 1px 15px 5px 15px; padding: 2px; height: 20px; width: 200px; }
+fieldset div span {
+	position:relative; top: -20px; left: 10px; width: auto; height: 15px; z-index: 1; display:block;
+	font-size: small;  color: rgb(142, 142, 142);text-align:left;
+}
 fieldset div input  {
-	position:relative; top: 0px;left: 0px; z-index: 2;display:block; 
-	width: 200px;
+	position:relative; top: 0px;left: 0px; z-index: 2;display:block; padding: 0 0 0 7px;
+	width: 200px; border: 1px solid #E5E5E5; color: green; font-weight: bold;
 	border-radius: 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px;
-	
-	/* Fallback for web browsers that doesn't support RGBa */
-	background: rgb(0, 0, 0) transparent;
-	/* RGBa with 0.6 opacity */
-	background: rgba(0, 0, 0, 0.05);
-	/* For IE 5.5 - 7*/
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
-	/* For IE 8*/
-	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
+	/* Fallback no RGBa */ background: rgb(0, 0, 0) transparent;
+	/* RGBa */ background: rgba(0, 0, 0, 0.08);
+	/* For IE 5.5 - 7*/ filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+	/* For IE 8*/ -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
 }
-fieldset div input[type="submit"] {
-	margin: 1px 2px 1px 2px;
-}
-fieldset p input:focus {
-	/* Fallback for web browsers that doesn't support RGBa */
-	background: rgb(255, 255, 255);
-	/* RGBa with 0.6 opacity */
-	background: rgba(255, 255, 255, 0.5);
-	/* For IE 5.5 - 7*/
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
-	/* For IE 8*/
-	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
+fieldset div input[type="submit"], fieldset div input[type="submit"]:focus  {
+	color: rgb(142, 142, 142); margin: 0px 0px 0px 100px; width: 100px; 
+	/* Fallback no RGBa */ background: rgb(255, 255, 255);
+	/* RGBa */ background: rgba(0, 0, 0, 0.05); 
+	/* For IE 5.5 - 7*/ filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+	/* For IE 8*/ -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
 }
 
-#back {z-index: -2; position: absolute; top: 0px; left:0px; width: 100%; height: 100%; }
-#logo {z-index: -3; position: absolute; top: 0px; left:10px; width: 101px; height: 308px; background-image:url('../images/logo.png');background-repeat:no-repeat; }
-/*/#sword {z-index: -4; position: absolute; top: -300px; left:200px; width: 134px; height: 1015px; background-image:url('../images/sword.png');background-repeat:no-repeat; }/**/
-#dandelion {z-index: -3; position: absolute; top: 50px; left:50px; width: 602px; height: 630px;  background-image:url('../images/dandelion.png');background-repeat:no-repeat; }
-#cross {z-index: -3; position: absolute; top: 10px; left:90%; width: 91px; height: 90px; background-image:url('../images/cross.png');background-repeat:no-repeat; }
+fieldset div input[type="submit"]:active {
+	/* Fallback no RGBa */ background: rgb(205, 205, 205);
+	/* RGBa */ background: rgba(0, 0, 0, 0.01);
+	/* For IE 5.5 - 7*/ filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+	/* For IE 8*/ -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
+}
+fieldset div input:focus {
+	/* Fallback no RGBa */ background: rgb(255, 255, 255);
+	/* RGBa */ background: rgba(255, 255, 255, 0.5);
+	/* For IE 5.5 - 7*/filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+	/* For IE 8*/ -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
+}
+

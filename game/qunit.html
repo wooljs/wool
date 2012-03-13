@@ -23,44 +23,6 @@ function counter() {
 	
 $(function(){
 	module("Module main");
-	test("should init and move from loader to content when load is complete", function() {
-		// GIVEN
-		var body_elt=[];
-		var loader = { append: function() {}, fadeOut: function() {}	}
-		var content = { append: function(e) {}, fadeIn: function() {}, hide: function() {} }
-		var _jquery = function (s) { return {
-			'#container' : { append : function(e) { body_elt.push(e);} },
-			'<div id="loader"/>' : loader,
-			'<div id="content"/>' : content
-		}[s];}
-		
-		// WHEN
-		inject(_jquery).init( function(e, c, x) { strictEqual(loader,e); x()} );
-
-		// THEN
-		deepEqual(body_elt.sort(),[loader,content].sort());
-		expect(2);
-	});
-
-	test("should build progress bar and run finish when loading is complete", function () {
-		// GIVEN
-		var size = 5;
-		var c = counter();
-		var texts = ['aa666', 'bb42', 'cc8', 'dd0', 'ee13'];
-		var pb = {
-			text: function (text) {strictEqual(text, texts[c.check()]);c.inc();},
-			progressbar: function(v) { deepEqual(v,{value:c.check()*20})}};
-		var _jquery = function (x) {equal(x,'<span id="progressbar"/>'); return pb};
-		var loader = { append: function(x) {strictEqual(x, pb)} };
-		var finish = function () {equal(c.check(),size);};
-		var bar = inject(_jquery).progress(loader, size, finish);
-
-		// WHEN
-		for (var i=0; i < size ; i++) { bar(texts[i]); }
-		
-		// THEN
-		expect(14);
-	})
 	
 	test("should build history_mapper and hash-mapping", function () {
 		// GIVEN
@@ -86,6 +48,10 @@ $(function(){
 	})
 	
 	test("should build view", function () {
+		expect(1);
+	})
+	
+	test("should build prepare_input in container", function () {
 		expect(1);
 	})
 	

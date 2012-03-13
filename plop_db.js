@@ -1,37 +1,5 @@
-
-
 var mongo = require('mongodb');
-/*
-var db = require('db.js').inject(mongo, 'plop', 'localhost', 27017);
-//*/
 
-/*
-db.ask('plip', function(collection) { collection.insert({plip:666}) });
-//*/
-
-/*
-db.ask('plip', function(collection) {
-	collection.insert({plip:666}, function() {
-		collection.count(function(err, count) {
-			console.log("There are " + count + " records.");
-		});
-		
-		collection.find(function (err, cursor) {
-			cursor.explain(function(err, doc) {
-			  console.log("-------------------------- Explanation");
-			  console.dir(doc);
-			});
-			cursor.each(function(err, item) {
-				console.log('Item: ', item);
-				if(item == null) return;
-				console.log(item);
-			});
-		})
-	})
-});
-//*/
-
-//*
 var Db = mongo.Db,
   Connection = mongo.Connection,
     Server = mongo.Server;
@@ -46,7 +14,26 @@ db.open(function(err, con) {
 	con.createCollection('plip',function() {
 		// Fetch the collection test
 		db.collection('plip', function(err, collection) {
-			collection.find(function(err, cursor) {
+			/*
+			collection.insert({plip:666}, function() {
+				collection.count(function(err, count) {
+					console.log("There are " + count + " records.");
+				});
+				
+				collection.find(function (err, cursor) {
+					cursor.explain(function(err, doc) {
+					  console.log("-------------------------- Explanation");
+					  console.dir(doc);
+					});
+					cursor.each(function(err, item) {
+						console.log('Item: ', item);
+						if(item == null) return;
+						console.log(item);
+					});
+				})
+			})
+			//*/
+			collection.find({},{},function(err, cursor) {
 				console.log("Printing docs from Cursor Each")
 				cursor.each(function(err, doc) {
 					if(doc != null) console.log("Doc from Each ");

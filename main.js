@@ -9,22 +9,6 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-// Node.js native modules
-var https = require('https');
-var fs = require('fs');
-var urlparser = require('url').parse;
-
-// Npm imported modules
-var mime = require('mime');
-
-// Home made modules
-var filter = require('filter.js').inject('url');
-var dispatch = require('dispatch.js').inject(filter.root_filter);
-var http_status = require('http-status.js').inject().status;
-var rest = require('rest.js').inject(http_status, urlparser);
-var auth = require('auth.js').inject(http_status, urlparser);
-var static = require('static.js').inject(http_status, mime.lookup, urlparser, fs);
-
 // initialize a few constant
 var PORT = 8000;
 
@@ -32,24 +16,41 @@ var rest_methods = ['HEAD', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'];
 var rest_url_filter = /^\/r\/.*$/g;
 
 var static_methods = ['HEAD', 'GET'];
-var biz = {
-	login: function(o,s,e) {console.log('login:',o);s('plop')},
-	on : function(x) {console.log('on:'+x); return {
-		getOne:function(id,cb) {console.log('getOne:'+id); cb('plop');},
-		getAll:function(crit,cb) {console.log('getAll:',crit); cb('plop');},
-		create:function(obj,cb) {console.log('create:',obj); cb('plop');}
-	}
-}};
 
-var rest_basic_handler = rest.build('/r/', biz);
-var auth_handler = auth.build(biz, '/r/', rest_basic_handler);
+// Node.js native modules
+var https = require('https');
+var fs = require('fs');
+var urlparser = require('url').parse;
+
+// Npm imported modules
+var mime = require('mime');
+var mongo = require('mongodb');
+var crypto = require('cryptojs').Crypto;
+
+// Home made framework modules
+var filter = require('./lib/filter.js').inject('url');
+var dispatch = require('./lib/dispatch.js').inject(filter.root_filter);
+var http_status = require('./lib/http-status.js').inject().status;
+var db = require('./lib/db.js').inject(mongo);
+var biz = require('./lib/biz.js').inject(db);
+var rest = require('./lib/rest.js').inject(http_status, urlparser);
+var auth = require('./lib/auth.js').inject(http_status, urlparser);
+var static = require('./lib/static.js').inject(http_status, mime.lookup, urlparser, fs);
+
+// Application specific modules
+var validator = require('validator.js').inject(crypto);
+var mapping = {find:function(t) {return {'u':'user','login':'user'}[t]}}
+
+var b = biz.build(validator,mapping);
+var rest_basic_handler = rest.build('/r/', b);
+var auth_handler = auth.build(b, '/r/', rest_basic_handler);
 
 var rest_handler = dispatch.chain([
 	dispatch.rule({method: 'POST', url:'/r/u/'}, rest_basic_handler),
 	dispatch.rule(true, auth_handler)
 ]);
 
-// Prepare the
+// Prepare the server
 console.log("Starting Server.");
 https
 .createServer(

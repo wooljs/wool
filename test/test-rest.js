@@ -9,7 +9,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-var verifier = require('verifier.js');
+var verifier = require('../lib/verifier.js');
 
 var _http_status = {};
 var http_status = function(v){if (! _http_status.hasOwnProperty(v)) { http_status.test.ok(false, 'No mock was defined for '+v+' status');} else return _http_status[v];}
@@ -17,7 +17,7 @@ var http_status = function(v){if (! _http_status.hasOwnProperty(v)) { http_statu
 var _urlparser = {};
 var urlparser = function(u){ return _urlparser.run(u);}
 
-var rest = require('rest.js').inject(http_status, urlparser);
+var rest = require('../lib/rest.js').inject(http_status, urlparser);
 
 var _mime_type_json = 'application/json';
 

@@ -9,9 +9,9 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-var counter = require('counter'); 
+var counter = require('../lib/counter'); 
 
-var http_status = require('http-status.js').inject();
+var http_status = require('../lib/http-status.js').inject();
 
 var c = "code";
 var t = "text";

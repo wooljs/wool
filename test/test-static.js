@@ -9,7 +9,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-var counter = require('counter.js');
+var counter = require('../lib/counter.js');
 
 var status_code = {}
 
@@ -24,13 +24,13 @@ var urlparser = function (url) {
 
 var fs = {}
 
-var counter = require('counter.js');
+var counter = require('../lib/counter.js');
 var default_path = './static';
 var default_location = 'index.html';
 
 var mime = function() { return 'text/html'; }
 
-var static = require('static.js').inject(http_status, mime, urlparser, fs, default_path, default_location);
+var static = require('../lib/static.js').inject(http_status, mime, urlparser, fs, default_path, default_location);
 
 exports['should manage root path /'] = function (test) {
 

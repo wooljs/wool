@@ -3,117 +3,52 @@
 <head>
 	<title>Winds Of Legends - 传说之风</title>
 	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-	
-	<link rel="stylesheet" href="./js/ui/css/ui-lightness/jquery-ui-1.8.16.custom.css" type="text/css" />
 	<link rel="stylesheet" href="./css/screen.css" type="text/css" />
-	
-	<script type="text/javascript">/** Avoid bug when console unavailable in the browser */ if (typeof console == 'undefined'){console={log:function(){},error:function(x){alert(x)}}}</script>
-	
 	<script src="./js/jquery-1.7.1.min.js"></script>
-	<script src="./js/ui/js/jquery-ui-1.8.16.custom.min.js"></script>
-	
-	<script src="./js/main.js"></script>
+	<script src="./js/wool.js"></script>
 	<script type="text/javascript">
 	"use strict";
-	var wol = inject($);
-	var l10n = wol.i18n_full({});
-	
-	function prepare_input(container) {
-		$('input[type="text"],input[type="password"]',container).each(function(i, elt) {
-			var span = $('<span/>').text(elt.alt).appendTo($(elt).parent());
-			$(elt).focusin(function () { $(span).fadeOut('fast'); });
-			$(elt).focusout(function () { if ($(elt).val()=='') {$(span).fadeIn('fast');} }).focusout();
-		});
-	}
+	wool_inject($,window);
 	
 	$(function () {
-		$('#back').hide();
-		wol.init(function(loader, content, complete) {
-			var welcomeView = wol.view(
-				'welcome', './include/welcome.html', l10n, 
-				function () {bar("Welcome loaded.");}
-			);
-			var subView = wol.view(
-				'subscribe', './include/subscribe_form.html', l10n,
-				function () {bar("Subscribe loaded.");},
-				function (container) {
-					prepare_input(container);
-					var login = $('[name="login"]'); //login.keyup(function () {});
-					var email = $('[name="email"]');
-					email.keyup(function () {
-						if (email.val().match(/^.+@.+$/)) { email.css('color','green'); }
-						else { email.css('color','red');}
-					});
-					var pwd_1 = $('[name="pwd_1"]');
-					var pwd_2 = $('[name="pwd_2"]');
-					function valid_pwd_2() { if (pwd_1.val() != pwd_2.val()) { pwd_2.css('color','red'); } else { pwd_2.css('color','green');} }
-					pwd_2.keyup(valid_pwd_2).change(valid_pwd_2);
-					
-					$('input[type="submit"]',container).click(function(evt) {
-						var subscribe_form_data = {};
-						$('input[type="text"],input[type="password"]').each(function(i, elt) {
-							subscribe_form_data[$(elt).attr('name')] = $(elt).val();
-						});
-						console.dir(subscribe_form_data);
-						console.log(JSON.stringify(subscribe_form_data));
-						$.ajax({
-							url: '/r/u/',
-							type: 'POST',
-							contentType: 'application/json',
-							dataType: 'json',
-							data: JSON.stringify(subscribe_form_data),
-							success: function (data) {
-								window.location.hash='#confirm'
-							},
-							error: function (xhr, status, err) {
-								console.error('/r/u/',status,err);
-							}
-						});
-					});
-				}
-			);
-			var confirmView = wol.view(
-				'confirm', './include/subscribe_confirm.html', l10n,
-				function () {bar("Confirm loaded.");}
-			);
-			var logView = wol.view(
-				'login', './include/login_form.html', l10n,
-				function () {bar("Confirm loaded.");},
-				function (container) {
-					prepare_input(container);
-					$('input[type="submit"]',container).click(function(evt) {
-						var login_form_data = {};
-						$('input[type="text"],input[type="password"]').each(function(i, elt) {
-							login_form_data[$(elt).attr('name')] = $(elt).val();
-						});
-						$.ajax({
-							url: '/r/',
-							type: 'POST',
-							contentType: 'application/json',
-							dataType: 'json',
-							data: JSON.stringify(login_form_data),
-							success: function (data) {
-								window.location.href="./play.html";
-							},
-							error: function (xhr, status, err) {
-								console.error('/r/',status,err);
-							}
-						});
-					});
-				}
-			);
-			
-			var views_mapping = [
-				{valid:function(h){return h.match('^#confirm$')},run: confirmView},
-				{valid:function(h){return h.match('^#sub$')},run: subView},
-				{valid:function(h){return h.match('^#log$')},run: logView},
-				{valid:function(h){return true},run: welcomeView}
-			];
-			var view_from_hash = wol.history_mapper(window, content, views_mapping);
-
-			var bar = wol.progress(loader, views_mapping.length+1, function () { complete();view_from_hash();$('#back').fadeIn(1000); } );
-			bar('launch ready');
-		});			
+		$('#container').wool([
+            './include/welcome.html'
+            ,
+            {
+                valid: function(h){return h.match('^#confirm$');},
+                file: './include/subscribe_confirm.html'
+            },
+            {
+                valid: function(h){return h.match('^#sub$');},
+                file: './include/subscribe_form.html',
+                form: {
+                    'not_empty': 'input[type="text"],input[type="password"]',
+                    'email': 'input[name="email"]',
+                    'field_equals': ['input[name="pwd_1"]','input[name="pwd_2"]'],
+                    'submit': 'input[type="submit"]',
+                    'action': function (data) {
+                        $.wool.ajax.post('/r/u/', data,
+                                function (data) { window.location.hash='#confirm';},
+                                function (xhr, status, err) { console.error('/r/u/',status,err); }
+                        );
+                    }
+                }
+            },
+            {
+                valid: function(h){return h.match('^#log$')},
+                file: './include/login_form.html',
+                form: {
+                    'not_empty': 'input[type="text"],input[type="password"]',
+                    'submit': 'input[type="submit"]',
+                    'action': function (data) {
+                        $.wool.ajax.post('/r/', data,
+                                function (data) { /* TODO cookie */ window.location.href="./play.html"; },
+                                function (xhr, status, err) { console.error('/r/',status,err); }
+                        );
+                    }
+                }
+            }
+        ])
 	});
 	
 	</script>

@@ -9,14 +9,14 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-var counter = require('counter.js');
+var counter = require('../lib/counter.js');
 
 var _filter;
 var filter = function (x) {
 	return _filter(x);
 }
 
-var dispatch = require('dispatch.js').inject(filter);
+var dispatch = require('../lib/dispatch.js').inject(filter);
 
 exports['should chain first only'] = function (test) {
 	var c_1st_valid = counter.build();

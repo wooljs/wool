@@ -9,8 +9,8 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-var counter = require('counter.js');
-var verifier = require('verifier.js');
+var counter = require('../lib/counter.js');
+var verifier = require('../lib/verifier.js');
 
 exports['should fail when a call is missing'] = function (test) {
 	// GIVEN
