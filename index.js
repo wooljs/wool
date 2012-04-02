@@ -14,7 +14,7 @@
 module.exports = {
 	filter: require('./lib/filter.js').inject,
 	dispatch: require('./lib/dispatch.js').inject,
-	http_status: require('./lib/http-status.js').inject.status,
+	http_status: require('./lib/http-status.js').inject,
 	rest: require('./lib/rest.js').inject,
 	auth: require('./lib/auth.js').inject,
 	static: require('./lib/static.js').inject,
