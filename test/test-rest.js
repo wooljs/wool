@@ -30,7 +30,7 @@ exports['should treat GET /r/x/{id} and return 200 with header and data'] = func
 
 	var _biz = { on: verify.add('biz.on()', function(type) {
 		test.equal(type, 'x');
-		return { getOne: verify.add('biz.getOne()',function (id, cb) { test.equal(id, 42); cb(_d);}) };
+		return { getById: verify.add('biz.getById()',function (id, cb) { test.equal(id, 42); cb(undefined,_d);}) };
 	}) };
 	
 	var _u = '/r/x/42', _sub_u = 'x/42'
@@ -74,7 +74,7 @@ exports['should treat GET /r/x/ and return 200 with header and data'] = function
 	var _crit = {};
 	var _biz = { on: verify.add('biz.on()', function(type) {
 		test.equal(type, 'x');
-		return { getAll: verify.add('biz.getAll()',function (crit, cb) { test.deepEqual(crit, _crit); cb(_d);}) };
+		return { find: verify.add('biz.find()',function (crit, cb) { test.deepEqual(crit, _crit); cb(undefined,_d);}) };
 	}) };
 	
 	var _u = '/r/x/', _sub_u = 'x/'
@@ -118,7 +118,7 @@ exports['should treat GET /r/x/?a=12&b=plop and return 200 with header and data'
 	var _crit = {a:12,b:'plop'};
 	var _biz = { on: verify.add('biz.on()', function(type) {
 		test.equal(type, 'x');
-		return { getAll: verify.add('biz.getAll()',function (crit,cb) { test.deepEqual(crit, _crit); cb(_d);}) };
+		return { find: verify.add('biz.find()',function (crit,cb) { test.deepEqual(crit, _crit); cb(undefined, _d);}) };
 	}) };
 	
 	var _u = '/r/x/?a=12&b=plop', _sub_u = 'x/?a=12&b=plop', _sub_u_pathname = 'x/';
@@ -169,7 +169,7 @@ exports['should treat POST /r/x/'] = function (test) {
 	
 	var _biz = { on: verify.add('biz.on()', function(type) {
 		test.equal(type, 'x');
-		return { create: verify.add('biz.create()',function (obj,cb) { test.deepEqual(obj, _obj); obj.id=_created_obj_id; cb(obj.id);}) };
+		return { save: verify.add('biz.save()',function (obj,cb) { test.deepEqual(obj, _obj); obj.id=_created_obj_id; cb(undefined, obj.id);}) };
 	}) };
 	
 	var _sub_u = 'x/', _sub_u_pathname = 'x/';
@@ -214,7 +214,7 @@ exports['should treat DELETE /r/x/{id}'] = function (test) {
 	// GIVEN
 	var _biz = { on: verify.add('biz.on()', function(type) {
 		test.equal(type, 'x');
-		return { delete: verify.add('biz.delete()',function (id,cb) { test.equal(id, 42); cb();}) };
+		return { remove: verify.add('biz.remove()',function (id,cb) { test.equal(id, 42); cb();}) };
 	}) };
 	
 	var _u = '/r/x/42', _sub_u = 'x/42'

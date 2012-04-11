@@ -3,3 +3,4 @@ server-csr.pem
 server-key.pem
 game/js/jquery-1.7.1.min.js
 game/js/ui/
+node_modules/
