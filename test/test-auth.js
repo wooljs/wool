@@ -93,7 +93,7 @@ exports['should accept valid tentative of authentification with POST on login_ur
 	// GIVEN
 	http_status.test = test;
 	var session_id = "XXXX";
-	var biz = { login: verify.add('biz.login',function (o, c) { test.deepEqual(o,{l:'x',p:'y'}); c(session_id); }) };
+	var biz = { login: verify.add('biz.login',function (o, c) { test.deepEqual(o,{l:'x',p:'y'}); c(undefined,session_id); }) };
 	var q,s;	
 	_http_status[201] = verify.add('http status 201 handler',function (res,t,v) {test.strictEqual(res,s);res.writeHead(201, {'Content-Type': t});res.end(v)});
 	
@@ -129,7 +129,7 @@ exports['should refuse invalid tentative of authentification with POST on login_
 	// GIVEN
 	http_status.test = test;
 	var session_id = "XXXX";
-	var biz = { login: verify.add('biz.login',function (o, cb) {test.ok(typeof o['l'] == 'undefined');test.ok(typeof o['p'] == 'undefined'); cb(undefined); }) };
+	var biz = { login: verify.add('biz.login',function (o, cb) {test.ok(typeof o['l'] === 'undefined');test.ok(typeof o['p'] === 'undefined'); cb({status:401}); }) };
 	var q,s;	
 	_http_status[401] = verify.add('http status 401 handler',function (res,t) {test.strictEqual(res,s);res.writeHead(401, {'Content-Type': t});res.end()});
 	
