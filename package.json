@@ -12,7 +12,8 @@
   "dependencies": {
 	"knit": "*",
 	"mime": "*",
-	"cryptojs": "*"
+	"cryptojs": "*",
+	"moment": "*"
   },
   "devDependencies": {
 	"nodeunit": "*"
