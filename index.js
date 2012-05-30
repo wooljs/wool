@@ -20,4 +20,5 @@ module.exports = {
 	static: require('./lib/static.js').inject,
 	db: require('./lib/db.js').inject,
 	biz: require('./lib/biz.js').inject,
+	template: require('./lib/template.js').inject,
 }

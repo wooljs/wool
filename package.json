@@ -13,7 +13,8 @@
 	"knit": "*",
 	"mime": "*",
 	"cryptojs": "*",
-	"moment": "*"
+	"moment": "*",
+	"underscore": "*"
   },
   "devDependencies": {
 	"nodeunit": "*"
