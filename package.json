@@ -14,7 +14,7 @@
 	"mime": "*",
 	"cryptojs": "*",
 	"moment": "*",
-	"underscore": "*"
+	"mu2": "*"
   },
   "devDependencies": {
 	"nodeunit": "*"
