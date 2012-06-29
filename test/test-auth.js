@@ -17,12 +17,12 @@ var http_status = function(v){if (! _http_status.hasOwnProperty(v)) { http_statu
 var _urlparser = {};
 var urlparser = function(u){ return _urlparser.run(u);}
 
-var auth = require('../lib/auth.js').inject(http_status, urlparser);
+var auth = require('../lib/auth.js')(http_status, urlparser);
 
 function test_method_unauthentified_call_on_resource(tested_method, tested_url) {
 	exports['should refuse un-authentified call with no header '+tested_method+' on '+tested_url] = function (test) {
 		http_status.test = test;
-		var verify = verifier.build(test);
+		var verify = verifier(test);
 		
 		// GIVEN
 		// should refuse even with systematic acceptation
@@ -47,7 +47,7 @@ function test_method_unauthentified_call_on_resource(tested_method, tested_url) 
 	};
 	exports['should refuse un-authentified call with invalid header '+tested_method+' on '+tested_url] = function (test) {
 		http_status.test = test;
-		var verify = verifier.build(test);
+		var verify = verifier(test);
 		
 		// GIVEN
 		var invalid_session_id = 'XX';
@@ -88,7 +88,7 @@ test_all_method_unauthentified_call_on_resource('/r/a/42');
 test_all_method_unauthentified_call_on_resource('/r/42?a=n');
 
 exports['should accept valid tentative of authentification with POST on login_url'] = function (test) {
-	var verify = verifier.build(test);
+	var verify = verifier(test);
 	
 	// GIVEN
 	http_status.test = test;
@@ -124,7 +124,7 @@ exports['should accept valid tentative of authentification with POST on login_ur
 };
 
 exports['should refuse invalid tentative of authentification with POST on login_url'] = function (test) {
-	var verify = verifier.build(test);
+	var verify = verifier(test);
 	
 	// GIVEN
 	http_status.test = test;
@@ -163,7 +163,7 @@ exports['should refuse invalid tentative of authentification with POST on login_
 function test_method_authentified_call_on_unauthorized_resource(tested_method, tested_url, tested_parsed) {
 	exports['should refuse authentified '+tested_method+' call on unauthorized resource '+tested_url] = function (test) {
 		http_status.test = test;
-		var verify = verifier.build(test);
+		var verify = verifier(test);
 
 		// GIVEN
 		var tested_url_root = '/r/'
@@ -208,7 +208,7 @@ function test_all_method_authentified_call_on_authorized_resource(tested_url, te
 	['HEAD', 'GET', 'POST', 'PUT', 'DELETE'].forEach(function(tested_method) {
 		exports['should accept authentified '+tested_method+' call on authorized resource '+tested_url] = function (test) {
 			http_status.test = test;
-			var verify = verifier.build(test);
+			var verify = verifier(test);
 
 			// GIVEN
 			var tested_url_root = '/r/'

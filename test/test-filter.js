@@ -10,7 +10,7 @@
  */
 
 var counter = require('../lib/counter.js')
-var filter_module = require('../lib/filter.js').inject('url')
+var filter_module = require('../lib/filter.js')('url')
 var filter = filter_module.root_filter
 var not = filter_module.not
 
@@ -24,7 +24,7 @@ exports['should always accept filter true'] = function (test) {
 }
 
 exports['should use function to filter req.url'] = function (test) {
-	var c = counter.build()
+	var c = counter()
 	var x = {}
 	var fun = function(o) {c.inc();return o}
 	var y = filter(fun)({url:x})
@@ -62,7 +62,7 @@ exports['should fail if filter is integer'] = function (test) {
 }
 
 exports['should accept if any filter is ok on req.url'] = function (test) {
-	var c_call = counter.build()
+	var c_call = counter()
 
 	test.ok(filter([
 		function() {c_call.inc();return false},

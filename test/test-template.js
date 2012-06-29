@@ -11,7 +11,7 @@
  
 var verifier = require('../lib/verifier.js');
 
-var biz = require('../lib/biz.js')();
+var biz = require('../lib/template.js')();
 
 exports['should start unit test'] = function (test) {
 	test.ok(false);

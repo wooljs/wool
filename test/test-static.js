@@ -30,13 +30,13 @@ var default_location = 'index.html';
 
 var mime = function() { return 'text/html'; }
 
-var static = require('../lib/static.js').inject(http_status, mime, urlparser, fs, default_path, default_location);
+var static = require('../lib/static.js')(http_status, mime, urlparser, fs, default_path, default_location);
 
 exports['should manage root path /'] = function (test) {
 
-	var c_match = counter.build();
-	var c_200 = counter.build();
-	var c_unmatch = counter.build();
+	var c_match = counter();
+	var c_200 = counter();
+	var c_unmatch = counter();
 
 	// GIVEN
 	var url = 'http://localhost:8000';
@@ -83,9 +83,9 @@ exports['should manage root path /'] = function (test) {
 
 exports['should manage redirect url http://.../foo to http://.../foo/'] = function (test) {
 
-	var c_match = counter.build();
-	var c_302 = counter.build();
-	var c_unmatch = counter.build();
+	var c_match = counter();
+	var c_302 = counter();
+	var c_unmatch = counter();
 
 	// GIVEN
 	var url = 'http://localhost:8000/foo';
@@ -135,8 +135,8 @@ exports['should manage redirect url http://.../foo to http://.../foo/'] = functi
 
 exports['should manage path to file /test.html '] = function (test) {
 
-	var c_match = counter.build();
-	var c_200 = counter.build();
+	var c_match = counter();
+	var c_200 = counter();
 
 	// GIVEN
 	var url = 'http://localhost:8000/test.html';
@@ -182,9 +182,9 @@ exports['should manage path to file /test.html '] = function (test) {
 
 exports['should manage secondary root path /plop'] = function (test) {
 
-	var c_match = counter.build();
-	var c_200 = counter.build();
-	var c_unmatch = counter.build();
+	var c_match = counter();
+	var c_200 = counter();
+	var c_unmatch = counter();
 
 	// GIVEN
 	var url = 'http://localhost:8000/plop/';

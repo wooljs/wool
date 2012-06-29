@@ -16,11 +16,11 @@ var filter = function (x) {
 	return _filter(x);
 }
 
-var dispatch = require('../lib/dispatch.js').inject(filter);
+var dispatch = require('../lib/dispatch.js')(filter);
 
 exports['should chain first only'] = function (test) {
-	var c_1st_valid = counter.build();
-	var c_1st_run = counter.build();
+	var c_1st_valid = counter();
+	var c_1st_run = counter();
 
 	var req = {};
 	var res = {};
@@ -63,9 +63,9 @@ exports['should chain first only'] = function (test) {
 };
 
 exports['should chain second only'] = function (test) {
-	var c_1st_valid = counter.build();
-	var c_2nd_valid = counter.build();
-	var c_2nd_run = counter.build();
+	var c_1st_valid = counter();
+	var c_2nd_valid = counter();
+	var c_2nd_run = counter();
 	
 	var req = {};
 	var res = {};
@@ -118,7 +118,7 @@ exports['should build rule'] = function (test) {
 	test.strictEqual(rule1.run, action);
 	
 	
-	var c_filter = counter.build();
+	var c_filter = counter();
 	var def = "xx";
 	var res = function() {}
 	_filter = function (x) {

@@ -9,7 +9,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-var str_to_obj = require('../lib/str_to_obj.js').inject(require('vm'))
+var str_to_obj = require('../lib/str_to_obj.js')(require('vm'))
 
 exports['should reject non string'] = function (test) {
 	test.throws(function() { str_to_obj(0) })

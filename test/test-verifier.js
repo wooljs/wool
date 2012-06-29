@@ -14,7 +14,7 @@ var verifier = require('../lib/verifier.js');
 
 exports['should fail when a call is missing'] = function (test) {
 	// GIVEN
-	var c = counter.build();
+	var c = counter();
 	
 	var _b = [true,false,true];
 	var _t = ['u was expected 1 but was called 1','v was expected 1 but was called 0','w was expected 1 but was called 1'];
@@ -25,7 +25,7 @@ exports['should fail when a call is missing'] = function (test) {
 			c.inc();
 		}
 	};
-	var verify = verifier.build(stub);
+	var verify = verifier(stub);
 	
 	var _u={}, _v={}, _w={};
 	var f_u = verify.add('u',function(u) {test.strictEqual(u,_u)});
@@ -45,7 +45,7 @@ exports['should fail when a call is missing'] = function (test) {
 
 exports['should fail if awaited multiple call is missing'] = function (test) {
 	// GIVEN
-	var c = counter.build();
+	var c = counter();
 	
 	var _b = [true,true,false];
 	var _t = ['u was expected 1 but was called 1','v was expected 1 but was called 1','w was expected 3 but was called 2'];
@@ -56,7 +56,7 @@ exports['should fail if awaited multiple call is missing'] = function (test) {
 			c.inc();
 		}
 	};
-	var verify = verifier.build(stub);
+	var verify = verifier(stub);
 	
 	var _u={}, _v={}, _w={};
 	var f_u = verify.add('u',function(u) {test.strictEqual(u,_u)});
@@ -78,7 +78,7 @@ exports['should fail if awaited multiple call is missing'] = function (test) {
 
 exports['should check all single call'] = function (test) {
 	// GIVEN
-	var c = counter.build();
+	var c = counter();
 	
 	var _b = [true,true,true];
 	var _t = ['u was expected 1 but was called 1','v was expected 1 but was called 1','w was expected 1 but was called 1'];
@@ -89,7 +89,7 @@ exports['should check all single call'] = function (test) {
 			c.inc();
 		}
 	};
-	var verify = verifier.build(stub);
+	var verify = verifier(stub);
 	
 	var _u={}, _v={}, _w={};
 	var f_u = verify.add('u',function(u) {test.strictEqual(u,_u)});
@@ -109,7 +109,7 @@ exports['should check all single call'] = function (test) {
 }
 exports['should check all multiple call'] = function (test) {
 	// GIVEN
-	var c = counter.build();
+	var c = counter();
 	
 	var _b = [true,true,true];
 	var _t = ['u was expected 2 but was called 2','v was expected 3 but was called 3','w was expected 1 but was called 1'];
@@ -120,7 +120,7 @@ exports['should check all multiple call'] = function (test) {
 			c.inc();
 		}
 	};
-	var verify = verifier.build(stub);
+	var verify = verifier(stub);
 	
 	var _u={}, _v={}, _w={};
 	var f_u = verify.add('u',function(u) {test.strictEqual(u,_u)},2);

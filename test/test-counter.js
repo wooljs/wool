@@ -13,7 +13,7 @@ var counter = require('../lib/counter.js');
 
 exports['should count'] = function (test) {
 	
-	var c = counter.build();
+	var c = counter();
 	
 	test.equal(c.check(), 0);
 	test.equal(c.check(), 0);

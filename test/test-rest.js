@@ -17,12 +17,12 @@ var http_status = function(v){if (! _http_status.hasOwnProperty(v)) { http_statu
 var _urlparser = {};
 var urlparser = function(u){ return _urlparser.run(u);}
 
-var rest = require('../lib/rest.js').inject(http_status, urlparser);
+var rest = require('../lib/rest.js')(http_status, urlparser);
 
 var _mime_type_json = 'application/json';
 
 exports['should treat GET /r/x/{id} and return 200 with header and data'] = function (test) {
-	var verify = verifier.build(test);
+	var verify = verifier(test);
 	http_status.test = test;
 	
 	// GIVEN
@@ -65,7 +65,7 @@ exports['should treat GET /r/x/{id} and return 200 with header and data'] = func
 };
 
 exports['should treat GET /r/x/ and return 200 with header and data'] = function (test) {
-	var verify = verifier.build(test);
+	var verify = verifier(test);
 	http_status.test = test;
 	
 	// GIVEN
@@ -109,7 +109,7 @@ exports['should treat GET /r/x/ and return 200 with header and data'] = function
 }
 
 exports['should treat GET /r/x/?a=12&b=plop and return 200 with header and data'] = function (test) {
-	var verify = verifier.build(test);
+	var verify = verifier(test);
 	http_status.test = test;
 	
 	// GIVEN
@@ -160,7 +160,7 @@ exports['should treat HEAD /r/x/? and return 200 with header but no data'] = fun
 //*/
 
 exports['should treat POST /r/x/'] = function (test) {
-	var verify = verifier.build(test);
+	var verify = verifier(test);
 	http_status.test = test;
 
 	// GIVEN
@@ -208,7 +208,7 @@ exports['should treat PUT /r/x/{id}'] = function (test) {test.ok(false);test.don
 
 //*/
 exports['should treat DELETE /r/x/{id}'] = function (test) {
-	var verify = verifier.build(test);
+	var verify = verifier(test);
 	http_status.test = test;
 
 	// GIVEN

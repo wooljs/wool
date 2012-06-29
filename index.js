@@ -11,15 +11,24 @@
 
 // simple export to move on with
 
-module.exports = {
-	filter: require('./lib/filter.js').inject,
-	dispatch: require('./lib/dispatch.js').inject,
-	http_status: require('./lib/http-status.js').inject().status,
-	rest: require('./lib/rest.js').inject,
-	auth: require('./lib/auth.js').inject,
-	static: require('./lib/static.js').inject,
-	db: require('./lib/db.js').inject,
-	biz: require('./lib/biz.js').inject,
-	template: require('./lib/template.js').inject,
-	str_to_obj: require('./lib/str_to_obj.js').inject,
-}
+module.exports = require('knit').inject(function (knit, url, mime, fs) {
+	knit.config(function (bind) {
+		bind('mime').to(mime.lookup)
+		bind('urlparser').to(url.parse)
+		bind('http_status').to(require('./lib/http-status.js')().status)
+		bind('default_field').to('url')
+		bind('def_filter').to(require('./lib/filter.js'))
+		bind('str_to_obj').to(require('./lib/str_to_obj.js')).is('builder')
+		bind('filter').to(function (def_filter) {return def_filter('url')}).is('builder')
+		bind('root_filter').to(function (filter) {return filter.root_filter}).is('builder')
+		bind('dispatch').to(require('./lib/dispatch.js')).is('builder')
+		bind('static').to(function (http_status, mime, urlparser, fs) {return require('./lib/static.js')(http_status, mime, urlparser, fs);}).is('builder')
+		bind('template').to(require('./lib/template.js')).is('builder')
+		bind('rest').to(require('./lib/rest.js')).is('builder')
+		bind('auth').to(require('./lib/auth.js')).is('builder')
+		bind('biz').to(require('./lib/biz.js')).is('builder')
+		bind('db').to(require('./lib/db.js')).is('builder')
+	})
+})
+	
+	

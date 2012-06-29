@@ -11,7 +11,7 @@
 
 var counter = require('../lib/counter'); 
 
-var http_status = require('../lib/http-status.js').inject();
+var http_status = require('../lib/http-status.js')();
 
 var c = "code";
 var t = "text";
@@ -20,8 +20,8 @@ var data = "data";
 var url = "url";
 
 exports['should process data'] = function (test) {	
-	var c_writeHead = counter.build();
-	var c_end = counter.build();
+	var c_writeHead = counter();
+	var c_end = counter();
 	
 	var res = {
 		writeHead : function (code, ct) {
@@ -44,8 +44,8 @@ exports['should process data'] = function (test) {
 }
 
 exports['should process data with additional headers'] = function (test) {	
-	var c_writeHead = counter.build();
-	var c_end = counter.build();
+	var c_writeHead = counter();
+	var c_end = counter();
 	
 	var res = {
 		writeHead : function (code, ct) {
@@ -68,8 +68,8 @@ exports['should process data with additional headers'] = function (test) {
 }
 
 exports['should process created'] = function (test) {
-	var c_writeHead = counter.build();
-	var c_end = counter.build();
+	var c_writeHead = counter();
+	var c_end = counter();
 	
 	var type = 'text/plain';
 	
@@ -94,8 +94,8 @@ exports['should process created'] = function (test) {
 }
 
 exports['should process moved'] = function (test) {
-	var c_writeHead = counter.build();
-	var c_end = counter.build();
+	var c_writeHead = counter();
+	var c_end = counter();
 	
 	var res = {
 		writeHead : function (code, ct) {
@@ -118,8 +118,8 @@ exports['should process moved'] = function (test) {
 }
 
 exports['should process no_response'] = function (test) {
-	var c_writeHead = counter.build();
-	var c_end = counter.build();
+	var c_writeHead = counter();
+	var c_end = counter();
 	
 	var res = {
 		writeHead : function (code, ct) {
@@ -142,9 +142,9 @@ exports['should process no_response'] = function (test) {
 }
 
 exports['should process error'] = function (test) {
-	var c_writeHead = counter.build();
-	var c_end = counter.build();
-	var c_provide = counter.build();
+	var c_writeHead = counter();
+	var c_end = counter();
+	var c_provide = counter();
 	
 	var provide = function (code, text) {
 		c_provide.inc();
@@ -168,7 +168,50 @@ exports['should process error'] = function (test) {
 	}
 	
 	http_status.error(c,t)(res);
-	http_status.error(c,t)(res, provide);
+	http_status.error(c,t)(res, {}, provide);
+	
+	test.equal(2, c_writeHead.check());
+	test.equal(2, c_end.check());
+	test.equal(2, c_provide.check());
+	
+	test.done();
+}
+
+exports['should process error additional header'] = function (test) {
+	var c_writeHead = counter();
+	var c_end = counter();
+	var c_provide = counter();
+	
+	var provide = function (code, text) {
+		c_provide.inc();
+		test.strictEqual(code,c);
+		test.strictEqual(text,t);
+		return data;
+	}
+
+	http_status.default_provide = provide;
+
+	var res = {
+		writeHead : function (code, ct) {
+			c_writeHead.inc();
+			test.strictEqual(code,c);
+			switch(c_writeHead.check()) {
+			case 1: 
+				test.deepEqual(ct,{'Content-Type' : 'text/html', 'plip': 'plop'});
+				break;
+			case 2: 
+				test.deepEqual(ct,{'Content-Type' : 'text/plain', 'plip': 'plop'});
+				break;
+			}
+		},
+		end : function(d) {
+			c_end.inc();
+			test.equal(d,data);
+		}
+	}
+	
+	http_status.error(c,t)(res, {'plip': 'plop'}, provide);
+	http_status.error(c,t)(res, {'Content-Type' : 'text/plain', 'plip': 'plop'}, provide);
 	
 	test.equal(2, c_writeHead.check());
 	test.equal(2, c_end.check());
