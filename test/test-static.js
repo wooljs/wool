@@ -25,7 +25,7 @@ var urlparser = function (url) {
 var fs = {}
 
 var counter = require('../lib/counter.js');
-var default_path = './static';
+var default_path = './test-static-resource';
 var default_location = 'index.html';
 
 var mime = function() { return 'text/html'; }
@@ -49,12 +49,12 @@ exports['should manage root path /'] = function (test) {
 	fs.stat = function (path, fun) {
 		fun (false , {
 			isDirectory : function () {
-				var matching = path.match('^./static/$');
+				var matching = path.match('^'+default_path+'/$');
 				if (matching) {
-					test.equal(path,'./static/');
+					test.equal(path, default_path+'/');
 					c_match.inc();
 				} else {
-					test.equal(path,'./static/index.html');
+					test.equal(path, default_path+'/index.html');
 					c_unmatch.inc();
 				}
 				return matching;
@@ -103,7 +103,7 @@ exports['should manage redirect url http://.../foo to http://.../foo/'] = functi
 	fs.stat = function (path, fun) {
 		fun (false , {
 			isDirectory : function () {
-				var matching = path.match('^./static/foo$');
+				var matching = path.match('^'+default_path+'/foo$');
 				if (matching) {
 					c_match.inc();
 				} else {
@@ -153,7 +153,7 @@ exports['should manage path to file /test.html '] = function (test) {
 	}
 
 	fs.stat = function (path, fun) {
-		test.equal(path,'./static/test.html');
+		test.equal(path, default_path+'/test.html');
 		fun (false , {
 			isDirectory : function () {
 				c_match.inc();

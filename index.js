@@ -12,7 +12,7 @@
 // simple export to move on with
 
 module.exports = require('knit').inject(function (knit, url, mime, fs) {
-	knit.config(function (bind) {
+	return knit.config(function (bind) {
 		bind('mime').to(mime.lookup)
 		bind('urlparser').to(url.parse)
 		bind('http_status').to(require('./lib/http-status.js')().status)
@@ -28,6 +28,8 @@ module.exports = require('knit').inject(function (knit, url, mime, fs) {
 		bind('auth').to(require('./lib/auth.js')).is('builder')
 		bind('biz').to(require('./lib/biz.js')).is('builder')
 		bind('db').to(require('./lib/db.js')).is('builder')
+	}).inject(function () {
+		return {ready:true}
 	})
 })
 	
