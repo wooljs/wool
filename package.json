@@ -12,7 +12,6 @@
   "dependencies": {
 	"knit": "*",
 	"mime": "*",
-	"cryptojs": "*",
 	"moment": "*",
 	"mu2": "*"
   },
