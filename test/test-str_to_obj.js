@@ -52,12 +52,7 @@ test_template("{a:1,/* comment 1 bla */\n// comment 2 plop\n b:[12,'plop']}",{a:
 		expected = {a:1,f:function(x){return x+1}}
 		
 	exports['should parse '+param+' as object string'] = function (test) {
-		console.log("plop")
-		
-		var res = str_to_obj(param)
-		
-		console.log(res)
-		
+		var res = str_to_obj(param)		
 		test.equal(res.a, expected.a)
 		test.equal(res.f.toString(), expected.f.toString())
 		test.done()
