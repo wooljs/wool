@@ -11,9 +11,8 @@
 
 // simple export to move on with
 
-module.exports = require('knit').inject(function (knit, url, mime, fs) {
+module.exports = require('knit').inject(function (knit, url, fs) {
 	return knit.config(function (bind) {
-		bind('mime').to(mime.lookup)
 		bind('urlparser').to(url.parse)
 		bind('http_status').to(require('./lib/http-status.js')().status)
 		bind('default_field').to('url')
