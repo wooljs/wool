@@ -14,10 +14,13 @@ var verifier = require('../lib/verifier.js');
 var _http_status = {};
 var http_status = function(v){if (! _http_status.hasOwnProperty(v)) { http_status.test.ok(false, 'No mock was defined for '+v+' status');} else return _http_status[v];}
 
+var _moment = {};
+var moment = function(u){ return _moment.run(u);}
+
 var _urlparser = {};
 var urlparser = function(u){ return _urlparser.run(u);}
 
-var auth = require('../lib/auth.js')(http_status, urlparser);
+var auth = require('../lib/auth.js')(http_status, moment, urlparser);
 
 function test_method_unauthentified_call_on_resource(tested_method, tested_url) {
 	exports['should refuse un-authentified call with no header '+tested_method+' on '+tested_url] = function (test) {
@@ -32,7 +35,8 @@ function test_method_unauthentified_call_on_resource(tested_method, tested_url) 
 		var auth_u = auth.build(biz,'/r/',function(){});
 
 		_http_status[401] = verify.add('http status 401 handler', function (res) {test.strictEqual(res,s);res.writeHead(401);});
-		var q = {method: tested_method, url: tested_url, headers: {}}		
+		_urlparser.run = verify.add('urlparser()', function(v) { test.strictEqual(v, tested_url.substring('/r/'.length)); return {} } );
+		var q = {method: tested_method, url: tested_url, headers: {cookie:''}}		
 		var s = {writeHead : verify.add('receive 401 code',function(code) {test.equal(code,401);})};
 		
 		// WHEN
