@@ -13,8 +13,7 @@
 	"knit": "*",
 	"mime": "*",
 	"moment": "*",
-	"mu2": "*",
-	"pegjs" : "*"
+	"mu2": "*"
   },
   "devDependencies": {
 	"nodeunit": "*"
