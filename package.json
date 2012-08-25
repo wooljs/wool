@@ -2,7 +2,7 @@
   "author": "Nicolas Lochet",
   "name": "wool",
   "description": "Web development framework inspired by GWT, trying to build the same concepts with node.js and JQuery",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "homepage": "https://github.com/nicocube/wool",
   "repository": {
     "type": "git",
