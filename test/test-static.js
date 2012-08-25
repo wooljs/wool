@@ -28,7 +28,7 @@ var counter = require('../lib/counter.js');
 var default_path = './test-static-resource';
 var default_location = 'index.html';
 
-var mime = function() { return 'text/html'; }
+var mime = {lookup: function() { return 'text/html'; } }
 
 var static = require('../lib/static.js')(http_status, mime, urlparser, fs, default_path, default_location);
 

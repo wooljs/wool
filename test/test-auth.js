@@ -15,15 +15,15 @@ var _http_status = {};
 var http_status = function(v){if (! _http_status.hasOwnProperty(v)) { http_status.test.ok(false, 'No mock was defined for '+v+' status');} else return _http_status[v];}
 
 var _moment = {};
-var moment = function(u){ return _moment.run(u);}
+var moment = function(){ return { add : _moment.add} }
 
 var _urlparser = {};
 var urlparser = function(u){ return _urlparser.run(u);}
 
-var auth = require('../lib/auth.js')(http_status, moment, urlparser);
+var auth = require('../lib/auth.js')(http_status, moment, urlparser, function(x,t) { x() } );
 
 function test_method_unauthentified_call_on_resource(tested_method, tested_url) {
-	exports['should refuse un-authentified call with no header '+tested_method+' on '+tested_url] = function (test) {
+	exports['should refuse un-authentified call with no session cookie '+tested_method+' on '+tested_url] = function (test) {
 		http_status.test = test;
 		var verify = verifier(test);
 		
@@ -44,25 +44,27 @@ function test_method_unauthentified_call_on_resource(tested_method, tested_url) 
 		
 		// THEN
 		verify.check();
-		test.expect(4);
+		test.expect(6);
 		test.done();
 		delete _urlparser.run;
 		delete _http_status[401];
 	};
-	exports['should refuse un-authentified call with invalid header '+tested_method+' on '+tested_url] = function (test) {
+	exports['should refuse un-authentified call with invalid session cookie '+tested_method+' on '+tested_url] = function (test) {
 		http_status.test = test;
 		var verify = verifier(test);
 		
 		// GIVEN
 		var invalid_session_id = 'XX';
-		var biz={auth: verify.add('biz.auth()',function(v,p,c) {test.strictEqual(v,invalid_session_id); c(false);})};
+		var biz={auth: verify.add('biz.auth()',function(v,p,c) {test.strictEqual(v,invalid_session_id); c({err:'plop'});})};
 		
 		// under test
 		var auth_u = auth.build(biz,'/r/',function(){});
 		
 		_http_status[401] = verify.add('http status 401 handler', function (res) {test.strictEqual(res,s);res.writeHead(401);});
-		_urlparser.run = verify.add('urlparser()', function(v) { test.strictEqual(v, tested_url.substring('/r/'.length)); return {} } );
-		var q = {method: tested_method, url: tested_url, headers: {'X-Token':invalid_session_id}};
+		_format = verify.add('moment().add().format', function(f) { test.strictEqual(f, "ddd, DD-MMM-YYYY HH:mm:ss Z"); return '' });
+		_moment.add = verify.add('moment().add()', function(d,t) { test.strictEqual(d, 'd'); test.strictEqual(t , -100); return {format: _format } });
+		_urlparser.run = verify.add('urlparser()', function(v) { test.strictEqual(v, tested_url.substring('/r/'.length)); return {pathname:''} });
+		var q = {method: tested_method, url: tested_url, headers: {cookie : 'X-Token='+invalid_session_id}};
 		var s = {writeHead : verify.add('receive 401 code',function(code) {test.equal(code,401);})};
 		
 		// WHEN
@@ -70,8 +72,9 @@ function test_method_unauthentified_call_on_resource(tested_method, tested_url) 
 		
 		// THEN
 		verify.check();
-		test.expect(8);
+		test.expect(13);
 		test.done();
+		delete _moment.add;
 		delete _urlparser.run;
 		delete _http_status[401];
 	};
@@ -96,10 +99,13 @@ exports['should accept valid tentative of authentification with POST on login_ur
 	
 	// GIVEN
 	http_status.test = test;
-	var session_id = "XXXX";
-	var biz = { login: verify.add('biz.login',function (o, c) { test.deepEqual(o,{l:'x',p:'y'}); c(undefined,session_id); }) };
+	var session_id = "XXXX"
+		place = 'place.html'
+	var biz = { login: verify.add('biz.login',function (o, c) { test.deepEqual(o,{l:'x',p:'y'}); c(undefined,session_id,place); }) };
 	var q,s;	
 	_http_status[201] = verify.add('http status 201 handler',function (res,t,v) {test.strictEqual(res,s);res.writeHead(201, {'Content-Type': t});res.end(v)});
+	_format = verify.add('moment().add().format', function(f) { test.strictEqual(f, "ddd, DD-MMM-YYYY HH:mm:ss Z"); return '' });
+	_moment.add = verify.add('moment().add()', function(d,t) { test.strictEqual(d, 'd'); test.strictEqual(t , 1); return {format: _format } });
 	
 	// under test
 	var auth_u = auth.build(biz,'/r/',function(){});
@@ -113,7 +119,7 @@ exports['should accept valid tentative of authentification with POST on login_ur
 	};
 	s = {
 		writeHead : verify.add('response write header' ,function(code,t) {test.equal(code,201);test.deepEqual(t,{'Content-Type': 'application/json'})}),
-		end: verify.add('response end', function(data) {test.equal(data,'"'+session_id+'"');})
+		end: verify.add('response end', function(data) {test.equal(data,'"'+place+'"');})
 	};
 	
 	// WHEN
@@ -121,7 +127,7 @@ exports['should accept valid tentative of authentification with POST on login_ur
 	
 	// THEN
 	verify.check();
-	test.expect(9);
+	test.expect(14);
 	test.done();
 	delete _urlparser.run;
 	delete _http_status[201];
@@ -174,14 +180,16 @@ function test_method_authentified_call_on_unauthorized_resource(tested_method, t
 		var valid_session_id = 'XX';
 
 		var biz = {
-			auth: verify.add('biz.auth()',function(v,u,c) {test.strictEqual(v,valid_session_id); test.strictEqual(u,tested_parsed.pathname); c(false);})
+			auth: verify.add('biz.auth()',function(v,u,c) {test.strictEqual(v,valid_session_id); test.strictEqual(u,tested_parsed.pathname); c({err:401});})
 		};
 		
+		_format = verify.add('moment().add().format', function(f) { test.strictEqual(f, "ddd, DD-MMM-YYYY HH:mm:ss Z"); return '' });
+		_moment.add = verify.add('moment().add()', function(d,t) { test.strictEqual(d, 'd'); test.strictEqual(t , -100); return {format: _format } });
 		_http_status[401] = verify.add('http status 401 handler', function (res) {test.strictEqual(res,s);res.writeHead(401);});
 		
 		_urlparser.run = verify.add('urlparser()', function(v) { test.equal(v, tested_parsed.href); return tested_parsed } );
 		
-		var q = {method: tested_method, url: tested_url, headers: {'X-Token': valid_session_id}};
+		var q = {method: tested_method, url: tested_url, headers: {cookie : 'X-Token='+valid_session_id}};
 		var s = {writeHead : verify.add('receive 401 code',function(code) {test.equal(code,401);})};
 		
 		// under test
@@ -192,7 +200,7 @@ function test_method_authentified_call_on_unauthorized_resource(tested_method, t
 		
 		// THEN
 		verify.check();
-		test.expect(9);
+		test.expect(14);
 		test.done();
 		delete _http_status[401];
 	};
@@ -219,12 +227,12 @@ function test_all_method_authentified_call_on_authorized_resource(tested_url, te
 			var valid_session_id = 'XX';
 
 			var biz = {
-				auth: verify.add('biz.auth()',function(v,u,c) {test.strictEqual(v,valid_session_id); test.strictEqual(u,tested_parsed.pathname); c(true);})
+				auth: verify.add('biz.auth()',function(v,u,c) {test.strictEqual(v,valid_session_id); test.strictEqual(u,tested_parsed.pathname); c(undefined);})
 			};
 			
 			_urlparser.run = verify.add('urlparser()', function(v) { test.equal(v, tested_parsed.href); return tested_parsed } );
 			
-			var q = {method: tested_method, url: tested_url, headers: {'X-Token': valid_session_id}};
+			var q = {method: tested_method, url: tested_url, headers: {cookie : 'X-Token='+valid_session_id}};
 			var s = {writeHead : function() {test.ok(false,'mock handler should not call here');} };
 			
 			// under test

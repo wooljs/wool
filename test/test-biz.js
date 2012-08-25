@@ -11,9 +11,21 @@
  
 var verifier = require('../lib/verifier.js');
 
-var biz = require('../lib/biz.js')();
+var db = { }
 
-exports['should start unit test'] = function (test) {
-	test.ok(false);
-	test.done();
+var _moment = {},
+	moment = function(){ return { add : _moment.add} }
+
+var biz = require('../lib/biz.js')(db, moment);
+
+exports['should check login'] = function (test) {
+	
+	var validator = {},
+		mapping = {}
+	
+	var b = biz.build(validator,mapping)
+	
+	b.login({l: 'lelogin', p: 'le password'}, function() { })
+	
+	test.done()
 }
