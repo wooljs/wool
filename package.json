@@ -8,6 +8,9 @@
     "type": "git",
         "url": "git://github.com/nicocube/wool.git"
     },
+    "scripts": {
+        "test": "node_modules/jasmine-node/bin/jasmine-node spec/"
+    },
     "dependencies": {
         "knit": "*",
         "moment": "*"
