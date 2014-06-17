@@ -9,21 +9,29 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-var wool = require( __dirname + '/../lib/basic.js')()
+var Wool = require( __dirname + '/../lib/wool.js')
 
-describe("A suite", function() {
+describe("", function() {
+    
+    var wool = new Wool()
+    
     it("contains spec with an expectation", function() {
         
-        var a = {}, b = {};
+        wool.init({
+            d : {}
+        })
+        wool.register('start', function (k, t, cb) {
+            if (k in this.data.d) {
+                cb(err)
+            } else {
+                this.data.d[k]=t
+                cb(null)
+            }
+        })
+        wool.register('inc', function (k, cb) {
+            d[a]=0
+            cb(a)
+        })
         
-        expect(a._id).not.toBeDefined()
-        expect(b._id).not.toBeDefined()
-        
-        wool.persist(a)
-        wool.persist(b)
-        
-        expect(a._id).toBeDefined()
-        expect(b._id).toBeDefined()
-        expect(a._id).not.toEqual(b._id)
     });
 });
