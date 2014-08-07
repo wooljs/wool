@@ -1,0 +1,4 @@
+{"plip": 0}
+{"plop": 42}
+{"test": "this is a long text"}
+{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}

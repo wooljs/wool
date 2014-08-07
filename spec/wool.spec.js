@@ -13,25 +13,7 @@ var Wool = require( __dirname + '/../lib/wool.js')
 
 describe("", function() {
     
-    var wool = new Wool()
-    
     it("contains spec with an expectation", function() {
-        
-        wool.init({
-            d : {}
-        })
-        wool.register('start', function (k, t, cb) {
-            if (k in this.data.d) {
-                cb(err)
-            } else {
-                this.data.d[k]=t
-                cb(null)
-            }
-        })
-        wool.register('inc', function (k, cb) {
-            d[a]=0
-            cb(a)
-        })
         
     });
 });

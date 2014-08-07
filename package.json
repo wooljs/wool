@@ -5,22 +5,21 @@
     "version": "0.1.0",
     "homepage": "https://github.com/nicocube/wool",
     "repository": {
-    "type": "git",
+        "type": "git",
         "url": "git://github.com/nicocube/wool.git"
+    },
+    "engines": {
+        "node": "0.10.*"
     },
     "scripts": {
         "test": "node_modules/jasmine-node/bin/jasmine-node spec/",
         "start": "node_modules/jasmine-node/bin/jasmine-node --autotest --watch lib/ --test-dir spec/"
     },
     "dependencies": {
-        "knit": "*",
-        "moment": "*"
+        "event-stream" : "~3.1.7"
     },
     "devDependencies": {
-        "jasmine-node": "*"
+        "jasmine-node": "1.11.*"
     },
-    "optionalDependencies": {},
-    "engines": {
-        "node": "*"
-    }
+    "optionalDependencies": {}
 }
