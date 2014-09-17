@@ -12,16 +12,16 @@
 
 var load = require( __dirname + '/../lib/load.js')
 
-describe("paf", function() {
+describe("load utility", function() {
     "use strict"
     var loader = load(require('fs'), require('event-stream'))
     
-    it("plouf", function() {
+    it("apply loader on a file", function() {
         var run = false
         var count = 0
         var expected = [{"plip": 0}, {"plop": 42}, {"test": "this is a long text"}, {"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}]
         
-        loader(__dirname +'/test.db', function(obj, i) {
+        loader(__dirname +'/test_load.db', function(obj, i) {
             expect(obj).toEqual(expected[i])
             count++
             //console.log('count', count)
@@ -31,11 +31,13 @@ describe("paf", function() {
             run = true
         })
         waitsFor(function() {
-            if (run) {                
-                //console.log('here again')
-                expect(count).toEqual(4)
-            }
             return run;
-        }, "The Value should be incremented", 5000); 
+        }, "The Value should be incremented", 5000);
+        
+        runs(function() {
+            //console.log('here again')
+            expect(run).toEqual(true)
+            expect(count).toEqual(4)
+        })
     });
 });
