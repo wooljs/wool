@@ -55,7 +55,7 @@ describe("paf", function() {
                 })
             })
             runs(function() {
-                console.log('here again')
+                //console.log('here again')
                 expect(run).toEqual(true)
             })
         }
