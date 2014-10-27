@@ -51,6 +51,19 @@ describe("build a Validator with", function() {
             expect(validator({ other_key : 'paf'})).toEqual(false)
         });
         
+        it("is false", function() {
+            var def = {
+                a_key: false
+            }
+            validator = V(def)
+            expect(validator({a_key: true})).toEqual(false)
+            expect(validator({a_key: 1})).toEqual(false)
+            expect(validator({a_key: 'plop'})).toEqual(false)
+            expect(validator({a_key: { other_key : 'paf'}})).toEqual(false)
+            expect(validator({a_key: []})).toEqual(false)
+            expect(validator({ other_key : 'paf'})).toEqual(true)
+        });
+        
         it("of type string is of form '=val'", function() {
             var def = {
                 a_key: '=plop'
