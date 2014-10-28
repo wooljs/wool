@@ -13,8 +13,9 @@ var
 V = require( __dirname + '/../lib/validator.js')()
 
 describe("build a Validator with", function() {
+    "use strict"
     it("empty definition validator is truthy", function() {
-        validator = V()
+        var validator = V()
         expect(validator()).toEqual(true)
         expect(validator(undefined)).toEqual(true)
         expect(validator({})).toEqual(true)
@@ -23,7 +24,7 @@ describe("build a Validator with", function() {
     });
     
     it("definition of type undefined is truthy", function() {
-        validator = V(undefined)
+        var validator = V(undefined)
         expect(validator()).toEqual(true)
         expect(validator(undefined)).toEqual(true)
         expect(validator({})).toEqual(true)
@@ -33,7 +34,7 @@ describe("build a Validator with", function() {
     
     it("definition of type function is indentity", function() {
         function f() {}
-        validator = V(f)
+        var validator = V(f)
         expect(validator).toEqual(f)
     });
     
@@ -42,7 +43,7 @@ describe("build a Validator with", function() {
             var def = {
                 a_key: true
             }
-            validator = V(def)
+            var validator = V(def)
             expect(validator({a_key: true})).toEqual(true)
             expect(validator({a_key: 1})).toEqual(true)
             expect(validator({a_key: 'plop'})).toEqual(true)
@@ -55,7 +56,7 @@ describe("build a Validator with", function() {
             var def = {
                 a_key: false
             }
-            validator = V(def)
+            var validator = V(def)
             expect(validator({a_key: true})).toEqual(false)
             expect(validator({a_key: 1})).toEqual(false)
             expect(validator({a_key: 'plop'})).toEqual(false)
@@ -68,7 +69,7 @@ describe("build a Validator with", function() {
             var def = {
                 a_key: '=plop'
             }
-            validator = V(def)
+            var validator = V(def)
             expect(validator({a_key: true})).toEqual(false)
             expect(validator({a_key: 1})).toEqual(false)
             expect(validator({a_key: 'plop'})).toEqual(true)
@@ -81,7 +82,7 @@ describe("build a Validator with", function() {
             var def = {
                 a_key: 'boolean',
             }
-            validator = V(def)
+            var validator = V(def)
             expect(validator({a_key: true})).toEqual(true)
             expect(validator({a_key: 1})).toEqual(false)
             expect(validator({a_key: 'plop'})).toEqual(false)
@@ -94,7 +95,7 @@ describe("build a Validator with", function() {
             var def = {
                 a_key: 'number',
             }
-            validator = V(def)
+            var validator = V(def)
             expect(validator({a_key: true})).toEqual(false)
             expect(validator({a_key: 1})).toEqual(true)
             expect(validator({a_key: 'plop'})).toEqual(false)
@@ -107,7 +108,7 @@ describe("build a Validator with", function() {
             var def = {
                 a_key: 'string',
             }
-            validator = V(def)
+            var validator = V(def)
             expect(validator({a_key: true})).toEqual(false)
             expect(validator({a_key: 1})).toEqual(false)
             expect(validator({a_key: 'plop'})).toEqual(true)
@@ -120,7 +121,7 @@ describe("build a Validator with", function() {
             var def = {
                 a_key: 'object',
             }
-            validator = V(def)
+            var validator = V(def)
             expect(validator({a_key: true})).toEqual(false)
             expect(validator({a_key: 1})).toEqual(false)
             expect(validator({a_key: 'plop'})).toEqual(false)
@@ -133,7 +134,7 @@ describe("build a Validator with", function() {
             var def = {
                 a_key: 'array',
             }
-            validator = V(def)
+            var validator = V(def)
             expect(validator({a_key: true})).toEqual(false)
             expect(validator({a_key: 1})).toEqual(false)
             expect(validator({a_key: 'plop'})).toEqual(false)
@@ -146,7 +147,7 @@ describe("build a Validator with", function() {
             var def = {
                 a_key: /op/,
             }
-            validator = V(def)
+            var validator = V(def)
             expect(validator({a_key: true})).toEqual(false)
             expect(validator({a_key: 1})).toEqual(false)
             expect(validator({a_key: { other_key : 'paf'}})).toEqual(false)
@@ -160,5 +161,49 @@ describe("build a Validator with", function() {
             expect(validator({a_key: 'pope'})).toEqual(true)
         });
         
+    });
+    
+    describe("use Validator.and", function() {
+        var truthy = function() { return true }
+        var falsy = function() { return false }
+        
+        it("to check multiple conditions", function() {
+            var validator = V.and(truthy,truthy)
+            expect(validator({})).toEqual(true)
+        });
+        it("to check multiple conditions", function() {
+            var validator = V.and(truthy,falsy)
+            expect(validator({})).toEqual(false)
+        });
+        it("to check multiple conditions", function() {
+            var validator = V.and(falsy,truthy)
+            expect(validator({})).toEqual(false)
+        });
+        it("to check multiple conditions", function() {
+            var validator = V.and(falsy,falsy)
+            expect(validator({})).toEqual(false)
+        });
+    });
+    
+    describe("use Validator.or", function() {
+        var truthy = function() { return true }
+        var falsy = function() { return false }
+        
+        it("to check multiple conditions", function() {
+            var validator = V.or(truthy,truthy)
+            expect(validator({})).toEqual(true)
+        });
+        it("to check multiple conditions", function() {
+            var validator = V.or(truthy,falsy)
+            expect(validator({})).toEqual(true)
+        });
+        it("to check multiple conditions", function() {
+            var validator = V.or(falsy,truthy)
+            expect(validator({})).toEqual(true)
+        });
+        it("to check multiple conditions", function() {
+            var validator = V.or(falsy,falsy)
+            expect(validator({})).toEqual(false)
+        });
     });
 });
