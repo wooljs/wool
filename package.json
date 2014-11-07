@@ -8,6 +8,7 @@
         "type": "git",
         "url": "git://github.com/nicocube/wool.git"
     },
+    "main": "lib/wool.js",
     "engines": {
         "node": "0.10.*"
     },
