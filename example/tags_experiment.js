@@ -27,7 +27,7 @@ function bench(n) {
 }
 
 bench(100)
-bench(10000)
+bench(100000)
 //bench(1000000)
 
 /*
