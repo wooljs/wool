@@ -1,8 +1,9 @@
 
 var
+fs = require('fs'),
 tags = require( __dirname + '/../lib/tags.js')()
 
-var template = tags(function() {
+function tmpl() {
     return div(h1("Hello ", $('name'), "!"),
         ul(each([1,2,3],
             li('plip:', $())
@@ -16,19 +17,38 @@ var template = tags(function() {
             )
         )
     )
-})
-
-function bench(n) {
-    console.time(n+' loop')
-    for (var i = 0 ; i < n ; i+=1) {
-        template({name: 'Plop'})
-    }
-    console.timeEnd(n+' loop')
 }
 
-bench(100)
-bench(100000)
-//bench(1000000)
+var template_concat = tags(tmpl)
+/**/var template_stream = tags(tmpl)
+
+function bench(n) {
+    console.time(n+' loop concat')
+    for (var i = 0 ; i < n ; i+=1) {
+        /**/fs.appendFileSync('test_concat.txt', 
+            template_concat({name: 'Plop'})
+        /**/)
+    }
+    console.timeEnd(n+' loop concat')
+}
+
+//*
+function bench_stream(n) {
+    console.time(n+' loop stream')
+    var s = fs.createWriteStream('test_stream.txt', {flags: 'a'})
+    for (var i = 0 ; i < n ; i+=1) {
+        template_stream.toStream(s)({name: 'Plop'})
+    }
+    s.end('')
+    console.timeEnd(n+' loop stream')
+}
+//*/
+
+var n = 1000
+bench(n)
+//bench(n*100)
+bench_stream(n)
+
 
 /*
 var arr = []
