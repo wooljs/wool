@@ -17,7 +17,7 @@ describe("template testing", function() {
     
     it("simple template", function() {
         var template = tags(function() {
-            return div(h1("Hello ", $('name'), "!"),
+            return div({id:'plop', _:'paf pouf'}, h1("Hello ", $('name'), "!"),
                 ul(each([1,2,3],
                     li('plip:', $())
                 )),
@@ -32,13 +32,13 @@ describe("template testing", function() {
             )
         });
         var res = template({name: 'Plop'})        
-        expect(res).toEqual('<div><h1>Hello Plop!</h1><ul><li>plip:1</li><li>plip:2</li><li>plip:3</li></ul><div><div>i:1</div><div>j:1*1</div><div>j:1*2</div><div>j:1*3</div><div>i:2</div><div>j:2*1</div><div>j:2*2</div><div>j:2*3</div><div>i:3</div><div>j:3*1</div><div>j:3*2</div><div>j:3*3</div></div></div>')
+        expect(res).toEqual('<div id="plop" class="paf pouf"><h1>Hello Plop!</h1><ul><li>plip:1</li><li>plip:2</li><li>plip:3</li></ul><div><div>i:1</div><div>j:1*1</div><div>j:1*2</div><div>j:1*3</div><div>i:2</div><div>j:2*1</div><div>j:2*2</div><div>j:2*3</div><div>i:3</div><div>j:3*1</div><div>j:3*2</div><div>j:3*3</div></div></div>')
     });
     
-    it("simple template to stream", function() {
-        var template = tags(function() {
-            return div(h1("Hello ", $('name'), "!"),
-                ul(each([1,2,3],
+    it("simple template", function() {
+        var template = tags(function(Store) {
+            return div({id:'plop', _:'paf pouf'}, h1("Hello ", Store.name, "!"),
+                ul(each({ :Store.},
                     li('plip:', $())
                 )),
                 div(
@@ -51,10 +51,8 @@ describe("template testing", function() {
                 )
             )
         });
-        
-        var res = template.toStream(stream)({name: 'Plop'})
-             
-        expect(res).toEqual('<div><h1>Hello Plop!</h1><ul><li>plip:1</li><li>plip:2</li><li>plip:3</li></ul><div><div>i:1</div><div>j:1*1</div><div>j:1*2</div><div>j:1*3</div><div>i:2</div><div>j:2*1</div><div>j:2*2</div><div>j:2*3</div><div>i:3</div><div>j:3*1</div><div>j:3*2</div><div>j:3*3</div></div></div>')
+        var res = template({name: 'Plop'})        
+        expect(res).toEqual('<div id="plop" class="paf pouf"><h1>Hello Plop!</h1><ul><li>plip:1</li><li>plip:2</li><li>plip:3</li></ul><div><div>i:1</div><div>j:1*1</div><div>j:1*2</div><div>j:1*3</div><div>i:2</div><div>j:2*1</div><div>j:2*2</div><div>j:2*3</div><div>i:3</div><div>j:3*1</div><div>j:3*2</div><div>j:3*3</div></div></div>')
     });
 })
 

@@ -20,19 +20,19 @@ function tmpl() {
 }
 
 var template_concat = tags(tmpl)
-/**/var template_stream = tags(tmpl)
+//**/var template_stream = tags(tmpl)
 
 function bench(n) {
     console.time(n+' loop concat')
     for (var i = 0 ; i < n ; i+=1) {
-        /**/fs.appendFileSync('test_concat.txt', 
+        //**/fs.appendFileSync('test_concat.txt', 
             template_concat({name: 'Plop'})
-        /**/)
+        //**/)
     }
     console.timeEnd(n+' loop concat')
 }
 
-//*
+/*
 function bench_stream(n) {
     console.time(n+' loop stream')
     var s = fs.createWriteStream('test_stream.txt', {flags: 'a'})
@@ -44,10 +44,10 @@ function bench_stream(n) {
 }
 //*/
 
-var n = 1000
+var n = 100
 bench(n)
-//bench(n*100)
-bench_stream(n)
+bench(n*100)
+//bench_stream(n)
 
 
 /*
