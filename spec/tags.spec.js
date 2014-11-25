@@ -35,23 +35,28 @@ describe("template testing", function() {
         expect(res).toEqual('<div id="plop" class="paf pouf"><h1>Hello Plop!</h1><ul><li>plip:1</li><li>plip:2</li><li>plip:3</li></ul><div><div>i:1</div><div>j:1*1</div><div>j:1*2</div><div>j:1*3</div><div>i:2</div><div>j:2*1</div><div>j:2*2</div><div>j:2*3</div><div>i:3</div><div>j:3*1</div><div>j:3*2</div><div>j:3*3</div></div></div>')
     });
     
-    it("simple template", function() {
+    it("template with injected provider", function() {
         var template = tags(function(Store) {
             return div({id:'plop', _:'paf pouf'}, h1("Hello ", Store.name, "!"),
-                ul(each({ :Store.},
+                ul(each(Store.plip,
                     li('plip:', $())
                 )),
                 div(
-                    each({i: [1,2,3]},
+                    each({i: Store.i},
                         div('i:', $('i')),
-                        each({j: [1,2,3]},
+                        each({j: Store.j},
                             div('j:', $('i'), '*', $('j'))
                         )
                     )
                 )
             )
         });
-        var res = template({name: 'Plop'})        
+        var Store = {}
+        Store.name = tags.prop('Plop')
+        Store.plip = tags.prop([1,2,3])
+        Store.i = tags.prop([1,2,3])
+        Store.j = tags.prop([1,2,3])
+        var res = template(Store)
         expect(res).toEqual('<div id="plop" class="paf pouf"><h1>Hello Plop!</h1><ul><li>plip:1</li><li>plip:2</li><li>plip:3</li></ul><div><div>i:1</div><div>j:1*1</div><div>j:1*2</div><div>j:1*3</div><div>i:2</div><div>j:2*1</div><div>j:2*2</div><div>j:2*3</div><div>i:3</div><div>j:3*1</div><div>j:3*2</div><div>j:3*3</div></div></div>')
     });
 })
