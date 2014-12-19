@@ -20,7 +20,7 @@
         "knit": "0.2.*"
     },
     "devDependencies": {
-        "jasmine-node": "1.11.*"
+        "jasmine-node": "2.0.*"
     },
     "optionalDependencies": {}
 }

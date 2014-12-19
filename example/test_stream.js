@@ -2,94 +2,20 @@
 var util = require('util')
 var fs = require('fs')
 var stream = require('stream')
-
-
-function LineSplit() {
-    if (!(this instanceof LineSplit))
-        return new LineSplit();
-    this.lastLine = ''
-    stream.Transform.call(this, {encoding: 'utf8'})
-}
-util.inherits(LineSplit, stream.Transform)
-LineSplit.prototype._transform = function (data, encoding, callback) {
-    var p, c; p = c = 0
-    while (c < data.length) {
-        while (c < data.length && data[c] !== 0x0A) { c+=1 }
-        if (data[c] === 0x0A) {
-            this.lastLine += data.toString('utf8',p,c)
-            this.push(this.lastLine)
-            this.lastLine = ''
-            c+=1
-            p = c
-        }
-    }
-    callback()
-}
-LineSplit.prototype._flush = function (callback) {
-    if (this.lastLine.length > 0) this.push(this.lastLine)
-    callback();
-}
-
-function LineJoin() {
-    if (!(this instanceof LineJoin))
-        return new LineJoin();
-    stream.Transform.call(this, {encoding: 'utf8'})
-}
-util.inherits(LineJoin, stream.Transform)
-LineJoin.prototype._transform = function(data, encoding, callback) {
-    this.push(data.toString()+'\n')
-    callback()
-}
-
-function JsonParse() {
-    if (!(this instanceof JsonParse))
-        return new JsonParse();
-    this.lastLine = ''
-    stream.Transform.call(this, {objectMode: true})
-}
-util.inherits(JsonParse, stream.Transform)
-JsonParse.prototype._transform = function (data, encoding, callback) {
-    this.push(JSON.parse(data.toString()))
-    callback()
-}
-
-function JsonStringify() {
-    if (!(this instanceof JsonStringify))
-        return new JsonStringify();
-    this.lastLine = ''
-    stream.Transform.call(this, {objectMode: true})
-}
-util.inherits(JsonStringify, stream.Transform)
-JsonStringify.prototype._transform = function (data, encoding, callback) {
-    this.push(JSON.stringify(data))
-    callback()
-}
-
-function EventQueue(dispatcher) {
-    if (!(this instanceof EventQueue))
-        return new EventQueue(dispatcher);
-    this.dispatcher = dispatcher
-    stream.Transform.call(this, {objectMode: true})
-}
-util.inherits(EventQueue, stream.Transform)
-EventQueue.prototype._transform = function (data, encoding, callback) {
-    this.dispatcher(data)
-    this.push(data)
-    callback()
-}
+var ws = require( __dirname + '/../lib/wool_stream.js')(util,stream)
 
 
 fs.createReadStream(__dirname + '/test_load.db', {flags: 'r'})
-.pipe(LineSplit())
-.pipe(JsonParse())
-.pipe(EventQueue(console.log.bind(null,'l:')))
+.pipe(ws.StreamSplit())
+.pipe(ws.JsonParse())
+.pipe(ws.StreamDispatch(console.log.bind(null,'l:')))
 .on('finish', function () {
         
-    var es = EventQueue(console.log.bind(null,'q:'))
+    var es = ws.StreamDispatch(console.log.bind(null,'q:'))
 
     es
-    .pipe(JsonStringify())
-    .pipe(LineJoin())
+    .pipe(ws.JsonStringify())
+    .pipe(ws.StreamJoin())
     .pipe(process.stdout)
 
     es.write({yo:"yeah"})
