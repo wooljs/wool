@@ -10,9 +10,9 @@
  */
 
 
-var load = require( __dirname + '/../lib/load.js')
+//var load = require( __dirname + '/../lib/load.js')
 
-describe("load utility", function() {
+xdescribe("load utility", function() {
     "use strict"
     var loader = load(require('fs'), require('event-stream'))
     
