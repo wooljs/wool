@@ -15,6 +15,7 @@ var
 fs = require('fs'),
 stream = require('stream'),
 util = require('util'),
+TestStream = require( __dirname + '/test_stream.js')(util,stream),
 ws = require( __dirname + '/../lib/wool_stream.js')(util,stream),
 file_load = __dirname+"/test_load.db",
 file_save = __dirname+"/test_save.db"
@@ -23,107 +24,140 @@ file_save = __dirname+"/test_save.db"
 if (fs.existsSync(file_save)) fs.unlinkSync(file_save)
 
 describe("check stream", function() {
-
-    function TestStream(tf, fl, options) {
-        if (!(this instanceof TestStream)) return new TestStream(tf, fl, options)
-        this.tf = tf
-        this.fl = fl
-        options = options || {encoding: 'utf8'}
-        stream.Transform.call(this, options)
-    }
-    util.inherits(TestStream, stream.Transform)
-    TestStream.prototype._transform = function (data, encoding, callback) {
-        if (typeof this.tf === 'function') {
-            try {
-                this.tf(data,encoding, callback)
-            } catch(e) {
-                callback(e)
-            }
-        } else {
-            try {
+    
+    describe("StreamSplit", function() {        
+    
+        it("with default separator", function(done) {
+            var count = 0
+            var expected = [
+                '{"plip": 0}',
+                '{"plop": 42}',
+                '{"test": "this is a long text"}',
+                '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
+            ]
+                    
+            fs.createReadStream(file_load, {flags: 'r'})
+            .pipe(ws.StreamSplit())
+            .on('error', function (e) {
+                console.trace(e)
+                done()
+            })
+            .pipe(TestStream(function (data, encoding, callback) {
+                expect(data.toString()).toEqual(expected[count])
+                count += 1
                 this.push(data)
                 callback()
-            } catch(e) {
-                callback(e)
-            }
-        }
-    }
-    TestStream.prototype._flush = function (callback) {
-        if (typeof this.fl === 'function') this.fl(callback)
-        else callback()
-    }
-    
-    it("StreamSplit with default separator", function(done) {
-        var count = 0
+            }))
+            .on('finish', function () {
+                expect(count).toEqual(4)
+                done()
+            })
+        });
         
-        var expected = [
-            '{"plip": 0}',
-            '{"plop": 42}',
-            '{"test": "this is a long text"}',
-            '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
-        ]
-                
-        fs.createReadStream(file_load, {flags: 'r'})
-        .pipe(ws.StreamSplit())
-        .on('error', function (e) {
-            console.trace(e)
-            done()
-        })
-        .pipe(TestStream(function (data, encoding, callback) {
-            expect(data.toString()).toEqual(expected[count])
-            count += 1
-            this.push(data)
-            callback()
-        }))
-        .on('finish', function () {
-            expect(count).toEqual(4)
-            done()
-        })
+        it("with given one character separator", function(done) {
+            var count = 0
+            var input = "a|b|42|a long string| a SHORTER| plouf"
+            var expected = [
+                "a","b","42","a long string"," a SHORTER"," plouf"
+            ]
+            var ins = TestStream()
+            
+            ins  
+            .pipe(ws.StreamSplit('|'))
+            .on('error', function (e) {
+                console.trace(e)
+                done()
+            })
+            .pipe(TestStream(function (data, encoding, callback) {
+                expect(data.toString()).toEqual(expected[count])
+                count += 1
+                this.push(data)
+                callback()
+            }))
+            .on('finish', function () {
+                expect(count).toEqual(5)
+                done()
+            })
+            
+            ins.end(input)
+        });
+
+        it("with given many character separator", function(done) {
+            var count = 0
+            var input = "a<br>b<br>42<br>a long string<br> a SHORTER<br> plouf"
+            var expected = [
+                "a","b","42","a long string"," a SHORTER"," plouf"
+            ]
+            var ins = TestStream()
+            
+            ins  
+            .pipe(ws.StreamSplit('<br>'))
+            .on('error', function (e) {
+                console.trace(e)
+                done()
+            })
+            .pipe(TestStream(function (data, encoding, callback) {
+                expect(data.toString()).toEqual(expected[count])
+                count += 1
+                this.push(data)
+                callback()
+            }))
+            .on('finish', function () {
+                expect(count).toEqual(5)
+                done()
+            })
+            
+            ins.end(input)
+        });
     });
     
-    it("StreamJoin with default separator", function(done) {
-        var count = 0
+    describe("StreamJoin", function() {        
+    
+        it("with default separator", function(done) {
+            var count = 0
+            
+            var data = [
+                '{"plip": 0}',
+                '{"plop": 42}',
+                '{"test": "this is a long text"}',
+                '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
+            ]
+            var expected = [
+                '{"plip": 0}',
+                '\n',
+                '{"plop": 42}',
+                '\n',
+                '{"test": "this is a long text"}',
+                '\n',
+                '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}',
+                '\n'
+            ]
+            var ins = TestStream()
+            
+            ins
+            .pipe(ws.StreamJoin())
+            .on('error', function (e) {
+                console.trace(e)
+                done()
+            })
+            .pipe(TestStream(function (data, encoding, callback) {
+                expect(data).toEqual(expected[count])
+                count += 1
+                this.push(data)
+                callback()
+            }, undefined, {objectMode: true}))
+            .on('finish', function () {
+                expect(count).toEqual(8)
+                done()
+            })
+            
+            var i = 0, l = data.length
+            for(; i < l; i+=1) {
+                ins.write(data[i])
+            }
+            ins.end()
+        });
         
-        var data = [
-            '{"plip": 0}',
-            '{"plop": 42}',
-            '{"test": "this is a long text"}',
-            '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
-        ]
-        var expected = [
-            '{"plip": 0}',
-            '\n',
-            '{"plop": 42}',
-            '\n',
-            '{"test": "this is a long text"}',
-            '\n',
-            '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}',
-            '\n'
-        ]
-        var ins = TestStream()
-        
-        ins
-        .pipe(ws.StreamJoin())
-        .on('error', function (e) {
-            console.trace(e)
-            done()
-        })
-        .pipe(TestStream(function (data, encoding, callback) {
-            expect(data).toEqual(expected[count])
-            count += 1
-            this.push(data)
-            callback()
-        }, undefined, {objectMode: true}))
-        .on('finish', function () {
-            expect(count).toEqual(8)
-            done()
-        })
-        
-        var i = 0, l = data.length
-        for(; i < l; i+=1) {
-            ins.write(data[i])
-        }
-        ins.end()
     });
     
     it("JsonParse", function(done) {

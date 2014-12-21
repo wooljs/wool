@@ -9,11 +9,53 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-var Wool = require( __dirname + '/../lib/wool.js')
+'use strict'
+
+var 
+stream = require('stream'),
+util = require('util'),
+TestStream = require( __dirname + '/test_stream.js')(util,stream),
+wool = require( __dirname + '/../lib/index.js')
 
 describe("", function() {
     
     it("contains spec with an expectation", function() {
+        var count = 0
+        
+        var expected = [
+            '{"yo":"yeah"}',
+            '\n',
+            '{"plip":{"paf":"pouf"}}',
+            '\n',
+            '42',
+            '\n',
+            '"paf"',
+            '\n'
+        ]
+        
+        var out = TestStream(function (data, encoding, callback) {
+            expect(data.toString()).toEqual(expected[count - 6])
+            count += 1
+            this.push(data)
+            callback()
+        })
+        .on('finish', function () {
+            expect(count).toEqual(5)
+            done()
+        })
+
+        
+        wool()
+        .dispatch({ $: function(e) { return typeof e === 'object' }, _: function(e) { count += 1 } })
+        .fromFile(__dirname + '/test_load.db')
+        .toStream(out)
+        .onReady(function() {
+            this.push({yo:"yeah"})
+            this.push({plip:{paf:'pouf'}})
+            this.push(42)
+            this.push("paf")
+        })
+        .run()
         
     });
 });
