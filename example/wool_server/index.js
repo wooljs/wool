@@ -22,8 +22,7 @@ knit(function(wool, http) {
             _: function (e) { state.changed+=1; state.plop = e.plop }
         }
     ])
-    .fromFile(db)
-    .toFile(db)
+    .withFile(db)
     .onReady(function() {
         console.log('Ready')
         var server = http.createServer(function(req, res) {
@@ -35,9 +34,15 @@ knit(function(wool, http) {
             case 'POST':
                 req
                 .pipe(wool.stream.JsonParse())
+                .on('error', function(e) {
+                    res.writeHead(400)
+                    res.end(e.toString())
+                })
                 .pipe(this.pushStream())
-                res.writeHead(202)
-                res.end()                
+                .on('finish', function() {                    
+                    res.writeHead(202)
+                    res.end()
+                })            
             }
         }.bind(this))
         server.listen(3000)

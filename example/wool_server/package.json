@@ -11,7 +11,7 @@
   "author": "",
   "license": "BSD",
   "dependencies": {
-    "wool": "~0.1.0",
-    "knit": "~0.2.0"
+    "wool": "^0.1.1",
+    "knit": "^0.2.0"
   }
 }

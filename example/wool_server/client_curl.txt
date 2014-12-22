@@ -1,0 +1,6 @@
+# GET
+curl -v http://localhost:3000
+# POST correct JSON
+curl -v http://localhost:3000 -d '{"plop":42}'
+# POST incorrect JSON 
+curl -v http://localhost:3000 -d '{plop:42}'
