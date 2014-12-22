@@ -1,2 +1,3 @@
 node_modules/
 example/test_save.db
+example/*/node_modules/*

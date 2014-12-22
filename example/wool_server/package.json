@@ -1,0 +1,17 @@
+{
+  "name": "wool_server",
+  "version": "0.0.0",
+  "description": "This is a test of wool in server context",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./index.js",
+    "autorestart": "nodemon ./index.js"
+  },
+  "repository": "",
+  "author": "",
+  "license": "BSD",
+  "dependencies": {
+    "wool": "~0.1.0",
+    "knit": "~0.2.0"
+  }
+}
