@@ -1,7 +1,7 @@
 {
-  "name": "wool_server",
+  "name": "wool_express",
   "version": "0.0.0",
-  "description": "This is a test of wool in server context",
+  "description": "Example of integration of wool and express",
   "main": "index.js",
   "scripts": {
     "start": "node ./index.js",
@@ -14,7 +14,10 @@
   },
   "license": "Apache 2.0",
   "dependencies": {
-    "wool": "^0.1.1",
-    "knit": "^0.2.0"
+    "knit": "~0.2.0",
+    "wool": "~0.1.2",
+    "express": "~4.10.6",
+    "body-parser": "~1.10.0",
+    "morgan": "~1.5.0"
   }
 }

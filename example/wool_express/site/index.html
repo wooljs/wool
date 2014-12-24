@@ -1,0 +1,44 @@
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <title>Todo with Wool</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <script type="text/javascript" src="./angular.min.js"></script>
+        <style>
+.tasks { width: 400px}
+.remove { float: right}
+        </style>
+        <script type="text/javascript">
+var App = angular.module('woolTodo', [])
+App.controller('MainCtrl' , function ($scope, $http) {
+    $scope.state = {changed:0, todos: []}
+    loadState()
+    
+    $scope.add = function(task) {console.log('add:',task); sendAction({ action: 'add', task: task }) }
+    $scope.changeStatus = function(i, done) {console.log('check:', i, done); sendAction({ action: done ? 'done': 'undone', rank: i}) }
+    $scope.remove = function(i) {console.log('del:', i); sendAction({ action: 'del', rank: i}) }
+
+    function loadState() {
+        $http.get('/state').success(function (data) { angular.copy(data, $scope.state) })
+    }    
+    function sendAction(action, cb) {
+        $http.post('/action', action).success(function (data, status) {
+            if (status === 200) { angular.copy(data, $scope.state); if (typeof cb === 'function') cb() }
+        })
+    }
+})
+        </script>
+    </head>
+    <body ng-app="woolTodo" ng-controller="MainCtrl">
+        Changed: <span ng-bind="state.changed"></span>
+        <input type="text" ng-model="new_task" placeholder="Type new tasks"><button ng-click="add(new_task)">Add</button>
+        <ul class="tasks">
+            <li ng-repeat="item in state.todos">
+                <input type="checkbox" ng-model="item.done" ng-change="changeStatus($index, item.done)">
+                <span ng-bind="item.task"></span>
+                <span class="remove" ng-click="remove($index)">x</span>
+            </li>
+        </ul>
+    </body>
+</html>
