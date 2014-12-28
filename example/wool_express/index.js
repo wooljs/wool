@@ -15,8 +15,7 @@ var knit = require('knit')
 knit(
     {_: 'express', $:'&'},
     {_: 'morgan', $:'&'},
-    {bodyParser: 'body-parser', $:'&'},
-    {_:'wool', $: '&'}
+    {bodyParser: 'body-parser', $:'&'}
 )
 knit(function(wool, express, morgan, bodyParser) {    
     var db = __dirname + '/test.db'
@@ -25,7 +24,7 @@ knit(function(wool, express, morgan, bodyParser) {
     
     var state = {changed :0, todos: []}
     
-    wool()
+    wool
     .dispatch([
         function(e) {
             console.log('Dispatching:',e)
