@@ -2,7 +2,7 @@
     "author": "Nicolas Lochet",
     "name": "wool",
     "description": "Test some idea about event/log based datastorage, CQRS and fancy stuff.",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "homepage": "https://github.com/nicocube/wool",
     "repository": {
         "type": "git",
