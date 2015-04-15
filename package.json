@@ -1,26 +1,28 @@
 {
-    "author": "Nicolas Lochet",
-    "name": "wool",
-    "description": "Test some idea about event/log based datastorage, CQRS and fancy stuff.",
-    "version": "0.1.5",
-    "homepage": "https://github.com/nicocube/wool",
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/nicocube/wool.git"
-    },
-    "main": "lib/index.js",
-    "engines": {
-        "node": "0.10.*"
-    },
-    "scripts": {
-        "test": "node_modules/jasmine/bin/jasmine.js",
-        "autotest": "nodemon node_modules/jasmine/bin/jasmine.js"
-    },
-    "dependencies": {
-        "knit": "0.2.*"
-    },
-    "devDependencies": {
-        "jasmine": "^2.1.0"
-    },
-    "optionalDependencies": {}
+  "author": "Nicolas Lochet",
+  "name": "wool",
+  "description": "Test some idea about event/log based datastorage, CQRS and fancy stuff.",
+  "version": "0.1.5",
+  "homepage": "https://github.com/nicocube/wool",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nicocube/wool.git"
+  },
+  "main": "lib/index.js",
+  "engines": {
+    "node": "0.10.*"
+  },
+  "scripts": {
+    "test": "jasmine",
+    "autotest": "nodemon node_modules/jasmine/bin/jasmine.js",
+    "coverage": "istanbul cover jasmine"
+  },
+  "dependencies": {
+    "knit": "0.2.*"
+  },
+  "devDependencies": {
+    "jasmine": "^2.1.0",
+    "istanbul": "~0.3.11"
+  },
+  "optionalDependencies": {}
 }
