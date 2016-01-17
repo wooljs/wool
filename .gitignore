@@ -3,3 +3,4 @@ example/test_save.db
 example/*/*.db
 example/*/node_modules/*
 coverage/
+npm-debug.log
