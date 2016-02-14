@@ -21,6 +21,7 @@
     "knit": "0.2.*"
   },
   "devDependencies": {
+    "eslint": "^1.10.3",
     "jasmine": "^2.1.0",
     "istanbul": "~0.3.11"
   },
