@@ -17,7 +17,7 @@ util = require('util'),
 TestStream = require( __dirname + '/test_stream.js')(util,stream),
 wool = require( __dirname + '/../lib/index.js')
 
-describe("", function() {
+describe("integrate", function() {
     
     it("contains spec with an expectation", function() {
         var count = 0
