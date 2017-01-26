@@ -13,17 +13,21 @@
     "node": "0.10.*"
   },
   "scripts": {
-    "test": "jasmine",
-    "autotest": "nodemon node_modules/jasmine/bin/jasmine.js",
-    "coverage": "istanbul cover jasmine"
+    "pretest": "npm run lint",
+    "test": "tape test/**/*.spec.js |tap-summary --no-progress",
+    "autotest": "nodemon -e js,yml -x 'tape test/**/*.spec.js |tap-summary --no-progress'",
+    "coverage": "istanbul cover tape test/**/*.spec.js",
+    "lint": "eslint index.js lib/ test/",
+    "autolint": "nodemon -x eslint index.js lib/ test/"
   },
   "dependencies": {
     "knit": "0.2.*"
   },
   "devDependencies": {
-    "eslint": "^1.10.3",
-    "jasmine": "^2.1.0",
-    "istanbul": "~0.3.11"
+    "eslint": "^2.13.1",
+    "tap-summary": "^3.0.1",
+    "tape": "^4.6.3",
+    "istanbul": "^0.4.5"
   },
   "optionalDependencies": {}
 }
