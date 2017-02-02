@@ -21,7 +21,8 @@
     "autolint": "nodemon -x eslint index.js lib/ test/"
   },
   "dependencies": {
-    "knit": "0.2.*"
+    "knit": "0.2.*",
+    "wool-stream": "0.0.1"
   },
   "devDependencies": {
     "eslint": "^2.13.1",
