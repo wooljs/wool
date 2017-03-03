@@ -77,14 +77,14 @@ wss.on('request', function(request) {
   logger.info('Connection accepted.')
   
   connection.on('message', function(message) {
-      if (message.type === 'utf8') {
-        logger.info('Received Message: ' + message.utf8Data)
-        connection.sendUTF(message.utf8Data)
-      }
-      else if (message.type === 'binary') {
-          logger.info('Received Binary Message of %s bytes.', message.binaryData.length)
-          connection.sendBytes(message.binaryData)
-      }
+    if (message.type === 'utf8') {
+      logger.info('Received Message: ' + message.utf8Data)
+      connection.sendUTF(message.utf8Data)
+    }
+    else if (message.type === 'binary') {
+      logger.info('Received Binary Message of %s bytes.', message.binaryData.length)
+      connection.sendBytes(message.binaryData)
+    }
   })
   connection.on('close', function(reasonCode, description) {
     logger.info(' Peer %s disconnected.', connection.remoteAddress);
