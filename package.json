@@ -13,6 +13,8 @@
     "node": "0.10.*"
   },
   "scripts": {
+    "start": "node server.js | bunyan",
+    "watch": "nodemon -x 'node ./server.js | bunyan'",
     "pretest": "npm run lint",
     "test": "tape test/**/*.spec.js |tap-summary --no-progress",
     "autotest": "nodemon -e js,yml -x 'tape test/**/*.spec.js |tap-summary --no-progress'",
@@ -21,7 +23,10 @@
     "autolint": "nodemon -x eslint index.js lib/ test/"
   },
   "dependencies": {
+    "bankai": "^5.4.0",
+    "bunyan": "^1.8.5",
     "knit": "0.2.*",
+    "websocket": "^1.0.24",
     "wool-stream": "0.0.1"
   },
   "devDependencies": {
