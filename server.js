@@ -47,9 +47,10 @@ var server = http.createServer(function (req, res) {
   
   switch (req.url) {
     case '/': return assets.html(req, res).pipe(res).on('finish', log)
+    case '/ping': return res.end(new Date().toISOString(), log)
     case '/bundle.js': return assets.js(req, res).pipe(res).on('finish', log)
     case '/bundle.css': return assets.css(req, res).pipe(res).on('finish', log)
-    case '/favicon.ico':  return res.writeHead(200,{'Content-Type': 'image/x-icon'}) && res.end(favicon, log)
+    case '/favicon.ico': res.writeHead(200,{'Content-Type': 'image/x-icon'}); return res.end(favicon, log)
     default: return (res.statusCode = 404) && res.end('404 not found', log)
   }
 

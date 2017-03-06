@@ -36,11 +36,9 @@ function update () {
 }
 
 document.body.appendChild(el)
-  
-  
 
 var W3CWebSocket = require('websocket').w3cwebsocket
-  , client = new W3CWebSocket('ws://localhost:3000/', 'echo-protocol');
+  , client = new W3CWebSocket('ws://localhost:3000/', 'echo-protocol')
  
 client.onerror = function() {
   console.log('Connection Error', arguments)
@@ -52,6 +50,20 @@ client.onopen = function() {
 
 client.onclose = function() {
   console.log('echo-protocol Client Closed')
+  setTimeout(function() {
+    var xhr = require('xhr')
+    try {
+      xhr.get('/ping', function (e, r, body) {
+        console.log(r)
+        console.error(e)
+        if (r.statusCode === 200) {
+          window.location.reload()
+        } 
+      })
+    } catch(e) {
+      console.error(e)
+    }
+  }, 1000)
 }
 
 client.onmessage = function(e) {
