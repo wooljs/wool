@@ -12,6 +12,13 @@
 var yo = require('yo-yo')
   , numbers = [] // start empty
   , el = list(numbers, update)
+  , client = require('./app/ws-client')(function(data) {
+      console.log("Received: '" + data + "'")
+      numbers.push(data)
+      // construct a new list and efficiently diff+morph it into the one in the DOM
+      var newList = list(numbers, update)
+      yo.update(el, newList)
+  })
   
 function list (items, onclick) {
   return yo`<div>
@@ -37,41 +44,3 @@ function update () {
 
 document.body.appendChild(el)
 
-var W3CWebSocket = require('websocket').w3cwebsocket
-  , client = new W3CWebSocket('ws://localhost:3000/', 'echo-protocol')
- 
-client.onerror = function() {
-  console.log('Connection Error', arguments)
-}
- 
-client.onopen = function() {
-  console.log('WebSocket Client Connected')
-}
-
-client.onclose = function() {
-  console.log('echo-protocol Client Closed')
-  setTimeout(function() {
-    var xhr = require('xhr')
-    try {
-      xhr.get('/ping', function (e, r, body) {
-        console.log(r)
-        console.error(e)
-        if (r.statusCode === 200) {
-          window.location.reload()
-        } 
-      })
-    } catch(e) {
-      console.error(e)
-    }
-  }, 1000)
-}
-
-client.onmessage = function(e) {
-  if (typeof e.data === 'string') {
-    console.log("Received: '" + e.data + "'")
-    numbers.push(e.data)
-    // construct a new list and efficiently diff+morph it into the one in the DOM
-    var newList = list(numbers, update)
-    yo.update(el, newList)
-  }
-}
