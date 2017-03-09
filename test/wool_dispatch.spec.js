@@ -12,7 +12,7 @@
 'use strict'
 
 var test = require('tape')
-  , wd = require(__dirname + '/../lib/wool_dispatch.js')()
+  , wd = require(__dirname + '/../lib/wool_dispatch.js')
 
 test('build an dispatch with one catchall function projection', function(t) {
   var count = 0

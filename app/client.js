@@ -10,35 +10,39 @@
  */
 
 var yo = require('yo-yo')
-  , numbers = [] // start empty
-  , el = list(numbers, update)
-  , client = require('./app/ws-client')(function(data) {
-      console.log("Received: '" + data + "'")
-      numbers.push(data)
+  , state = {}
+  , el = main(state, update)
+  , client = require('./ws-client')(function(data) {
+      console.log("Received: " + data)
+      var d = JSON.parse(data)
+      state[d.k] = d.v
       // construct a new list and efficiently diff+morph it into the one in the DOM
-      var newList = list(numbers, update)
+      var newList = main(state, update)
       yo.update(el, newList)
   })
   
-function list (items, onclick) {
+function main(state, onclick) {
   return yo`<div>
-    Random Numbers
-    <button onclick=${onclick}>Add Random Number</button>
-    <ul>
-      ${items.map(function (item) {
-        return yo`<li>${item}</li>`
+    <input type="text" id="key">
+    <input type="text" id="value">
+    <button onclick=${onclick}>send</button>
+    <table>
+    <tbody>
+      ${Object.keys(state).map(function (key) {
+        return yo`<tr><td>${key}</td><td>${JSON.stringify(state[key], null, 3)}</td></tr>`
       })}
-    </ul>
+    </tbody>
+    </table>
   </div>`
 }
 
-function update () {
-  // add a new random number to our list
-  
+function update (e) {
   if (client.readyState === client.OPEN) {
-    var number = Math.round(Math.random() * 0xFFFFFF)
-    console.log("Sent: '" + number.toString() + "'")
-    client.send(number.toString())
+    var key = document.getElementById('key').value
+      , value = document.getElementById('value').value
+      , payload = JSON.stringify({ k: key, v: value })
+    console.log("Sent: " + payload)
+    client.send(payload)
   }
 }
 
