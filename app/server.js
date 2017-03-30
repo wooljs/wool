@@ -17,7 +17,7 @@ module.exports = function (logger, port) {
     , path = require('path')
 
     , clientPath = path.join(__dirname, 'client.js')
-    , assets = bankai(clientPath)
+    , assets = bankai(clientPath, {html: { favicon: 'favicon.ico' }})
 
     , fs = require('fs')
 
