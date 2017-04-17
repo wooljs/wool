@@ -26,6 +26,7 @@
     "bankai": "^5.4.0",
     "bunyan": "^1.8.5",
     "meow": "^3.7.0",
+    "nodemon": "^1.11.0",
     "websocket": "^1.0.24",
     "wool-stream": "0.0.1",
     "xhr": "^2.4.0",

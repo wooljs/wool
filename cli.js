@@ -50,7 +50,7 @@ if (cli.input.length===0) {
     , server = require('./app/server')(logger, 3000)
     , wss = require('./app/wss')(logger, server)
     
-//    , wool = require('./lib/wool.js')
+    , wool = require('./lib/wool.js')
 
 
   logger.info('Start in %dms', Date.now() - start)
