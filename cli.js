@@ -47,13 +47,24 @@ if (cli.input.length===0) {
     , bunyan = require('bunyan')
     , logger = bunyan.createLogger({name: 'myapp'})
 
-    , server = require('./app/server')(logger, 3000)
-    , wss = require('./app/wss')(logger, server)
-    
     , wool = require('./lib/wool.js')
+    , Store = require('wool-store')
+    , dataStore = Store()
+    , rules = require(__dirname+'/'+cli.input[0])
+    , eventDB = __dirname + '/data/events.db'
+    
+  wool()
+  .store(dataStore)
+  .rule(rules)
+  .withFile(eventDB)
+  .onReady(function() {
+    var server = require('./app/server')(logger, 3000)
+    require('./app/wss')(logger, server, wool, rules, dataStore)
+    
+    logger.info('Start in %dms', Date.now() - start)
+  })
+  .run()
 
-
-  logger.info('Start in %dms', Date.now() - start)
 }
 
 

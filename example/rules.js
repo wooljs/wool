@@ -13,16 +13,24 @@ exports = module.exports = []
 
 exports.push({
   n: 'create_chatroom',
+  p: {
+    userId: 1,
+    chatId: 0
+  },
   o: function(param, cb) {
     var userId = param.userId
     try {
-      this.create({ members: [ userId ], messages: [ '* Chatroom created by '+userId ] }, cb)
+      this.create(param, 'chatId', { members: [ userId ], messages: [ '* Chatroom created by '+userId ] }, cb)
     } catch(e) {
       cb(e)
     }
   }
 },{
   n: 'join_chatroom',
+  p: {
+    userId: 1,
+    chatId: 1
+  },
   o: function(param, cb) {
     var userId = param.userId
       , chatId = param.chatId
@@ -37,6 +45,10 @@ exports.push({
   }
 },{
   n: 'leave_chatroom',
+  p: {
+    userId: 1,
+    chatId: 1
+  },
   o: function(param, cb) {
     var userId = param.userId
       , chatId = param.chatId
@@ -51,10 +63,15 @@ exports.push({
   }
 },{
   n: 'send_message',
+  p: {
+    userId: 1,
+    chatId: 1,
+    msg: 1
+  },
   o: function(param, cb) {
     var userId = param.userId
-      , msg = param.msg
       , chatId = param.chatId
+      , msg = param.msg
     try {
       var chatroom = this.get(chatId)
       chatroom.messages.push(userId + ': ' + msg)

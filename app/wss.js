@@ -9,7 +9,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-module.exports = function (logger, server) {
+module.exports = function (logger, server, wool, rules, dataStore) {
   'use strict'
 
   var WebSocketServer = require('websocket').server
