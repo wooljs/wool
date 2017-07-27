@@ -1,0 +1,46 @@
+
+<link rel="stylesheet" href="node_modules/mermaid/dist/mermaid.min.css">
+<script src="node_modules/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({
+  startOnLoad:true,
+  flowchart:{
+    useMaxWidth:false,
+    htmlLabels:true
+  }
+});</script>
+
+<div class="mermaid">
+graph TD
+  start(Start wool)
+  shutdown(Shutdown system)
+  init[Init system]
+  wait>Wait Command]
+  
+  condImmediate{Immediate ?}
+  condValid{Valid ?}
+  condApplication{Has Error ?}
+  condShutdown{Shutdown command ?}
+  
+  apply[Apply command]
+  storeError[Store as Error]
+  storeInvalid[Store as Invalid]
+  storeFuture[Store as Future]
+  storeEvent[Store as Event]
+
+  start-->init
+  init-->wait
+  wait-->condImmediate
+  condImmediate-->|yes|condValid
+  condImmediate-->|no|storeFuture
+  storeFuture-->wait
+  condValid-->|yes|apply
+  condValid-->|no|storeInvalid
+  storeInvalid-->wait
+  apply-->condApplication
+  condApplication-->|no|storeError
+  condApplication-->|yes|storeEvent
+  storeError-->wait
+  storeEvent-->condShutdown
+  condShutdown-->|yes|shutdown
+  condShutdown-->|no|wait
+</div>
