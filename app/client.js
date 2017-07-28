@@ -10,7 +10,7 @@
  */
 
 var yo = require('yo-yo')
-  , state = {}
+  , state = {command:{list:[], cur:''}, data:{}}
   , el = main(state, update)
   , client = require('./ws-client')(function(data) {
       console.log("Received: " + data)
@@ -22,14 +22,13 @@ var yo = require('yo-yo')
   })
   
 function main(state, onclick) {
-  return yo`<div>
-    <input type="text" id="key">
-    <input type="text" id="value">
+  return yo`<div>Command : <select id="command">${state.command.list.map(function (cmd) { yo`<option value="${cmd.key}">${cmd.name}</option>` })} </select>
+    <textarea id="data">${state.command.cur}</textarea>
     <button onclick=${onclick}>send</button>
     <table>
     <tbody>
-      ${Object.keys(state).map(function (key) {
-        return yo`<tr><td>${key}</td><td>${JSON.stringify(state[key], null, 3)}</td></tr>`
+      ${Object.keys(state.data).map(function (key) {
+        return yo`<tr><td>${key}</td><td>${JSON.stringify(state.data[key], null, 3)}</td></tr>`
       })}
     </tbody>
     </table>

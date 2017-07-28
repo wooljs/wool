@@ -35,12 +35,32 @@ module.exports = function (logger, server, wool, rules, dataStore) {
     
     connection.on('message', function(message) {
       if (message.type === 'utf8') {
-        logger.info('Received Message: ' + message.utf8Data)
-        connection.sendUTF(message.utf8Data)
+        logger.info('Received Message: ' + JSON.stringify(message.utf8Data))
+        var m = JSON.parse(message.utf8Data)
+          , r = {}
+        if ('t' in m) {
+          switch(m.t) {
+            case 'init':{
+              r.t ='init'
+              r.d = {
+                command: {
+                  list: rules
+                }
+              }
+            }
+            break;
+            default: {
+              r.err='unknown "t" field: "'+m.t+'"'
+            }
+          }
+        } else {
+          r.err='message must have a "t" field'
+        }
+        connection.sendUTF(JSON.stringify(r))
       }
       else if (message.type === 'binary') {
         logger.info('Received Binary Message of %s bytes.', message.binaryData.length)
-        connection.sendBytes(message.binaryData)
+        //connection.sendBytes(message.binaryData)
       }
     })
     connection.on('close', function(reasonCode, description) {

@@ -21,6 +21,7 @@ module.exports = function(onmessage) {
    
   client.onopen = function() {
     console.log('WebSocket Client Connected')
+    client.send(JSON.stringify({t:'init'}))
   }
 
   client.onclose = function() {
