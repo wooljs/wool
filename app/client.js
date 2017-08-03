@@ -13,18 +13,28 @@ var yo = require('yo-yo')
   , state = {command:{list:[], cur:''}, data:{}}
   , el = main(state, update)
   , client = require('./ws-client')(function(data) {
-      console.log("Received: " + data)
-      var d = JSON.parse(data)
-      state[d.k] = d.v
-      // construct a new list and efficiently diff+morph it into the one in the DOM
-      var newList = main(state, update)
-      yo.update(el, newList)
+    console.log("Received: " + data)
+    var m = JSON.parse(data)
+    if ('t' in m) {
+      switch(m.t) {
+        case 'init': {
+          state.command.list = m.d.command.list
+        }
+        break;
+      }
+    }
+    // construct a new list and efficiently diff+morph it into the one in the DOM
+    var newList = main(state, update)
+    yo.update(el, newList)
   })
   
 function main(state, onclick) {
-  return yo`<div>Command : <select id="command">${state.command.list.map(function (cmd) { yo`<option value="${cmd.key}">${cmd.name}</option>` })} </select>
-    <textarea id="data">${state.command.cur}</textarea>
-    <button onclick=${onclick}>send</button>
+  return yo`<div>
+    <div>
+      <p>Command : <select id="command">${state.command.list.map(function (cmd) { return yo`<option value="${cmd.n}">${cmd.n}</option>` })} </select></p>
+      <textarea id="data">${state.command.cur}</textarea>
+      <button onclick=${onclick}>send</button>
+    </div>
     <table>
     <tbody>
       ${Object.keys(state.data).map(function (key) {
