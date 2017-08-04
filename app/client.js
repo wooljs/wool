@@ -10,8 +10,8 @@
  */
 
 var yo = require('yo-yo')
-  , state = {command:{list:[], cur:''}, data:{}}
-  , el = main(state, update)
+  , state = {command:{list:[], i: -1, cur: null}, data:{}}
+  , el = main(state, onselect, update)
   , client = require('./ws-client')(function(data) {
     console.log("Received: " + data)
     var m = JSON.parse(data)
@@ -24,15 +24,21 @@ var yo = require('yo-yo')
       }
     }
     // construct a new list and efficiently diff+morph it into the one in the DOM
-    var newList = main(state, update)
-    yo.update(el, newList)
+    var widget = main(state, onselect, update)
+    yo.update(el, widget)
   })
   
-function main(state, onclick) {
+function main(state, onselect, onclick) {
   return yo`<div>
     <div>
-      <p>Command : <select id="command">${state.command.list.map(function (cmd) { return yo`<option value="${cmd.n}">${cmd.n}</option>` })} </select></p>
-      <textarea id="data">${state.command.cur}</textarea>
+      <p>Command : <select onchange=${onselect} id="command">
+        <option value="-1" selected=${state.command.i===-1?'selected':''}>-</option>
+        ${state.command.list.map(function (cmd, i) { return yo`<option value="${i}" selected=${state.command.i===i?'selected':''}>${cmd.n}</option>` })}
+        </select>
+      </p>
+      ${state.command.cur?Object.keys(state.command.cur.p).map(function (k) {
+        return yo`<p>${k} (${state.command.cur.p[k]}) <input type="text" id=${k}></p>`
+      }):''}
       <button onclick=${onclick}>send</button>
     </div>
     <table>
@@ -45,7 +51,16 @@ function main(state, onclick) {
   </div>`
 }
 
-function update (e) {
+function onselect(e) {
+  var i = +document.getElementById('command').value
+  state.command.i = i
+  state.command.cur = i !== -1 ? state.command.list[i] : null
+  console.log('Command selected: '+ state.command.i + ' ' + (state.command.cur?state.command.cur.n:''))
+  var widget = main(state, onselect, update)
+  yo.update(el, widget)
+}
+
+function update(e) {
   if (client.readyState === client.OPEN) {
     var key = document.getElementById('key').value
       , value = document.getElementById('value').value
