@@ -1,9 +1,10 @@
 {
-  "author": "Nicolas Lochet",
   "name": "wool",
-  "description": "Test some idea about event/log based datastorage, CQRS and fancy stuff.",
   "version": "0.2.1",
+  "author": "Nicolas Lochet",
+  "description": "Test some idea about event/log based datastorage, CQRS and fancy stuff.",
   "homepage": "https://github.com/nicocube/wool",
+  "license": "Apache License 2.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/nicocube/wool.git"
@@ -24,7 +25,7 @@
   },
   "dependencies": {
     "bankai": "^7.6.2",
-    "bunyan": "^1.8.5",
+    "bunyan": "^1.8.12",
     "meow": "^3.7.0",
     "websocket": "^1.0.24",
     "wool-rule": "0.0.4",
@@ -39,7 +40,7 @@
     "mermaid": "^7.0.3",
     "nodemon": "^1.11.0",
     "tap-summary": "^3.0.1",
-    "tape": "^4.7.0"
+    "tape": "^4.8.0"
   },
   "optionalDependencies": {}
 }

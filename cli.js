@@ -59,8 +59,7 @@ if (cli.input.length===0) {
   .withFile(eventDB)
   .onReady(function() {
     var server = require('./app/server')(logger, 3000)
-    require('./app/wss')(logger, server, wool, rules, dataStore)
-    
+    require('./app/wss')(logger, server, this, rules, dataStore)
     logger.info('Start in %dms', Date.now() - start)
   })
   .run()

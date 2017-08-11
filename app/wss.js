@@ -14,6 +14,7 @@ module.exports = function (logger, server, wool, rules, dataStore) {
 
   var WebSocketServer = require('websocket').server
     , wss = new WebSocketServer({ httpServer: server })
+    , Event = require('wool-stream').Event
 
   function originIsAllowed(origin) {
     // put logic here to detect whether the specified origin is allowed.
@@ -47,6 +48,11 @@ module.exports = function (logger, server, wool, rules, dataStore) {
                   list: rules
                 }
               }
+            }
+            break;
+            case 'command': {
+              wool.push(Event(new Date(), 0, m.n, m.d))
+              dataStore
             }
             break;
             default: {

@@ -9,13 +9,17 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-var yo = require('yo-yo')
+const yo = require('yo-yo')
   , state = {command:{list:[], i: -1, cur: null}, data:{}}
-  , el = main(state, onselect, update)
+  , el = main(state)
   , client = require('./ws-client')(function(data) {
     console.log("Received: " + data)
     var m = JSON.parse(data)
-    if ('t' in m) {
+    if (Object.keys(m).length === 0) {
+      alert("Empty message !")
+    } else if ('err' in m) {
+      alert(m.err)
+    } else if ('t' in m) {
       switch(m.t) {
         case 'init': {
           state.command.list = m.d.command.list
@@ -24,22 +28,22 @@ var yo = require('yo-yo')
       }
     }
     // construct a new list and efficiently diff+morph it into the one in the DOM
-    var widget = main(state, onselect, update)
+    const widget = main(state)
     yo.update(el, widget)
   })
-  
-function main(state, onselect, onclick) {
+
+function main(state) {
   return yo`<div>
     <div>
-      <p>Command : <select onchange=${onselect} id="command">
+      <p>Command : <select onchange=${onChangeSelectCommand} id="command">
         <option value="-1" selected=${state.command.i===-1?'selected':''}>-</option>
         ${state.command.list.map(function (cmd, i) { return yo`<option value="${i}" selected=${state.command.i===i?'selected':''}>${cmd.n}</option>` })}
         </select>
       </p>
       ${state.command.cur?Object.keys(state.command.cur.p).map(function (k) {
-        return yo`<p>${k} (${state.command.cur.p[k]}) <input type="text" id=${k}></p>`
+        return yo`<p>${k} (${state.command.cur.p[k]}) <input type="text" id="param-${k}"></p>`
       }):''}
-      <button onclick=${onclick}>send</button>
+      <button onclick=${onClickSend} disabled=${state.command.i===-1?'disabled':''}>send</button>
     </div>
     <table>
     <tbody>
@@ -51,22 +55,42 @@ function main(state, onselect, onclick) {
   </div>`
 }
 
-function onselect(e) {
-  var i = +document.getElementById('command').value
+function onChangeSelectCommand(e) {
+  const i = +document.getElementById('command').value
   state.command.i = i
   state.command.cur = i !== -1 ? state.command.list[i] : null
   console.log('Command selected: '+ state.command.i + ' ' + (state.command.cur?state.command.cur.n:''))
-  var widget = main(state, onselect, update)
+  const widget = main(state)
   yo.update(el, widget)
 }
 
-function update(e) {
+function onClickSend(e) {
   if (client.readyState === client.OPEN) {
-    var key = document.getElementById('key').value
-      , value = document.getElementById('value').value
-      , payload = JSON.stringify({ k: key, v: value })
-    console.log("Sent: " + payload)
-    client.send(payload)
+    if (state.command.cur !== null) {
+      var m = {}
+        , p = Object.entries(state.command.cur.p)
+
+      m.t = 'command'
+      m.n = state.command.cur.n
+      m.d = {}
+      
+      var i = 0
+        , l = p.length
+      for (; i < l ; i++) {
+        var k = p[i][0]
+          , c = p[i][1]
+          , v = document.getElementById('param-'+k).value
+        if (v.length === 0 && c === 1) {
+          alert('Param '+k+' is mandatory')
+          return
+        }
+        m.d[k] = v
+      }
+
+      var payload = JSON.stringify(m)
+      console.log("Sent: " + payload)
+      client.send(payload)
+    }
   }
 }
 
