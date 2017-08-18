@@ -51,13 +51,11 @@ function main(state) {
       }):''}
       <button onclick=${onClickSend} disabled=${state.command.i===-1?'disabled':''}>send</button>
     </div>
-    <table>
-    <tbody>
+    <ul>
       ${Object.keys(state.data).map(function (key) {
-        return yo`<tr><td>${key}</td><td><pre>${JSON.stringify(state.data[key], null, 3)}</pre></td></tr>`
+        return yo`<li>${key} <pre>${JSON.stringify(state.data[key].v, null, 3)}</pre></li>`
       })}
-    </tbody>
-    </table>
+    </ul>
   </div>`
 }
 
@@ -86,11 +84,15 @@ function onClickSend(e) {
         var k = p[i][0]
           , c = p[i][1]
           , v = document.getElementById('param-'+k).value
-        if (v.length === 0 && c === 1) {
-          alert('Param '+k+' is mandatory')
-          return
+        if (v.length === 0) {
+          if (c === 1) {
+            alert('Param '+k+' is mandatory')
+            return
+          }
+          // if (c === 0) DO NOTHING
+        } else {
+          m.d[k] = v
         }
-        m.d[k] = v
       }
 
       var payload = JSON.stringify(m)
