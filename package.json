@@ -4,7 +4,7 @@
   "author": "Nicolas Lochet",
   "description": "Test some idea about event/log based datastorage, CQRS and fancy stuff.",
   "homepage": "https://github.com/nicocube/wool",
-  "license": "Apache License 2.0",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/nicocube/wool.git"
