@@ -23,6 +23,11 @@ const yo = require('yo-yo')
       switch(m.t) {
         case 'init': {
           state.command.list = m.d.command.list
+          state.data = m.d.data
+        }
+        break;
+        case 'ds': {
+          state.data = m.d
         }
         break;
       }
@@ -33,6 +38,7 @@ const yo = require('yo-yo')
   })
 
 function main(state) {
+  console.log(state)
   return yo`<div>
     <div>
       <p>Command : <select onchange=${onChangeSelectCommand} id="command">
@@ -48,7 +54,7 @@ function main(state) {
     <table>
     <tbody>
       ${Object.keys(state.data).map(function (key) {
-        return yo`<tr><td>${key}</td><td>${JSON.stringify(state.data[key], null, 3)}</td></tr>`
+        return yo`<tr><td>${key}</td><td><pre>${JSON.stringify(state.data[key], null, 3)}</pre></td></tr>`
       })}
     </tbody>
     </table>

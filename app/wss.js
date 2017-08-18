@@ -46,13 +46,15 @@ module.exports = function (logger, server, wool, rules, dataStore) {
               r.d = {
                 command: {
                   list: rules
-                }
+                },
+                data: dataStore._
               }
             }
             break;
             case 'command': {
               wool.push(Event(new Date(), 0, m.n, m.d))
-              dataStore
+              r.t = 'ds'
+              r.d = dataStore._
             }
             break;
             default: {
