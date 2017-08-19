@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Nicolas Lochet Licensed under the Apache License, Version 2.0 (the "License");
+ * Copyright 2017 Nicolas Lochet Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
@@ -26,8 +26,12 @@ const yo = require('yo-yo')
           state.data = m.d.data
         }
         break;
-        case 'ds': {
-          state.data = m.d
+        case 'set': {
+          state.data[m.d.k] = m.d.v
+        }
+        break;
+        case 'del': {
+          delete state.data[m.d.k]
         }
         break;
       }
@@ -53,7 +57,7 @@ function main(state) {
     </div>
     <ul>
       ${Object.keys(state.data).map(function (key) {
-        return yo`<li>${key} <pre>${JSON.stringify(state.data[key].v, null, 3)}</pre></li>`
+        return yo`<li>${key} <pre>${JSON.stringify(state.data[key], null, 3)}</pre></li>`
       })}
     </ul>
   </div>`

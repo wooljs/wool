@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Nicolas Lochet Licensed under the Apache License, Version 2.0 (the "License");
+ * Copyright 2017 Nicolas Lochet Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
@@ -15,11 +15,18 @@ module.exports = function (logger, server, wool, rules, dataStore) {
   var WebSocketServer = require('websocket').server
     , wss = new WebSocketServer({ httpServer: server })
     , Event = require('wool-stream').Event
+    , session = require('./session')(dataStore)
 
   function originIsAllowed(origin) {
     // put logic here to detect whether the specified origin is allowed.
     logger.info('Origin: %s', origin)
     return true;
+  }
+  
+  function sendOnConnection(connection, m) {
+    var out = JSON.stringify(m)
+    logger.info('Sent Message: \'' + out + '\'')
+    connection.sendUTF(out)
   }
 
   wss.on('request', function(request) {
@@ -32,7 +39,17 @@ module.exports = function (logger, server, wool, rules, dataStore) {
     }
     
     var connection = request.accept('echo-protocol', request.origin)
+      , sessid = session.getId()
     logger.info('Connection accepted.')
+    
+    dataStore.subAll(sessid, function(id, v, t) {
+      switch(t) {
+        case 'update':
+          return sendOnConnection(connection, { t: 'set', d : { k : id, v:  v }})
+        case 'delete':
+          return sendOnConnection(connection, { t: 'del', d : { k : id }})
+      }
+    })
     
     connection.on('message', function(message) {
       if (message.type === 'utf8') {
@@ -47,26 +64,25 @@ module.exports = function (logger, server, wool, rules, dataStore) {
                 command: {
                   list: rules
                 },
-                data: dataStore._
+                data: Object.keys(dataStore._).reduce(function(p, k) {
+                  p[k] = dataStore._[k].v
+                  return p
+                }, {})
               }
+              sendOnConnection(connection, r)
             }
             break;
             case 'command': {
               wool.push(Event(new Date(), 0, m.n, m.d))
-              r.t = 'ds'
-              r.d = dataStore._
             }
             break;
             default: {
-              r.err='unknown "t" field: "'+m.t+'"'
+              sendOnConnection(connection, { err: 'unknown "t" field: "'+m.t+'"' })
             }
           }
         } else {
-          r.err='message must have a "t" field'
+          sendOnConnection(connection, { err: 'message must have a "t" field' })
         }
-        var out = JSON.stringify(r)
-        logger.info('Sent Message: \'' + out + '\'')
-        connection.sendUTF(out)
       }
       else if (message.type === 'binary') {
         logger.info('Received Binary Message of %s bytes.', message.binaryData.length)
@@ -75,6 +91,7 @@ module.exports = function (logger, server, wool, rules, dataStore) {
     })
     connection.on('close', function(reasonCode, description) {
       logger.info(' Peer %s disconnected.', connection.remoteAddress);
+      dataStore.unsubAll(sessid)
     })
   })
 
