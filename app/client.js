@@ -12,6 +12,7 @@
 const yo = require('yo-yo')
   , state = {command:{list:[], i: -1, cur: null}, data:{}}
   , el = main(state)
+  , css = require('sheetify')
   , client = require('./ws-client')(function(data) {
     console.log("Received: " + data)
     var m = JSON.parse(data)
@@ -43,8 +44,18 @@ const yo = require('yo-yo')
 
 function main(state) {
   console.log(state)
-  return yo`<div>
-    <div>
+  var prefix = css`
+    :host > div {
+      display: inline-block;
+      vertical-align:top;
+    }
+    :host > .command {
+    }
+    :host > .data {
+    }
+  `
+  return yo`<div class="${prefix}">
+    <div class="command">
       <p>Command : <select onchange=${onChangeSelectCommand} id="command">
         <option value="-1" selected=${state.command.i===-1?'selected':''}>-</option>
         ${state.command.list.map(function (cmd, i) { return yo`<option value="${i}" selected=${state.command.i===i?'selected':''}>${cmd.n}</option>` })}
@@ -55,11 +66,13 @@ function main(state) {
       }):''}
       <button onclick=${onClickSend} disabled=${state.command.i===-1?'disabled':''}>send</button>
     </div>
-    <ul>
-      ${Object.keys(state.data).map(function (key) {
-        return yo`<li>${key} <pre>${JSON.stringify(state.data[key], null, 3)}</pre></li>`
-      })}
-    </ul>
+    <div class="data">
+      <ul>
+        ${Object.keys(state.data).map(function (key) {
+          return yo`<li>${key} <pre>${JSON.stringify(state.data[key], null, 3)}</pre></li>`
+        })}
+      </ul>
+    </div>
   </div>`
 }
 
