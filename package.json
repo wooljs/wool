@@ -15,7 +15,7 @@
   },
   "scripts": {
     "start": "node cli.js example/rules.js | bunyan",
-    "watch": "nodemon -x 'node ./cli.js example/rules.js | bunyan'",
+    "watch": "nodemon -x 'node ./cli.js example/rules.js -d | bunyan'",
     "pretest": "npm run lint",
     "test": "tape test/**/*.spec.js |tap-summary --no-progress",
     "autotest": "nodemon -e js,yml -x 'tape test/**/*.spec.js |tap-summary --no-progress'",

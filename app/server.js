@@ -9,7 +9,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-module.exports = function (logger, port) {
+module.exports = function (logger, debug, port) {
   'use strict'
   
   var bankai = require('bankai')
@@ -19,7 +19,7 @@ module.exports = function (logger, port) {
     , clientPath = path.join(__dirname, 'client.js')
     , assets = bankai(clientPath, {
       html: { favicon: 'favicon.ico' },
-      js: {debug: true}
+      js: {debug: debug}
     })
     , fs = require('fs')
 

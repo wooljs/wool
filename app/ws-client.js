@@ -12,8 +12,9 @@
 module.exports = function(onmessage) {
   'use strict'
 
-  var W3CWebSocket = require('websocket').w3cwebsocket
-    , client = new W3CWebSocket('ws://localhost:3000/', 'echo-protocol')
+  var url = location.href.replace(/^http/, 'ws')
+    , W3CWebSocket = require('websocket').w3cwebsocket
+    , client = new W3CWebSocket(url, 'echo-protocol')
    
   client.onerror = function() {
     console.log('Connection Error', arguments)

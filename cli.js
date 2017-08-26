@@ -10,27 +10,33 @@
  */
 
 var meow = require('meow')
-  , cli = meow(
-    '\n  Usages\n'+
-    '    $ wool\n'+
-    '\n'+
-    '      This documentation.\n'+
-    '\n'+
-    '    $ wool <rule file> [options]\n'+
-    '\n'+
-    '      Launch wool webapp with a JS rule file (see Doc for format).\n'+
-    '      Specific options\n'+
-    '        -s, --state\ta JSON file containing an init state\n'+
-    '        -e, --event\tan events file that is to be played on launching of the app (see Doc for format)\n'+
-    '        -o, --out\tan events file to store events (see Doc for format)\n'+
-    '\n'+
-    '      Examples\n'+
-    '        $ wool rules.js -s state.json\n'+
-    '        $ wool rules.js -s state.json -o store.evt\n'+
-    '        $ wool rules.js -e init.evt\n',
+  , cli = meow(`
+Usages:
+
+$ wool
+
+  This documentation.
+
+$ wool <rule file> [options]
+
+    Launch wool webapp with a JS rule file (see Doc for format).
+
+    Specific options
+      -d, --debug\trun the app in debug mode
+      -p, --port\tdefine the port for the app (default: 3000) 
+      -s, --state\ta JSON file containing an init state
+      -e, --event\tan events file that is to be played on launching of the app (see Doc for format)
+      -o, --out\tan events file to store events (see Doc for format)
+
+    Examples
+      $ wool rules.js -s state.json
+      $ wool rules.js -s state.json -o store.evt
+      $ wool rules.js -e init.evt`,
     {
       alias: {
 //        c: 'command', ??
+        d: 'debug',
+        p: 'port',
         s: 'state',
         e: 'event',
         o: 'out'
@@ -44,6 +50,9 @@ if (cli.input.length===0) {
   console.log(cli.flags)
 
   var start = Date.now()
+    , debug = 'debug' in cli.flags
+    , port = 'port' in cli.flags ? +cli.flags.port : 3000
+
     , bunyan = require('bunyan')
     , logger = bunyan.createLogger({name: 'myapp'})
 
@@ -58,7 +67,7 @@ if (cli.input.length===0) {
   .rule(rules)
   .withFile(eventDB)
   .onReady(function() {
-    var server = require('./app/server')(logger, 3000)
+    var server = require('./app/server')(logger, debug, port)
     require('./app/wss')(logger, server, this, rules, dataStore)
     logger.info('Start in %dms', Date.now() - start)
   })
