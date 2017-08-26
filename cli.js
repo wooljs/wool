@@ -19,30 +19,33 @@ $ wool
 
 $ wool <rule file> [options]
 
-    Launch wool webapp with a JS rule file (see Doc for format).
+  Launch wool webapp with a JS rule file (see Doc for format).
 
-    Specific options
-      -d, --debug\trun the app in debug mode
-      -p, --port\tdefine the port for the app (default: 3000) 
-      -s, --state\ta JSON file containing an init state
-      -e, --event\tan events file that is to be played on launching of the app (see Doc for format)
-      -o, --out\tan events file to store events (see Doc for format)
+  Specific options
+    -d, --debug       run the app in debug mode
+    -p, --port        define the port for the app (default: 3000) 
+    -e, --event-in    an events file that is to be played on launching of the app
+                      (see Doc for format) (default: ./event.db)
+    -o, --event-out   an events file to store events (see Doc for format)
+                      (default: same than --event-in)
+    -i, --init-store  a JSON file containing an init store (optional)
 
-    Examples
-      $ wool rules.js -s state.json
-      $ wool rules.js -s state.json -o store.evt
-      $ wool rules.js -e init.evt`,
+  Examples
+    $ wool rules.js -d -p 8080
+    $ wool rules.js -s store.json -e store.evt
+    $ wool rules.js -e init.evt`,
     {
       alias: {
-//        c: 'command', ??
         d: 'debug',
         p: 'port',
-        s: 'state',
-        e: 'event',
-        o: 'out'
+        e: 'event-in',
+        o: 'event-out',
+        i: 'init-store'
       }
     }
   )
+  , path = require('path')
+
 if (cli.input.length===0) {
   cli.showHelp()
 } else {
@@ -52,6 +55,7 @@ if (cli.input.length===0) {
   var start = Date.now()
     , debug = 'debug' in cli.flags
     , port = 'port' in cli.flags ? +cli.flags.port : 3000
+    , eventDB = path.resolve('eventIn' in cli.flags ? cli.flags.eventIn : 'event.db')
 
     , bunyan = require('bunyan')
     , logger = bunyan.createLogger({name: 'myapp'})
@@ -60,8 +64,11 @@ if (cli.input.length===0) {
     , Store = require('wool-store')
     , dataStore = Store()
     , rules = require(__dirname+'/'+cli.input[0])
-    , eventDB = __dirname + '/data/events.db'
-    
+
+  if (debug) logger.info('Debug mode activated')
+  logger.info('Port %d', port)
+  logger.info('Load events %s', eventDB)
+
   wool()
   .store(dataStore)
   .rule(rules)

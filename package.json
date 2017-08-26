@@ -14,8 +14,8 @@
     "node": "0.10.*"
   },
   "scripts": {
-    "start": "node cli.js example/rules.js | bunyan",
-    "watch": "nodemon -x 'node ./cli.js example/rules.js -d | bunyan'",
+    "start": "node cli.js example/rules.js -e data/events.db | bunyan",
+    "watch": "nodemon -x 'node ./cli.js example/rules.js -d -e data/events.db | bunyan'",
     "pretest": "npm run lint",
     "test": "tape test/**/*.spec.js |tap-summary --no-progress",
     "autotest": "nodemon -e js,yml -x 'tape test/**/*.spec.js |tap-summary --no-progress'",
