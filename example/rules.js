@@ -14,8 +14,7 @@ exports = module.exports = []
 exports.push({
   n: 'create_chatroom',
   p: {
-    userId: 1,
-    chatId: 0
+    userId: 1
   },
   o: function(param, cb) {
     var userId = param.userId

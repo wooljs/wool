@@ -70,13 +70,15 @@ if (cli.input.length===0) {
   logger.info('Load events %s', eventDB)
 
   wool()
+  .logger(logger)
   .store(dataStore)
   .rule(rules)
   .withFile(eventDB)
-  .onReady(function() {
+  .onReady(function(count) {
+    logger.info('Load %d events in %dms', count, Date.now() - start)
     var server = require('./app/server')(logger, debug, port)
     require('./app/wss')(logger, server, this, rules, dataStore)
-    logger.info('Start in %dms', Date.now() - start)
+    logger.info('App ready in %dms', Date.now() - start)
   })
   .run()
 

@@ -23,9 +23,9 @@ module.exports = function (logger, server, wool, rules, dataStore) {
     return true;
   }
   
-  function sendOnConnection(connection, m) {
+  function sendOnConnection(connection, sessid, m) {
     var out = JSON.stringify(m)
-    logger.info('Sent Message: \'' + out + '\'')
+    logger.info('Send to '+sessid+' Message: \'' + out + '\'')
     connection.sendUTF(out)
   }
 
@@ -40,20 +40,20 @@ module.exports = function (logger, server, wool, rules, dataStore) {
     
     var connection = request.accept('echo-protocol', request.origin)
       , sessid = session.getId()
-    logger.info('Connection accepted.')
+    logger.info('Connection accepted for sessid: '+sessid)
     
     dataStore.subAll(sessid, function(id, v, t) {
       switch(t) {
         case 'update':
-          return sendOnConnection(connection, { t: 'set', d : { k : id, v:  v }})
+          return sendOnConnection(connection, sessid, { t: 'set', d : { k : id, v:  v }})
         case 'delete':
-          return sendOnConnection(connection, { t: 'del', d : { k : id }})
+          return sendOnConnection(connection, sessid, { t: 'del', d : { k : id }})
       }
     })
     
     connection.on('message', function(message) {
       if (message.type === 'utf8') {
-        logger.info('Received Message: \'' + message.utf8Data + '\'')
+        logger.info('Received from '+sessid+' Message: \'' + message.utf8Data + '\'')
         var m = JSON.parse(message.utf8Data)
           , r = {}
         if ('t' in m) {
@@ -69,7 +69,7 @@ module.exports = function (logger, server, wool, rules, dataStore) {
                   return p
                 }, {})
               }
-              sendOnConnection(connection, r)
+              sendOnConnection(connection, sessid, r)
             }
             break;
             case 'command': {
@@ -77,11 +77,11 @@ module.exports = function (logger, server, wool, rules, dataStore) {
             }
             break;
             default: {
-              sendOnConnection(connection, { err: 'unknown "t" field: "'+m.t+'"' })
+              sendOnConnection(connection, sessid, { err: 'unknown "t" field: "'+m.t+'"' })
             }
           }
         } else {
-          sendOnConnection(connection, { err: 'message must have a "t" field' })
+          sendOnConnection(connection, sessid, { err: 'message must have a "t" field' })
         }
       }
       else if (message.type === 'binary') {
@@ -90,7 +90,7 @@ module.exports = function (logger, server, wool, rules, dataStore) {
       }
     })
     connection.on('close', function(reasonCode, description) {
-      logger.info(' Peer %s disconnected.', connection.remoteAddress);
+      logger.info(' Peer %s, sessid: %s, disconnected.', connection.remoteAddress, sessid);
       dataStore.unsubAll(sessid)
     })
   })
