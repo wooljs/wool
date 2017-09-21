@@ -33,17 +33,16 @@ $ wool <rule file> [options]
   Examples
     $ wool rules.js -d -p 8080
     $ wool rules.js -s store.json -e store.evt
-    $ wool rules.js -e init.evt`,
-    {
-      alias: {
-        d: 'debug',
-        p: 'port',
-        e: 'event-in',
-        o: 'event-out',
-        i: 'init-store'
-      }
+    $ wool rules.js -e init.evt`
+  , {
+    alias: {
+      d: 'debug',
+      p: 'port',
+      e: 'event-in',
+      o: 'event-out',
+      i: 'init-store'
     }
-  )
+  })
   , path = require('path')
 
 if (cli.input.length===0) {
@@ -83,9 +82,3 @@ if (cli.input.length===0) {
   .run()
 
 }
-
-
-
-
-
-
