@@ -9,6 +9,12 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
+/**
+ *
+ * This file is a model of Rule file
+ *
+ */
+
 exports = module.exports = []
 
 exports.push({
@@ -30,6 +36,14 @@ exports.push({
     userId: 1,
     chatId: 1
   },
+  c: function(param, cb) {
+    var userId = param.userId
+      , chatId = param.chatId
+    var chatroom = this.get(chatId)
+    if (! chatroom) return cb('Chatroom> invalid chatId')
+    else if (chatroom.members.indexOf(userId) !== -1) return cb('Chatroom> member "'+userId+'" cannot join: already in')
+    else return cb()
+  },
   o: function(param, cb) {
     var userId = param.userId
       , chatId = param.chatId
@@ -47,6 +61,14 @@ exports.push({
   p: {
     userId: 1,
     chatId: 1
+  },
+  c: function(param, cb) {
+    var userId = param.userId
+      , chatId = param.chatId
+    var chatroom = this.get(chatId)
+    if (! chatroom) return cb('Chatroom> invalid chatId')
+    else if (chatroom.members.indexOf(userId) === -1) return cb('Chatroom> member "'+userId+'" cannot leave: not in')
+    return cb(null, chatroom && chatroom.members.indexOf(userId) !== -1)
   },
   o: function(param, cb) {
     var userId = param.userId
@@ -67,10 +89,18 @@ exports.push({
     chatId: 1,
     msg: 1
   },
-  o: function(param, cb) {
+  c: function(param, cb) {
     var userId = param.userId
       , chatId = param.chatId
+    var chatroom = this.get(chatId)
+    if (! chatroom) return cb('Chatroom> invalid chatId')
+    else if (chatroom.members.indexOf(userId) === -1) return cb('Chatroom> member "'+userId+'" cannot send message: not in')
+    return cb(null, chatroom && chatroom.members.indexOf(userId) !== -1)
+  },
+  o: function(param, cb) {
+    var userId = param.userId
       , msg = param.msg
+      , chatId = param.chatId
     try {
       var chatroom = this.get(chatId)
       chatroom.messages.push(userId + ': ' + msg)
