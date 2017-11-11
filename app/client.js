@@ -10,7 +10,7 @@
  */
 
 const yo = require('yo-yo')
-  , state = {command:{list:[], i: -1, cur: null}, data:{}}
+  , state = {command:{list:[], i: -1, cur: null}, variable: {}, data:{}}
   , el = main(state)
   , css = require('sheetify')
   , client = require('./ws-client')(function(data) {
@@ -53,16 +53,24 @@ function main(state) {
     }
     :host > .data {
     }
+    .action {
+      color: blue;
+      font-size: x-small;
+      cursor: pointer;
+    }
   `
   return yo`<div class="${prefix}">
     <div class="command">
+      ${Object.keys(state.variable).map(function(n) {
+        return yo`<p>${n}: ${state.variable[n]} <span class="action" onclick=${onClickVarDel(n)}>x</span></p>`
+      })}
       <p>Command : <select onchange=${onChangeSelectCommand} id="command">
         <option value="-1" selected=${state.command.i===-1?'selected':''}>-</option>
         ${state.command.list.map(function (cmd, i) { return yo`<option value="${i}" selected=${state.command.i===i?'selected':''}>${cmd.n}</option>` })}
         </select>
       </p>
       ${state.command.cur?Object.keys(state.command.cur.p).map(function (k) {
-        return yo`<p>${k} (${state.command.cur.p[k]}) <input type="text" id="param-${k}"></p>`
+        if (!(k in state.variable)) return yo`<p>${k} (${state.command.cur.p[k]}) <input type="text" id="param-${k}"> <span class="action" onclick=${onClickVarSet(k)}>^</span></p>`
       }):''}
       <button onclick=${onClickSend} disabled=${state.command.i===-1?'disabled':''}>send</button>
     </div>
@@ -85,6 +93,25 @@ function onChangeSelectCommand(e) {
   yo.update(el, widget)
 }
 
+function onClickVarSet(k) {
+  return function(e) {
+    var v = document.getElementById('param-'+k).value
+    if (v) {
+      state.variable[k] = v
+      const widget = main(state)
+      yo.update(el, widget)
+    }
+  }
+}
+
+function onClickVarDel(k) {
+  return function(e) {
+    delete state.variable[k]
+    const widget = main(state)
+    yo.update(el, widget)
+  }
+}
+
 function onClickSend(e) {
   if (client.readyState === client.OPEN) {
     if (state.command.cur !== null) {
@@ -100,7 +127,7 @@ function onClickSend(e) {
       for (; i < l ; i++) {
         var k = p[i][0]
           , c = p[i][1]
-          , v = document.getElementById('param-'+k).value
+          , v = k in state.variable ? state.variable[k] : document.getElementById('param-'+k).value
         if (v.length === 0) {
           if (c === 1) {
             alert('Param '+k+' is mandatory')
