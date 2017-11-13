@@ -73,6 +73,7 @@ module.exports = function (logger, server, wool, rules, dataStore) {
             }
             break;
             case 'command': {
+              m.d.sessid = sessid
               wool.push(Event(new Date(), 0, m.n, m.d))
             }
             break;

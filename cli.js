@@ -48,9 +48,6 @@ $ wool <rule file> [options]
 if (cli.input.length===0) {
   cli.showHelp()
 } else {
-  console.log(cli.input)
-  console.log(cli.flags)
-
   var start = Date.now()
     , debug = 'debug' in cli.flags
     , port = 'port' in cli.flags ? +cli.flags.port : 3000

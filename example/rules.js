@@ -17,15 +17,85 @@
 
 exports = module.exports = []
 
+function withPrefix(prefix) {
+  return function(id) {
+    return prefix+id
+  }
+}
+
+const asSession = withPrefix('Sess: ')
+const asUser = withPrefix('User: ')
+const asChatroom = withPrefix('Chatroom: ')
+
 exports.push({
-  n: 'create_chatroom',
+  n: 'create_user',
   p: {
-    userId: 1
+    userId: 1,
+    pass: 1
+  },
+  c: function(param, cb) {
+    var session = this.get(asSession(param.sessId))
+    if (! session) return cb('Session> session must be set to create user')
+    else if (session.userId !== 'admin')  return cb('Session> session must be user admin to create user')
+    var user = this.get(asUser(param.userId))
+    if (user) return cb ('User> userId "'+param.userId+'" already exists')
+    else return cb()
   },
   o: function(param, cb) {
-    var userId = param.userId
     try {
-      this.create(param, 'chatId', { members: [ userId ], messages: [ '* Chatroom created by '+userId ] }, cb)
+      this.create(asUser, { userId: param.userId, pass: param.pass }, cb)
+    } catch(e) {
+      cb(e)
+    }
+  }
+},{
+  n: 'login',
+  p: {
+    userId: 1,
+    pass: 1
+  },
+  c: function(param, cb) {
+    var session = this.get(asSession(param.sessId))
+    if (session) return cb('Session> session already set in store')
+    var user = this.get(asUser(param.userId))
+    if (! user) return cb('User> userId "'+param.userId+'" does not exist')
+    if (user.pass !== param.pass) return cb('User> userId "'+param.userId+'" password does not match')
+    return cb()
+  },
+  o: function(param, cb) {
+    try {
+      this.create(asSession, { userId: param.userId }, cb)
+    } catch(e) {
+      cb(e)
+    }
+  }
+},{
+  n: 'logout',
+  p: {},
+  c: function(param, cb) {
+    var session = this.get(asSession(param.sessId))
+    if (! session) return cb('Session> session must exist to logout')
+    return cb()
+  },
+  o: function(param, cb) {
+    try {
+      this.remove(asSession(param.sessId), cb)
+    } catch(e) {
+      cb(e)
+    }
+  }
+},{
+  n: 'create_chatroom',
+  p: {},
+  c: function(param, cb) {
+    var session = this.get(asSession(param.sessId))
+    if (! session) return cb('Session> session must be set to create chatroom')
+    return cb()
+  },
+  o: function(param, cb) {
+    var userId = this.get(asSession(param.sessId)).userId
+    try {
+      this.create(asChatroom, { members: [ userId ], messages: [ '* Chatroom created by '+userId ] }, cb)
     } catch(e) {
       cb(e)
     }
@@ -33,19 +103,22 @@ exports.push({
 },{
   n: 'join_chatroom',
   p: {
-    userId: 1,
     chatId: 1
   },
   c: function(param, cb) {
-    var userId = param.userId
+    var session = this.get(asSession(param.sessId))
+    if (! session) return cb('Session> session must be set to join chatroom')
+
+    var userId = session.userId
       , chatId = param.chatId
     var chatroom = this.get(chatId)
     if (! chatroom) return cb('Chatroom> invalid chatId')
     else if (chatroom.members.indexOf(userId) !== -1) return cb('Chatroom> member "'+userId+'" cannot join: already in')
-    else return cb()
+    
+    return cb()
   },
   o: function(param, cb) {
-    var userId = param.userId
+    var userId = param.userId = session.userId
       , chatId = param.chatId
     try {
       var chatroom = this.get(chatId)
@@ -59,11 +132,13 @@ exports.push({
 },{
   n: 'leave_chatroom',
   p: {
-    userId: 1,
     chatId: 1
   },
   c: function(param, cb) {
-    var userId = param.userId
+    var session = this.get(asSession(param.sessId))
+    if (! session) return cb('Session> session must be set to leave chatroom')
+    
+    var userId = param.userId = session.userId
       , chatId = param.chatId
     var chatroom = this.get(chatId)
     if (! chatroom) return cb('Chatroom> invalid chatId')
@@ -85,12 +160,14 @@ exports.push({
 },{
   n: 'send_message',
   p: {
-    userId: 1,
     chatId: 1,
     msg: 1
   },
   c: function(param, cb) {
-    var userId = param.userId
+    var session = this.get(asSession(param.sessId))
+    if (! session) return cb('Session> session must be set to send message')
+    
+    var userId = param.userId = session.userId
       , chatId = param.chatId
     var chatroom = this.get(chatId)
     if (! chatroom) return cb('Chatroom> invalid chatId')
