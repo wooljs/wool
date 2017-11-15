@@ -10,6 +10,7 @@
  */
 
 var meow = require('meow')
+  , fs = require('fs')
   , cli = meow(`
 Usages:
 
@@ -57,13 +58,24 @@ if (cli.input.length===0) {
     , logger = bunyan.createLogger({name: 'myapp'})
 
     , wool = require('./lib/wool.js')
+    
     , Store = require('wool-store')
+    , initStore = 'initStore' in cli.flags ? path.resolve(cli.flags.initStore) : undefined
     , dataStore = Store()
+    
     , rules = require(__dirname+'/'+cli.input[0])
+
 
   if (debug) logger.info('Debug mode activated')
   logger.info('Port %d', port)
   logger.info('Load events %s', eventDB)
+  
+  if (initStore) {
+    logger.info('Load init store %s', initStore)
+    var ini = JSON.parse(fs.readFileSync(initStore).toString())
+    Object.keys(ini).forEach(function(k){ dataStore.set(k, ini[k]) })
+    if (debug) logger.info(dataStore)
+  }
 
   wool()
   .logger(logger)

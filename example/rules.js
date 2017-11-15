@@ -34,16 +34,16 @@ exports.push({
     pass: 1
   },
   c: function(param, cb) {
-    var session = this.get(asSession(param.sessId))
+    var session = this.get(asSession(param.sessid))
     if (! session) return cb('Session> session must be set to create user')
-    else if (session.userId !== 'admin')  return cb('Session> session must be user admin to create user')
+    else if (session.userId !== 'root')  return cb('Session> session must be user admin to create user')
     var user = this.get(asUser(param.userId))
     if (user) return cb ('User> userId "'+param.userId+'" already exists')
     else return cb()
   },
   o: function(param, cb) {
     try {
-      this.create(asUser, { userId: param.userId, pass: param.pass }, cb)
+      this.update(asUser(param.userId), { userId: param.userId, pass: param.pass }, cb)
     } catch(e) {
       cb(e)
     }
@@ -55,7 +55,7 @@ exports.push({
     pass: 1
   },
   c: function(param, cb) {
-    var session = this.get(asSession(param.sessId))
+    var session = this.get(asSession(param.sessid))
     if (session) return cb('Session> session already set in store')
     var user = this.get(asUser(param.userId))
     if (! user) return cb('User> userId "'+param.userId+'" does not exist')
@@ -64,7 +64,7 @@ exports.push({
   },
   o: function(param, cb) {
     try {
-      this.create(asSession, { userId: param.userId }, cb)
+      this.update(asSession(param.sessid), { userId: param.userId }, cb)
     } catch(e) {
       cb(e)
     }
@@ -73,13 +73,13 @@ exports.push({
   n: 'logout',
   p: {},
   c: function(param, cb) {
-    var session = this.get(asSession(param.sessId))
+    var session = this.get(asSession(param.sessid))
     if (! session) return cb('Session> session must exist to logout')
     return cb()
   },
   o: function(param, cb) {
     try {
-      this.remove(asSession(param.sessId), cb)
+      this.remove(asSession(param.sessid), cb)
     } catch(e) {
       cb(e)
     }
@@ -88,12 +88,12 @@ exports.push({
   n: 'create_chatroom',
   p: {},
   c: function(param, cb) {
-    var session = this.get(asSession(param.sessId))
+    var session = this.get(asSession(param.sessid))
     if (! session) return cb('Session> session must be set to create chatroom')
     return cb()
   },
   o: function(param, cb) {
-    var userId = this.get(asSession(param.sessId)).userId
+    var userId = this.get(asSession(param.sessid)).userId
     try {
       this.create(asChatroom, { members: [ userId ], messages: [ '* Chatroom created by '+userId ] }, cb)
     } catch(e) {
@@ -106,7 +106,7 @@ exports.push({
     chatId: 1
   },
   c: function(param, cb) {
-    var session = this.get(asSession(param.sessId))
+    var session = this.get(asSession(param.sessid))
     if (! session) return cb('Session> session must be set to join chatroom')
 
     var userId = session.userId
@@ -135,7 +135,7 @@ exports.push({
     chatId: 1
   },
   c: function(param, cb) {
-    var session = this.get(asSession(param.sessId))
+    var session = this.get(asSession(param.sessid))
     if (! session) return cb('Session> session must be set to leave chatroom')
     
     var userId = param.userId = session.userId
@@ -164,7 +164,7 @@ exports.push({
     msg: 1
   },
   c: function(param, cb) {
-    var session = this.get(asSession(param.sessId))
+    var session = this.get(asSession(param.sessid))
     if (! session) return cb('Session> session must be set to send message')
     
     var userId = param.userId = session.userId

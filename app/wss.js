@@ -61,6 +61,7 @@ module.exports = function (logger, server, wool, rules, dataStore) {
             case 'init':{
               r.t ='init'
               r.d = {
+                sessid: sessid,
                 command: {
                   list: rules
                 },

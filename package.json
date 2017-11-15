@@ -14,8 +14,8 @@
     "node": "0.10.*"
   },
   "scripts": {
-    "start": "node cli.js example/rules.js -e data/events.db | bunyan",
-    "watch": "nodemon -x 'node ./cli.js example/rules.js -d -e data/events.db | bunyan'",
+    "start": "node cli.js example/rules.js -i example/init.json -e data/events.db | bunyan",
+    "watch": "nodemon -x 'node ./cli.js example/rules.js -d -i example/init.json -e data/events.db | bunyan'",
     "pretest": "npm run lint",
     "test": "tape test/**/*.spec.js |tap-summary --no-progress",
     "autotest": "nodemon -e js,yml -x 'tape test/**/*.spec.js |tap-summary --no-progress'",
@@ -28,8 +28,8 @@
     "bunyan": "^1.8.12",
     "meow": "^3.7.0",
     "websocket": "^1.0.25",
-    "wool-rule": "^0.2.1",
-    "wool-store": "0.1.0",
+    "wool-rule": "^0.2.2",
+    "wool-store": "^0.1.2",
     "wool-stream": "0.0.5",
     "xhr": "^2.4.0",
     "yo-yo": "^1.4.1"
