@@ -28,7 +28,7 @@
     "bunyan": "^1.8.12",
     "meow": "^3.7.0",
     "websocket": "^1.0.25",
-    "wool-rule": "^0.2.2",
+    "wool-rule": "^0.2.3",
     "wool-store": "^0.1.2",
     "wool-stream": "0.0.5",
     "xhr": "^2.4.0",
