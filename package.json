@@ -31,14 +31,14 @@
     "wool-rule": "^0.2.3",
     "wool-store": "^0.1.2",
     "wool-stream": "0.0.5",
-    "xhr": "^2.4.0",
+    "xhr": "^2.4.1",
     "yo-yo": "^1.4.1"
   },
   "devDependencies": {
     "eslint": "^3.19.0",
     "istanbul": "^0.4.5",
-    "mermaid": "^7.1.0",
-    "nodemon": "^1.12.1",
+    "mermaid": "^7.1.1",
+    "nodemon": "^1.14.1",
     "tap-summary": "^3.0.1",
     "tape": "^4.8.0"
   },
