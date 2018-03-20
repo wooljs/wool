@@ -14,25 +14,24 @@
 var test = require('tape')
   , stream = require('stream')
   , util = require('util')
-  , Event = require('wool-stream').Event
+  , { Command } = require('wool-model')
+  , { Store } = require('wool-store')
   , TestStream = require( __dirname + '/test_stream.js')(util,stream)
   , rules = require( __dirname + '/rules.js')
-  , { Store } = require('wool-store')
-  , dataStore = Store.build()
   , wool = require( __dirname + '/../lib/wool.js')
 
 test('integrate: contains spec with an expectation', function(t) {
   var count = 0
     , expected = [
-      '2017-05-02T09:48:12.450Z-0000 send_message {"userId":"bar","chatId":"15bc9f0381e","msg":"^^"}',
+      'S: 2017-05-02T09:48:12.450Z-0000 chatroom:send {"userId":"bar","chatId":"15bc9f0381e","msg":"^^"}',
       '\n',
-      '2017-05-02T09:48:42.666Z-0000 send_message {"userId":"foo","chatId":"15bc9f0381e","msg":"I have to quit, bye"}',
+      'S: 2017-05-02T09:48:42.666Z-0000 chatroom:send {"userId":"foo","chatId":"15bc9f0381e","msg":"I have to quit, bye"}',
       '\n',
-      '2017-05-02T09:49:02.010Z-0000 send_message {"userId":"bar","chatId":"15bc9f0381e","msg":"ok, bye"}',
+      'S: 2017-05-02T09:49:02.010Z-0000 chatroom:send {"userId":"bar","chatId":"15bc9f0381e","msg":"ok, bye"}',
       '\n',
-      '2017-05-02T09:49:05.234Z-0000 leave_chatroom {"userId":"foo","chatId":"15bc9f0381e"}',
+      'S: 2017-05-02T09:49:05.234Z-0000 chatroom:leave {"userId":"foo","chatId":"15bc9f0381e"}',
       '\n',
-      '2017-05-02T09:49:05.234Z-0001 leave_chatroom {"userId":"bar","chatId":"15bc9f0381e"}',
+      'S: 2017-05-02T09:49:05.234Z-0001 chatroom:leave {"userId":"bar","chatId":"15bc9f0381e"}',
       '\n',
     ]
     , out = TestStream(function (data, encoding, callback) {
@@ -45,18 +44,23 @@ test('integrate: contains spec with an expectation', function(t) {
       t.plan(10)
       t.end()
     })
+    , store = Store.build()
+
+
+  store.set('foo', { membership: [] })
+  store.set('bar', { membership: [] })
 
   wool()
-  .store(dataStore)
+  .store(store)
   .rule(rules)
   .fromFile(__dirname + '/test_load.db')
   .toStream(out)
   .onReady(function() {
-    this.push(Event(new Date('2017-05-02T09:48:12.450Z'), 0, 'send_message', {'userId': 'bar', 'chatId': '15bc9f0381e', 'msg': '^^'}))
-    this.push(Event(new Date('2017-05-02T09:48:42.666Z'), 0, 'send_message', {'userId': 'foo', 'chatId': '15bc9f0381e', 'msg': 'I have to quit, bye'}))
-    this.push(Event(new Date('2017-05-02T09:49:02.010Z'), 0, 'send_message', {'userId': 'bar', 'chatId': '15bc9f0381e', 'msg': 'ok, bye'}))
-    this.push(Event(new Date('2017-05-02T09:49:05.234Z'), 0, 'leave_chatroom', {'userId': 'foo', 'chatId': '15bc9f0381e'}))
-    this.push(Event(new Date('2017-05-02T09:49:05.234Z'), 1, 'leave_chatroom', {'userId': 'bar', 'chatId': '15bc9f0381e'}))
+    this.push(new Command(new Date('2017-05-02T09:48:12.450Z'), 0, 'chatroom:send', {'userId': 'bar', 'chatId': '15bc9f0381e', 'msg': '^^'}))
+    this.push(new Command(new Date('2017-05-02T09:48:42.666Z'), 0, 'chatroom:send', {'userId': 'foo', 'chatId': '15bc9f0381e', 'msg': 'I have to quit, bye'}))
+    this.push(new Command(new Date('2017-05-02T09:49:02.010Z'), 0, 'chatroom:send', {'userId': 'bar', 'chatId': '15bc9f0381e', 'msg': 'ok, bye'}))
+    this.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 0, 'chatroom:leave', {'userId': 'foo', 'chatId': '15bc9f0381e'}))
+    this.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 1, 'chatroom:leave', {'userId': 'bar', 'chatId': '15bc9f0381e'}))
     this.end()
   })
   .run()

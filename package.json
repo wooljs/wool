@@ -20,6 +20,7 @@
     "pretest": "npm run lint",
     "test": "tape test/**/*.spec.js |tap-summary --no-progress",
     "autotest": "nodemon -e js,yml -x 'tape test/**/*.spec.js |tap-summary --no-progress'",
+    "autolinttest": "nodemon -e js,yml -x 'npm run lint && tape test/**/*.spec.js |tap-summary --no-progress'",
     "coverage": "istanbul cover tape test/**/*.spec.js",
     "lint": "eslint index.js lib/ test/",
     "autolint": "nodemon -x eslint index.js lib/ test/",

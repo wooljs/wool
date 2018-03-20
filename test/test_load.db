@@ -1,9 +1,9 @@
-2017-05-02T09:46:53.916Z-0000 create_chatroom {"userId": "foo", "chatId": "15bc9f0381e"}
-2017-05-02T09:47:04.795Z-0000 send_message {"userId": "foo", "chatId": "15bc9f0381e", "msg": "Fiat lux!"}
-2017-05-02T09:47:13.953Z-0000 join_chatroom {"userId": "bar", "chatId": "15bc9f0381e"}
-2017-05-02T09:47:22.856Z-0000 send_message {"userId": "bar", "chatId": "15bc9f0381e", "msg": "Here I am!"}
-2017-05-02T09:47:34.247Z-0000 send_message {"userId": "foo", "chatId": "15bc9f0381e", "msg": "Welcome!"}
-2017-05-02T09:47:42.183Z-0000 send_message {"userId": "bar", "chatId": "15bc9f0381e", "msg": "What's up?"}
-2017-05-02T09:47:50.950Z-0000 send_message {"userId": "foo", "chatId": "15bc9f0381e", "msg": "good and you?"}
-2017-05-02T09:47:59.998Z-0000 send_message {"userId": "bar", "chatId": "15bc9f0381e", "msg": "good"}
-2017-05-02T09:48:10.045Z-0000 send_message {"userId": "foo", "chatId": "15bc9f0381e", "msg": "ok cool"}
+S: 2017-05-02T09:46:53.916Z-0000 chatroom:create {"userId": "foo", "chatId": "15bc9f0381e"}
+S: 2017-05-02T09:47:04.795Z-0000 chatroom:send {"userId": "foo", "chatId": "15bc9f0381e", "msg": "Fiat lux!"}
+S: 2017-05-02T09:47:13.953Z-0000 chatroom:join {"userId": "bar", "chatId": "15bc9f0381e"}
+S: 2017-05-02T09:47:22.856Z-0000 chatroom:send {"userId": "bar", "chatId": "15bc9f0381e", "msg": "Here I am!"}
+S: 2017-05-02T09:47:34.247Z-0000 chatroom:send {"userId": "foo", "chatId": "15bc9f0381e", "msg": "Welcome!"}
+S: 2017-05-02T09:47:42.183Z-0000 chatroom:send {"userId": "bar", "chatId": "15bc9f0381e", "msg": "What's up?"}
+S: 2017-05-02T09:47:50.950Z-0000 chatroom:send {"userId": "foo", "chatId": "15bc9f0381e", "msg": "good and you?"}
+S: 2017-05-02T09:47:59.998Z-0000 chatroom:send {"userId": "bar", "chatId": "15bc9f0381e", "msg": "good"}
+S: 2017-05-02T09:48:10.045Z-0000 chatroom:send {"userId": "foo", "chatId": "15bc9f0381e", "msg": "ok cool"}
