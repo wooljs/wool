@@ -15,11 +15,11 @@ module.exports = function(onmessage) {
   var url = location.href.replace(/^http/, 'ws')
     , W3CWebSocket = require('websocket').w3cwebsocket
     , client = new W3CWebSocket(url, 'echo-protocol')
-   
+
   client.onerror = function() {
     console.log('Connection Error', arguments)
   }
-   
+
   client.onopen = function() {
     console.log('WebSocket Client Connected')
     client.send(JSON.stringify({t:'init'}))
@@ -35,7 +35,7 @@ module.exports = function(onmessage) {
           console.error(e)
           if (r.statusCode === 200) {
             window.location.reload()
-          } 
+          }
         })
       } catch(e) {
         console.error(e)

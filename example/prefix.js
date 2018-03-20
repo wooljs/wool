@@ -21,12 +21,8 @@ const withPrefix = prefix => id => prefix+id
 
 exports.withPrefix = withPrefix
 
-exports.prefixAll = (n, a) => a.map(o => {
-  let f = withPrefix(n+'::')
-  o.n = f(o.n)
-  return o
-})
-
 exports.asSession = withPrefix('Sess: ')
+exports.isSession = x => /^Sess: /.test(x)
+
 exports.asUser = withPrefix('User: ')
 exports.asChatroom = withPrefix('Chatroom: ')

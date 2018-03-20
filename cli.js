@@ -24,7 +24,7 @@ $ wool <rule file> [options]
 
   Specific options
     -d, --debug       run the app in debug mode
-    -p, --port        define the port for the app (default: 3000) 
+    -p, --port        define the port for the app (default: 3000)
     -e, --event-in    an events file that is to be played on launching of the app
                       (see Doc for format) (default: ./event.db)
     -o, --event-out   an events file to store events (see Doc for format)
@@ -58,18 +58,17 @@ if (cli.input.length===0) {
     , logger = bunyan.createLogger({name: 'myapp'})
 
     , wool = require('./lib/wool.js')
-    
-    , Store = require('wool-store')
-    , initStore = 'initStore' in cli.flags ? path.resolve(cli.flags.initStore) : undefined
-    , dataStore = Store()
-    
-    , rules = require(__dirname+'/'+cli.input[0])
 
+    , { Store } = require('wool-store')
+    , initStore = 'initStore' in cli.flags ? path.resolve(cli.flags.initStore) : undefined
+    , dataStore = Store.build()
+
+    , rules = require(__dirname+'/'+cli.input[0])
 
   if (debug) logger.info('Debug mode activated')
   logger.info('Port %d', port)
   logger.info('Load events %s', eventDB)
-  
+
   if (initStore) {
     logger.info('Load init store %s', initStore)
     var ini = JSON.parse(fs.readFileSync(initStore).toString())

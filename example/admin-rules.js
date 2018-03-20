@@ -14,28 +14,28 @@
  * This file is a model of Rule file
  *
  */
+const { Store } = require('wool-store')
+  , { Rule, RuleParam } = require('wool-rule')
+  , { asSession, asUser } = require('./prefix')
 
-const { prefixAll, asSession, asUser } = require('./prefix')
-
-module.exports = prefixAll('admin', [{
-  n: 'create_user',
-  p: {
-    userId: 1,
-    pass: 1
+module.exports = Rule.buildSet('admin', {
+  name: 'create_user',
+  param: {
+    sessId: RuleParam.ID,
+    userId: RuleParam.NEW_ID,
+    pass: RuleParam.CRYPTO
   },
-  c: function(t, param, cb) {
-    var session = this.get(asSession(param.sessid))
-    if (! session) return cb('Session> session must be set to create user')
-    else if (session.userId !== 'root')  return cb('Session> session must be user admin to create user')
-    var user = this.get(asUser(param.userId))
-    if (user) return cb ('User> userId "'+param.userId+'" already exists')
-    else return cb()
+  async cond(store, param) {
+    let { sessid, userId } = param
+      , session = await store.get(asSession(sessid))
+    if (! session) throw new Error('Session> session must be set to create user')
+    else if (session.userId !== 'root') throw new Error('Session> session must be user admin to create user')
+    let user = await store.get(asUser(userId))
+    if (user) throw new Error('User> userId "'+userId+'" already exists')
+    return true
   },
-  o: function(t, param, cb) {
-    try {
-      this.update(asUser(param.userId), { userId: param.userId, pass: param.pass }, cb)
-    } catch(e) {
-      cb(e)
-    }
+  async run(store, param) {
+    let { userId, pass } = param
+    await store.set(asUser(userId), { userId, pass, membership: [] })
   }
-}])
+})

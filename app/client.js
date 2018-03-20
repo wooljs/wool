@@ -14,28 +14,28 @@ const yo = require('yo-yo')
   , el = main(state)
   , css = require('sheetify')
   , client = require('./ws-client')(function(data) {
-    console.log("Received: " + data)
+    console.log('Received: ' + data)
     var m = JSON.parse(data)
     if (Object.keys(m).length === 0) {
-      alert("Empty message !")
+      alert('Empty message !')
     } else if ('err' in m) {
       alert(m.err)
     } else if ('t' in m) {
       switch(m.t) {
-        case 'init': {
-          state.sessid = m.d.sessid
-          state.command.list = m.d.command.list
-          state.data = m.d.data
-        }
-        break;
-        case 'set': {
-          state.data[m.d.k] = m.d.v
-        }
-        break;
-        case 'del': {
-          delete state.data[m.d.k]
-        }
-        break;
+      case 'init': {
+        state.sessid = m.d.sessid
+        state.command.list = m.d.command.list
+        state.data = m.d.data
+      }
+        break
+      case 'set': {
+        state.data[m.d.k] = m.d.v
+      }
+        break
+      case 'del': {
+        delete state.data[m.d.k]
+      }
+        break
       }
     }
     // construct a new list and efficiently diff+morph it into the one in the DOM
@@ -122,7 +122,7 @@ function onClickSend(e) {
       m.t = 'command'
       m.n = state.command.cur.n
       m.d = {}
-      
+
       var i = 0
         , l = p.length
       for (; i < l ; i++) {
@@ -141,7 +141,7 @@ function onClickSend(e) {
       }
 
       var payload = JSON.stringify(m)
-      console.log("Sent: " + payload)
+      console.log('Sent: ' + payload)
       client.send(payload)
     }
   }

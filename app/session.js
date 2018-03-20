@@ -9,16 +9,12 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-module.exports = (function () {
-  'use strict'
+const { Store } = require('wool-store')
 
-  function Session(dataStore) {
-    if (!(this instanceof Session)) return new Session(dataStore)
-    this.ds = dataStore
+module.exports = class Session {
+  constructor() {
   }
-  Session.prototype.getId = function() {
-    return this.ds.newId()
+  getId() {
+    return Store.newId()
   }
-
-  return Session
-}())
+}

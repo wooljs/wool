@@ -14,15 +14,15 @@ module.exports = function (logger, server, wool, rules, dataStore) {
 
   var WebSocketServer = require('websocket').server
     , wss = new WebSocketServer({ httpServer: server })
-    , Event = require('wool-stream').Event
-    , session = require('./session')(dataStore)
+    , { Command } = require('wool-model')
+    , { Store } = require('wool-store')
 
   function originIsAllowed(origin) {
     // put logic here to detect whether the specified origin is allowed.
     logger.info('Origin: %s', origin)
-    return true;
+    return true
   }
-  
+
   function sendOnConnection(connection, sessid, m) {
     var out = JSON.stringify(m)
     logger.info('Send to '+sessid+' Message: \'' + out + '\'')
@@ -30,27 +30,27 @@ module.exports = function (logger, server, wool, rules, dataStore) {
   }
 
   wss.on('request', function(request) {
-      
+
     if (!originIsAllowed(request.origin)) {
-      // Make sure we only accept requests from an allowed origin 
+      // Make sure we only accept requests from an allowed origin
       request.reject()
       logger.info('Connection from origin %s rejected.', request.origin)
       return
     }
-    
-    var connection = request.accept('echo-protocol', request.origin)
-      , sessid = session.getId()
+
+    let connection = request.accept('echo-protocol', request.origin)
+      , sessid = Store.newId()
     logger.info('Connection accepted for sessid: '+sessid)
-    
+
     dataStore.subAll(sessid, function(id, v, t) {
       switch(t) {
-        case 'update':
-          return sendOnConnection(connection, sessid, { t: 'set', d : { k : id, v:  v }})
-        case 'delete':
-          return sendOnConnection(connection, sessid, { t: 'del', d : { k : id }})
+      case 'update':
+        return sendOnConnection(connection, sessid, { t: 'set', d : { k : id, v:  v }})
+      case 'delete':
+        return sendOnConnection(connection, sessid, { t: 'del', d : { k : id }})
       }
     })
-    
+
     connection.on('message', function(message) {
       if (message.type === 'utf8') {
         logger.info('Received from '+sessid+' Message: \'' + message.utf8Data + '\'')
@@ -58,29 +58,30 @@ module.exports = function (logger, server, wool, rules, dataStore) {
           , r = {}
         if ('t' in m) {
           switch(m.t) {
-            case 'init':{
-              r.t ='init'
-              r.d = {
-                sessid: sessid,
-                command: {
-                  list: rules
-                },
-                data: Object.keys(dataStore._).reduce(function(p, k) {
-                  p[k] = dataStore._[k].v
-                  return p
-                }, {})
-              }
-              sendOnConnection(connection, sessid, r)
+          case 'init':{
+            r.t ='init'
+            let data = {}
+            dataStore.db.forEach((v, k) => {
+              data[k] = v.get()
+            })
+            r.d = {
+              sessid,
+              data,
+              command: {
+                list: rules.map(x => x.toDTO() )
+              },
             }
-            break;
-            case 'command': {
-              m.d.sessid = sessid
-              wool.push(Event(new Date(), 0, m.n, m.d))
-            }
-            break;
-            default: {
-              sendOnConnection(connection, sessid, { err: 'unknown "t" field: "'+m.t+'"' })
-            }
+            sendOnConnection(connection, sessid, r)
+          }
+            break
+          case 'command': {
+            m.d.sessid = sessid
+            wool.push(new Command(new Date(), 0, m.n, m.d))
+          }
+            break
+          default: {
+            sendOnConnection(connection, sessid, { err: 'unknown "t" field: "'+m.t+'"' })
+          }
           }
         } else {
           sendOnConnection(connection, sessid, { err: 'message must have a "t" field' })
@@ -92,7 +93,7 @@ module.exports = function (logger, server, wool, rules, dataStore) {
       }
     })
     connection.on('close', function(reasonCode, description) {
-      logger.info(' Peer %s, sessid: %s, disconnected.', connection.remoteAddress, sessid);
+      logger.info(' Peer %s, sessid: %s, disconnected.', connection.remoteAddress, sessid)
       dataStore.unsubAll(sessid)
     })
   })

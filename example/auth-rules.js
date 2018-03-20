@@ -14,45 +14,54 @@
  * This file is a model of Rule file
  *
  */
+const { Store } = require('wool-store')
+  , { Rule, RuleParam } = require('wool-rule')
+  , { asSession, isSession, asUser } = require('./prefix')
 
-const { prefixAll, asSession, asUser } = require('./prefix')
-
-module.exports = prefixAll('auth',[{
-  n: 'login',
-  p: {
-    userId: 1,
-    pass: 1
+module.exports = Rule.buildSet('auth',{
+  name: 'login',
+  param: {
+    sessId: RuleParam.ID,
+    userId: RuleParam.ID,
+    pass: RuleParam.CRYPTO
   },
-  c: function(t, param, cb) {
-    var session = this.get(asSession(param.sessid))
-    if (session) return cb('Session> session already set in store')
-    var user = this.get(asUser(param.userId))
-    if (! user) return cb('User> userId "'+param.userId+'" does not exist')
-    if (user.pass !== param.pass) return cb('User> userId "'+param.userId+'" password does not match')
-    return cb()
+  async cond(store, param) {
+    let { sessid, userId, pass } = param
+      , session = await store.get(asSession(sessid))
+    if (session) throw new Error('Session> session already set in store')
+    var user = await store.get(asUser(userId))
+    if (! user) throw new Error('User> userId "'+userId+'" does not exist')
+    if (user.pass !== pass) throw new Error('User> userId "'+userId+'" password does not match')
+    return true
   },
-  o: function(t, param, cb) {
-    try {
-      var e = new Date(t.getTime() + 2*60*1000) // set expiry within 2 minutes
-      if (e.getTime() > Date.now()) return this.update(asSession(param.sessid), { userId: param.userId, expire: e }, cb)
-      else return cb()
-    } catch(e) {
-      cb(e)
-    }
+  async run(store, param, t) {
+    let { sessid, userId } = param
+      , e = new Date(t.getTime() + 2*60*1000) // set expiry within 2 minutes
+    //if (e.getTime() > Date.now())
+    await store.set(asSession(sessid), { userId, expire: e })
   }
 },{
-  n: 'logout',
-  p: {},
-  c: function(t, param, cb) {
-    var session = this.get(asSession(param.sessid))
-    if (! session) return cb('Session> session must exist to logout')
-    return cb()
+  name: 'logout',
+  param: {
+    sessId: RuleParam.ID,
   },
-  o: function(t, param, cb) {
-    try {
-      this.remove(asSession(param.sessid), cb)
-    } catch(e) {
-      cb(e)
-    }
+  async cond(store, param) {
+    let { sessid } = param
+      , session = await store.get(asSession(sessid))
+    if (! session) throw new Error('Session> session must exist to logout')
+    return true
+  },
+  async run(store, param) {
+    let { sessid } = param
+      , session = await store.get(asSession(sessid))
+    if (session) await store.del(asSession(sessid))
   }
-}])
+},{
+  name: 'clean_old',
+  param: {},
+  async run(store, param, t) {
+    store.db.forEach((v, k) => {
+      if (isSession(k) && v.get().expire.getTime() < t.getTime() ) store.del(k)
+    })
+  }
+})

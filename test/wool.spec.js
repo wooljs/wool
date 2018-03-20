@@ -17,6 +17,8 @@ var test = require('tape')
   , Event = require('wool-stream').Event
   , TestStream = require( __dirname + '/test_stream.js')(util,stream)
   , rules = require( __dirname + '/rules.js')
+  , { Store } = require('wool-store')
+  , dataStore = Store.build()
   , wool = require( __dirname + '/../lib/wool.js')
 
 test('integrate: contains spec with an expectation', function(t) {
@@ -45,6 +47,7 @@ test('integrate: contains spec with an expectation', function(t) {
     })
 
   wool()
+  .store(dataStore)
   .rule(rules)
   .fromFile(__dirname + '/test_load.db')
   .toStream(out)

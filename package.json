@@ -14,6 +14,7 @@
     "node": "0.10.*"
   },
   "scripts": {
+    "preversion": "npm test",
     "start": "node cli.js example/rules.js -i example/init.json -e data/events.db | bunyan",
     "watch": "nodemon -x 'node ./cli.js example/rules.js -d -i example/init.json -e data/events.db | bunyan'",
     "pretest": "npm run lint",
@@ -21,26 +22,29 @@
     "autotest": "nodemon -e js,yml -x 'tape test/**/*.spec.js |tap-summary --no-progress'",
     "coverage": "istanbul cover tape test/**/*.spec.js",
     "lint": "eslint index.js lib/ test/",
-    "autolint": "nodemon -x eslint index.js lib/ test/"
+    "autolint": "nodemon -x eslint index.js lib/ test/",
+    "app:lint": "eslint -c .app_eslintrc.js cli.js app/",
+    "app:autolint": "nodemon -x 'eslint -c .app_eslintrc.js cli.js app/'"
   },
   "dependencies": {
     "bankai": "^7.6.2",
     "bunyan": "^1.8.12",
     "meow": "^3.7.0",
     "websocket": "^1.0.25",
-    "wool-rule": "^0.2.3",
-    "wool-store": "^0.1.2",
-    "wool-stream": "0.0.5",
+    "wool-model": "^1.2.2",
+    "wool-rule": "^1.1.2",
+    "wool-store": "^1.0.0",
+    "wool-stream": "^1.1.1",
     "xhr": "^2.4.1",
     "yo-yo": "^1.4.1"
   },
   "devDependencies": {
     "eslint": "^3.19.0",
     "istanbul": "^0.4.5",
-    "mermaid": "^7.1.1",
-    "nodemon": "^1.14.1",
+    "mermaid": "^7.1.2",
+    "nodemon": "^1.17.2",
     "tap-summary": "^3.0.1",
-    "tape": "^4.8.0"
+    "tape": "^4.9.0"
   },
   "optionalDependencies": {}
 }
