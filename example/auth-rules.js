@@ -17,40 +17,31 @@
 const { Store } = require('wool-store')
   , { Rule, RuleParam } = require('wool-rule')
   , { asSession, isSession, asUser } = require('./prefix')
+  , { SessionID, UserID, Login, Passwd, Logins } = require('./rule-params')
 
 module.exports = Rule.buildSet('auth',{
   name: 'login',
-  param: {
-    sessId: RuleParam.ID,
-    userId: RuleParam.ID,
-    pass: RuleParam.CRYPTO
-  },
+  param: [ SessionID.asNew(), Login, Passwd ],
   async cond(store, param) {
-    let { sessid, userId, pass } = param
-      , session = await store.get(asSession(sessid))
-    if (session) throw new Error('Session> session already set in store')
-    var user = await store.get(asUser(userId))
-    if (! user) throw new Error('User> userId "'+userId+'" does not exist')
+    let { sessid, login, pass } = param
+      , logins = await store.get(Logins)
+    if (!(login in logins)) throw 
+    let userId = logins[login]
+      , user = await store.get(UserID.as(userId))
+    if (! user) throw new Error('login with '+login+', userId "'+userId+'" does not exist')
     if (user.pass !== pass) throw new Error('User> userId "'+userId+'" password does not match')
+    param.userId = userId
+    param.role = user.role
     return true
   },
   async run(store, param, t) {
-    let { sessid, userId } = param
+    let { sessid, login, userId, role } = param
       , e = new Date(t.getTime() + 2*60*1000) // set expiry within 2 minutes
-    //if (e.getTime() > Date.now())
-    await store.set(asSession(sessid), { userId, expire: e })
+    await store.set(SessionID.as(sessid), { userId, login, role, expire: e })
   }
 },{
   name: 'logout',
-  param: {
-    sessId: RuleParam.ID,
-  },
-  async cond(store, param) {
-    let { sessid } = param
-      , session = await store.get(asSession(sessid))
-    if (! session) throw new Error('Session> session must exist to logout')
-    return true
-  },
+  param: [ SessionID ],
   async run(store, param) {
     let { sessid } = param
       , session = await store.get(asSession(sessid))
@@ -58,7 +49,6 @@ module.exports = Rule.buildSet('auth',{
   }
 },{
   name: 'clean_old',
-  param: {},
   async run(store, param, t) {
     store.db.forEach((v, k) => {
       if (isSession(k) && v.get().expire.getTime() < t.getTime() ) store.del(k)

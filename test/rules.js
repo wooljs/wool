@@ -14,35 +14,27 @@
  * This file is a model of Rule file
  *
  */
-var { Store } = require('wool-store')
-  , { Rule, RuleParam } = require('wool-rule')
+const { Rule, RuleParam } = require('wool-rule')
+  , UserID = RuleParam.ID('userId')
+  , ChatID = RuleParam.ID('chatId')
 
 module.exports = Rule.buildSet('chatroom', {
   name: 'create',
-  param: {
-    userId: RuleParam.ID,
-    chatId: RuleParam.NEW_ID
-  },
+  param: [ UserID, ChatID.asNew() ],
   async run(store, param) {
     let { chatId, userId } = param
       , user = await store.get(userId)
-    chatId = chatId || Store.newId()
     await store.set(chatId, { members: [ userId ], messages: [ '* Chatroom created by '+userId ] })
     user.membership.push(chatId)
-    param.chatId = chatId
     await store.set(userId, user)
   }
 },{
   name: 'join',
-  param: {
-    userId: RuleParam.ID,
-    chatId: RuleParam.ID
-  },
+  param: [ UserID, ChatID ],
   async cond(store, param) {
     let {chatId, userId} = param
       , chatroom = await store.get(chatId)
-    if (!chatroom) throw new Error('Chatroom> invalid chatId '+chatId)
-    else if (chatroom.members.indexOf(userId) !== -1) throw new Error('Chatroom> member "'+userId+'" cannot join: already in')
+    if (chatroom.members.indexOf(userId) !== -1) throw new Error('Chatroom> member "'+userId+'" cannot join: already in')
     return true
   },
   async run(store, param) {
@@ -57,15 +49,11 @@ module.exports = Rule.buildSet('chatroom', {
   }
 },{
   name: 'leave',
-  param: {
-    userId: RuleParam.ID,
-    chatId: RuleParam.ID
-  },
+  param: [ UserID, ChatID ],
   async cond(store, param) {
     let {chatId, userId} = param
       , chatroom = await store.get(chatId)
-    if (!chatroom) throw new Error('Chatroom> invalid chatId '+chatId)
-    else if (chatroom.members.indexOf(userId) === -1) throw new Error('Chatroom> member "'+userId+'" cannot leave: not in')
+    if (chatroom.members.indexOf(userId) === -1) throw new Error('Chatroom> member "'+userId+'" cannot leave: not in')
     return true
   },
   async run(store, param) {
@@ -79,16 +67,11 @@ module.exports = Rule.buildSet('chatroom', {
   }
 },{
   name: 'send',
-  param: {
-    userId: RuleParam.ID,
-    chatId: RuleParam.ID,
-    msg: RuleParam.Str
-  },
+  param: [ UserID, ChatID, RuleParam.STR('msg') ],
   async cond(store, param) {
     let {chatId, userId} = param
       , chatroom = await store.get(chatId)
-    if (!chatroom) throw new Error('Chatroom> invalid chatId '+chatId)
-    else if (chatroom.members.indexOf(userId) === -1) throw new Error('Chatroom> member "'+userId+'" cannot send message: not in')
+    if (chatroom.members.indexOf(userId) === -1) throw new Error('Chatroom> member "'+userId+'" cannot send message: not in')
     return true
   },
   async run(store, param) {
@@ -99,7 +82,6 @@ module.exports = Rule.buildSet('chatroom', {
   }
 },{
   name: 'err',
-  param: {},
   async run() {
     throw new Error('ERROR!')
   }

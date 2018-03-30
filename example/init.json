@@ -1,3 +1,4 @@
 {
-  "User: root": { "pass": "root"}
+  "Logins": { "root": "42" },
+  "User: 42": { "login": "root", "pass": "root", "role": "admin" }
 }
