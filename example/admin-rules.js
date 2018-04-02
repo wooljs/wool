@@ -14,9 +14,8 @@
  * This file is a model of Rule file
  *
  */
-const { Store } = require('wool-store')
-  , { Rule, RuleParam } = require('wool-rule')
-  , { SessionID, UserID, Login, Passwd, Logins } = require('./rule-params')
+const { Rule } = require('wool-rule')
+  , { SessionID, UserID, Login, Passwd, AuthIndex } = require('./rule-params')
 
 module.exports = Rule.buildSet('admin', {
   name: 'create_user',
@@ -25,15 +24,15 @@ module.exports = Rule.buildSet('admin', {
     let { sessid, userId, login } = param
       , session = await store.get(SessionID.as(sessid))
     if (session.role !== 'admin') throw new Error('session must be user admin to create user')
-    let logins = await store.get(Logins)
-    if (login in logins) throw new Error('login "'+login+'" already exists')
+    let authIndex = await store.get(AuthIndex)
+    if (login in authIndex) throw new Error('login "'+login+'" already exists')
     return true
   },
   async run(store, param) {
     let { userId, login, pass } = param
-      , logins = await store.get(Logins)
-    logins[login] = userId
-    await store.set(Logins, logins)
+      , authIndex = await store.get(AuthIndex)
+    authIndex[login] = userId
+    await store.set(AuthIndex, authIndex)
     await store.set(UserID.as(userId), { login, pass, role: 'user', membership: [] })
   }
 })

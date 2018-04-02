@@ -14,21 +14,19 @@
  * This file is a model of Rule file
  *
  */
-const { Store } = require('wool-store')
-  , { Rule, RuleParam } = require('wool-rule')
-  , { asSession, isSession, asUser } = require('./prefix')
-  , { SessionID, UserID, Login, Passwd, Logins } = require('./rule-params')
+const { Rule } = require('wool-rule')
+  , { SessionID, UserID, Login, Passwd, AuthIndex } = require('./rule-params')
 
 module.exports = Rule.buildSet('auth',{
   name: 'login',
   param: [ SessionID.asNew(), Login, Passwd ],
   async cond(store, param) {
     let { sessid, login, pass } = param
-      , logins = await store.get(Logins)
-    if (!(login in logins)) throw 
-    let userId = logins[login]
+      , authIndex = await store.get(AuthIndex)
+    if (!(login in authIndex)) throw new Error('login '+login+' is unknown')
+    let userId = authIndex[login]
       , user = await store.get(UserID.as(userId))
-    if (! user) throw new Error('login with '+login+', userId "'+userId+'" does not exist')
+    if (! user) throw new Error('user with '+login+', userId "'+userId+'" does not exist')
     if (user.pass !== pass) throw new Error('User> userId "'+userId+'" password does not match')
     param.userId = userId
     param.role = user.role
@@ -44,14 +42,13 @@ module.exports = Rule.buildSet('auth',{
   param: [ SessionID ],
   async run(store, param) {
     let { sessid } = param
-      , session = await store.get(asSession(sessid))
-    if (session) await store.del(asSession(sessid))
+    await store.del(SessionID.as(sessid))
   }
 },{
   name: 'clean_old',
   async run(store, param, t) {
     store.db.forEach((v, k) => {
-      if (isSession(k) && v.get().expire.getTime() < t.getTime() ) store.del(k)
+      if (SessionID.isOne(k) && v.get().expire.getTime() < t.getTime() ) store.del(k)
     })
   }
 })

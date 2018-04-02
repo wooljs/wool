@@ -43,7 +43,7 @@
     "eslint": "^3.19.0",
     "istanbul": "^0.4.5",
     "mermaid": "^7.1.2",
-    "nodemon": "^1.17.2",
+    "nodemon": "^1.17.3",
     "tap-summary": "^3.0.1",
     "tape": "^4.9.0"
   },
