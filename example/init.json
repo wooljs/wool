@@ -1,4 +1,4 @@
 {
   "AuthIndex": { "root": "42" },
-  "User: 42": { "login": "root", "pass": "root", "role": "admin" }
+  "User: 42": { "userId": 42, "login": "root", "role": "admin", "pass": "/kMz4uyyhNT8K7wRZNN8eiVdJeE4po7QhZXQ/fIBp/6U8SGG8bHcQnalpU1TEAgGzGuo+cuXZwrtygvsmqLYI/IzOsIup7hLT2zc7c3seE9JrZvJXo3V9aFMJbxDtG98PS+my0D1N3WLoaa+K1SCbnDWIJE/+pJ1" }
 }

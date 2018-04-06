@@ -10,14 +10,16 @@
  */
 
 const { RuleParam } = require('wool-rule')
+  , crypto = require('crypto')
+
 exports = module.exports = {}
 
-exports.SessionID = RuleParam.ID('sessId', {prefix: 'Sess'})
+exports.SessionID = RuleParam.ID('sessid', {prefix: 'Sess'})
 exports.UserID = RuleParam.ID('userId', {prefix: 'User'})
 exports.ChatID = RuleParam.ID('chatId', {prefix: 'Chat'})
 exports.Login = RuleParam.STR('login').regex(/^\w{3,}$/)
 
-function algo(value) {
+exports.hash = (value) => {
   return new Promise((resolve, reject) => {
     crypto.randomBytes(24, (err, buf) => {
       let salt = buf.toString('base64')
@@ -30,7 +32,21 @@ function algo(value) {
   })
 }
 
-exports.Passwd = RuleParam.STR('passwd').regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[\.:;,?!@#$%^&*+_\\/'"{}()\[\] -])[A-Za-z\d\.:;,?!@#$%^&*+_\\/'"{}()\[\] -]{8,}$/).crypto(algo)
+exports.match = (hash, value) => {
+  return new Promise((resolve, reject) => {
+    let buf = Buffer.from(hash)
+      , salt = buf.toString('utf8', 0, 32)
+      , pass = buf.toString('utf8', 32)
+      , tobehashed = Buffer.from(value).toString('base64')
+    crypto.pbkdf2(salt+tobehashed, salt, 100000, 96, 'sha512', (err, derivedKey) => {
+      if (err) return reject(err)
+      let tmp = derivedKey.toString('base64')
+      resolve(pass === tmp)
+    })
+  })
+}
+
+exports.Passwd = RuleParam.STR('password').regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[\.:;,?!@#$%^&*+_\\/'"{}()\[\] -])[A-Za-z\d\.:;,?!@#$%^&*+_\\/'"{}()\[\] -]{8,}$/).crypto({ hash: exports.hash, match: exports.match })
 
 exports.Msg = RuleParam.STR('msg')
 

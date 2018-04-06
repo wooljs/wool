@@ -27,7 +27,7 @@ module.exports = Rule.buildSet('auth',{
     let userId = authIndex[login]
       , user = await store.get(UserID.as(userId))
     if (! user) throw new Error('user with '+login+', userId "'+userId+'" does not exist')
-    if (user.pass !== pass) throw new Error('User> userId "'+userId+'" password does not match')
+    if (!(await Passwd.match(user.pass, pass))) throw new Error('User> userId "'+userId+'" password does not match')
     param.userId = userId
     param.role = user.role
     return true

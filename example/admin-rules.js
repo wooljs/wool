@@ -33,6 +33,6 @@ module.exports = Rule.buildSet('admin', {
       , authIndex = await store.get(AuthIndex)
     authIndex[login] = userId
     await store.set(AuthIndex, authIndex)
-    await store.set(UserID.as(userId), { login, pass, role: 'user', membership: [] })
+    await store.set(UserID.as(userId), { userId, login, pass, role: 'user', membership: [] })
   }
 })

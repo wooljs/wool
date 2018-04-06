@@ -71,7 +71,7 @@ function main(state) {
         </select>
       </p>
       ${state.command.cur?Object.keys(state.command.cur.p).map(function (k) {
-        if (!(k in state.variable)) return yo`<p>${k} (${state.command.cur.p[k]}) <input type="text" id="param-${k}"> <span class="action" onclick=${onClickVarSet(k)}>^</span></p>`
+        if (!(k in state.variable)) return yo`<p>${k} (${state.command.cur.p[k]}) <input type="text" id="param-${k}" name="${k}"> <span class="action" onclick=${onClickVarSet(k)}>^</span></p>`
       }):''}
       <button onclick=${onClickSend} disabled=${state.command.i===-1?'disabled':''}>send</button>
     </div>
