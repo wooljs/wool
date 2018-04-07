@@ -14,22 +14,23 @@
  * This file is a model of Rule file
  *
  */
-const { Rule } = require('wool-rule')
-  , { SessionID, UserID, Login, Passwd, AuthIndex } = require('./rule-params')
+const { Rule, InvalidRuleError } = require('wool-rule')
+  , { SessionID, UserID, Login, Passwd, EncryptedPassword, AuthIndex } = require('./rule-params')
 
 module.exports = Rule.buildSet('auth',{
   name: 'login',
   param: [ SessionID.asNew(), Login, Passwd ],
   async cond(store, param) {
-    let { sessid, login, pass } = param
+    let { sessid, login, password } = param
       , authIndex = await store.get(AuthIndex)
-    if (!(login in authIndex)) throw new Error('login '+login+' is unknown')
+    if (!(login in authIndex)) throw new InvalidRuleError('login '+login+' is unknown')
     let userId = authIndex[login]
       , user = await store.get(UserID.as(userId))
-    if (! user) throw new Error('user with '+login+', userId "'+userId+'" does not exist')
-    if (!(await Passwd.match(user.pass, pass))) throw new Error('User> userId "'+userId+'" password does not match')
+    if (! user) throw new InvalidRuleError('user with '+login+', userId "'+userId+'" does not exist')
+    if (!(await EncryptedPassword.match(user.password, password))) throw new InvalidRuleError('User> userId "'+userId+'" password does not match')
     param.userId = userId
     param.role = user.role
+    delete param.password
     return true
   },
   async run(store, param, t) {

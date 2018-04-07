@@ -10,7 +10,7 @@
  */
 
 const yo = require('yo-yo')
-  , state = {sessid:'-', command:{list:[], i: -1, cur: null}, variable: {}, data:{}}
+  , state = {connid:'-', command:{list:[], i: -1, cur: null}, variable: {}, data:{}}
   , el = main(state)
   , css = require('sheetify')
   , client = require('./ws-client')(function(data) {
@@ -23,7 +23,7 @@ const yo = require('yo-yo')
     } else if ('t' in m) {
       switch(m.t) {
       case 'init': {
-        state.sessid = m.d.sessid
+        state.connid = m.d.connid
         state.command.list = m.d.command.list
         state.data = m.d.data
       }
@@ -61,7 +61,7 @@ function main(state) {
   `
   return yo`<div class="${prefix}">
     <div class="command">
-      <p>sessid: ${state.sessid}</p>
+      <p>connid: ${state.connid}</p>
       ${Object.keys(state.variable).map(function(n) {
         return yo`<p>${n}: ${state.variable[n]} <span class="action" onclick=${onClickVarDel(n)}>x</span></p>`
       })}

@@ -14,9 +14,18 @@ const { RuleParam } = require('wool-rule')
 
 exports = module.exports = {}
 
-exports.SessionID = RuleParam.ID('sessid', {prefix: 'Sess'})
-exports.UserID = RuleParam.ID('userId', {prefix: 'User'})
-exports.ChatID = RuleParam.ID('chatId', {prefix: 'Chat'})
+const sessionIdAlgo = async () => {
+  return new Promise((resolve, reject) => {
+    crypto.randomBytes(24, (err, buf) => {
+      if (err) return reject(err)
+      resolve(buf.toString('base64'))
+    })
+  })
+}
+
+exports.SessionID = RuleParam.ID('sessid', {prefix: 'Session: ', algo: sessionIdAlgo})
+exports.UserID = RuleParam.ID('userId', {prefix: 'User: '})
+exports.ChatID = RuleParam.ID('chatId', {prefix: 'Chat: '})
 exports.Login = RuleParam.STR('login').regex(/^\w{3,}$/)
 
 exports.hash = (value) => {
@@ -46,7 +55,9 @@ exports.match = (hash, value) => {
   })
 }
 
-exports.Passwd = RuleParam.STR('password').regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[\.:;,?!@#$%^&*+_\\/'"{}()\[\] -])[A-Za-z\d\.:;,?!@#$%^&*+_\\/'"{}()\[\] -]{8,}$/).crypto({ hash: exports.hash, match: exports.match })
+exports.Passwd = RuleParam.STR('password').regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[\.:;,?!@#$%^&*+_\\/'"{}()\[\] -])[A-Za-z\d\.:;,?!@#$%^&*+_\\/'"{}()\[\] -]{8,}$/)
+
+exports.EncryptedPassword = exports.Passwd.crypto({ hash: exports.hash, match: exports.match })
 
 exports.Msg = RuleParam.STR('msg')
 

@@ -33,7 +33,7 @@
     "meow": "^3.7.0",
     "websocket": "^1.0.25",
     "wool-model": "^1.2.2",
-    "wool-rule": "^1.2.0",
+    "wool-rule": "^1.2.1",
     "wool-store": "^1.0.0",
     "wool-stream": "^1.1.1",
     "xhr": "^2.4.1",

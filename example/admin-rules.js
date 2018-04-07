@@ -14,25 +14,25 @@
  * This file is a model of Rule file
  *
  */
-const { Rule } = require('wool-rule')
-  , { SessionID, UserID, Login, Passwd, AuthIndex } = require('./rule-params')
+const { Rule, InvalidRuleError } = require('wool-rule')
+  , { SessionID, UserID, Login, EncryptedPassword, AuthIndex } = require('./rule-params')
 
 module.exports = Rule.buildSet('admin', {
   name: 'create_user',
-  param: [ SessionID, UserID.asNew(), Login, Passwd ],
+  param: [ SessionID, UserID.asNew(), Login, EncryptedPassword ],
   async cond(store, param) {
     let { sessid, userId, login } = param
       , session = await store.get(SessionID.as(sessid))
-    if (session.role !== 'admin') throw new Error('session must be user admin to create user')
+    if (session.role !== 'admin') throw new InvalidRuleError('session must be user admin to create user')
     let authIndex = await store.get(AuthIndex)
-    if (login in authIndex) throw new Error('login "'+login+'" already exists')
+    if (login in authIndex) throw new InvalidRuleError('login "'+login+'" already exists')
     return true
   },
   async run(store, param) {
-    let { userId, login, pass } = param
+    let { userId, login, password } = param
       , authIndex = await store.get(AuthIndex)
     authIndex[login] = userId
     await store.set(AuthIndex, authIndex)
-    await store.set(UserID.as(userId), { userId, login, pass, role: 'user', membership: [] })
+    await store.set(UserID.as(userId), { userId, login, password, role: 'user', membership: [] })
   }
 })

@@ -14,19 +14,18 @@
  * This file is a model of Rule file
  *
  */
-const { Rule } = require('wool-rule')
+const { Rule, RuleParam, InvalidRuleError } = require('wool-rule')
   , { SessionID, UserID, ChatID, Msg } = require('./rule-params')
 
 module.exports = Rule.buildSet('chatroom', {
   name: 'create',
-  param: [ SessionID, ChatID.asNew() ],
+  param: [ SessionID, ChatID.asNew(), RuleParam.STR('name') ],
   async run(store, param) {
-    let { sessid, chatId } = param
+    let { sessid, chatId, name } = param
       , { userId } = await store.get(SessionID.as(sessid))
       , user = await store.get(UserID.as(userId))
-    await store.set(ChatID.as(chatId), { members: [ userId ], messages: [ '* Chatroom created by '+userId ] })
+    await store.set(ChatID.as(chatId), { name, members: { [userId]: user.login }, messages: [ '* Chatroom created by '+user.login ] })
     user.membership.push(chatId)
-    param.chatId = chatId
     await store.set(UserID.as(userId), user)
   }
 },{
@@ -36,16 +35,16 @@ module.exports = Rule.buildSet('chatroom', {
     let { sessid, chatId } = param
       , { userId } = await store.get(SessionID.as(sessid))
       , chatroom = await store.get(ChatID.as(chatId))
-    if (chatroom.members.indexOf(userId) !== -1) throw new Error('Chatroom> member "'+userId+'" cannot joiname: already in')
+    if (userId in chatroom.members) throw new InvalidRuleError('Chatroom> member "'+userId+'" cannot joiname: already in')
     return true
   },
   async run(store, param) {
     let { sessid, chatId} = param
-      , { userId } = await store.get(asSession(sessid))
+      , { userId } = await store.get(SessionID.as(sessid))
       , user = await store.get(UserID.as(userId))
       , chatroom = await store.get(ChatID.as(chatId))
-    chatroom.members.push(userId)
-    chatroom.messages.push('* Chatroom joined by '+userId)
+    chatroom.members[userId] = user.login
+    chatroom.messages.push('* Chatroom joined by '+user.login)
     await store.set(ChatID.as(chatId), chatroom)
     user.membership.push(chatId)
     await store.set(UserID.as(userId), user)
@@ -55,18 +54,18 @@ module.exports = Rule.buildSet('chatroom', {
   param: [ SessionID, ChatID ],
   async cond(store, param) {
     let { sessid, chatId } = param
-      , { userId } = await store.get(asSession(sessid))
+      , { userId } = await store.get(SessionID.as(sessid))
       , chatroom = await store.get(ChatID.as(chatId))
-    if (chatroom.members.indexOf(userId) === -1) throw new Error('Chatroom> member "'+userId+'" cannot leave: not in')
+    if (! (userId in chatroom.members)) throw new InvalidRuleError('Chatroom> member "'+userId+'" cannot leave: not in')
     return true
   },
   async run(store, param) {
     let { sessid, chatId } = param
-      , { userId } = await store.get(asSession(sessid))
+      , { userId } = await store.get(SessionID.as(sessid))
       , user = await store.get(UserID.as(userId))
       , chatroom = await store.get(ChatID.as(chatId))
-    chatroom.members = chatroom.members.filter(u => u !== userId)
-    chatroom.messages.push('* Chatroom left by '+userId)
+    delete chatroom.members[userId]
+    chatroom.messages.push('* Chatroom left by '+user.login)
     await store.set(ChatID.as(chatId), chatroom)
     user.membership = user.membership.filter(x => x !== chatId)
     await store.set(UserID.as(userId), user)
@@ -76,16 +75,17 @@ module.exports = Rule.buildSet('chatroom', {
   param: [ SessionID, ChatID, Msg ],
   async cond(store, param) {
     let { sessid, chatId } = param
-      , { userId } = await store.get(asSession(sessid))
+      , { userId } = await store.get(SessionID.as(sessid))
       , chatroom = await store.get(ChatID.as(chatId))
-    if (chatroom.members.indexOf(userId) === -1) throw new Error('Chatroom> member "'+userId+'" cannot send message: not in')
+    if (! (userId in chatroom.members)) throw new InvalidRuleError('Chatroom> member "'+userId+'" cannot send message: not in')
     return true
   },
   async run(store, param) {
     let { sessid, chatId, msg } = param
-      , { userId } = await store.get(asSession(sessid))
+      , { userId } = await store.get(SessionID.as(sessid))
       , chatroom = await store.get(ChatID.as(chatId))
-    chatroom.messages.push(userId + ': ' + msg)
+      , login = chatroom.members[userId]
+    chatroom.messages.push(login + ': ' + msg)
     await store.set(ChatID.as(chatId), chatroom)
   }
 })
