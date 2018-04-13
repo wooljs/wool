@@ -64,7 +64,7 @@ if (cli.input.length===0) {
     , initStore = 'initStore' in cli.flags ? path.resolve(cli.flags.initStore) : undefined
     , dataStore = Store.build()
 
-    , rules = require(__dirname+'/'+cli.input[0])
+    , rules = require(path.resolve(cli.input[0]))
 
   if (debug) logger.info('Debug mode activated')
   logger.info('Port %d', port)
