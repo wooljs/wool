@@ -10,9 +10,7 @@
     "url": "git://github.com/nicocube/wool.git"
   },
   "main": "lib/index.js",
-  "engines": {
-    "node": "0.10.*"
-  },
+  "bin": "cli.js",
   "scripts": {
     "preversion": "npm test",
     "start": "node cli.js example/rules.js -i example/init.json -e data/events.db | bunyan",
