@@ -45,13 +45,13 @@ module.exports = function (logger, server, wool, rules, dataStore) {
     dataStore.subAll(connid, function(id, v, t) {
       switch(t) {
       case 'update':
-        return sendOnConnection(connection, connid, { t: 'set', d : { k : id, v:  v }})
+        return sendOnConnection(connection, connid, { t: 'set', d : { k : id, v }})
       case 'delete':
         return sendOnConnection(connection, connid, { t: 'del', d : { k : id }})
       }
     })
 
-    connection.on('message', function(message) {
+    connection.on('message', async function(message) {
       if (message.type === 'utf8') {
         logger.info('Received from '+connid+' Message: \'' + message.utf8Data + '\'')
         var m = JSON.parse(message.utf8Data)
@@ -76,7 +76,10 @@ module.exports = function (logger, server, wool, rules, dataStore) {
             break
           case 'command': {
             m.d.connid = connid
-            wool.push(new Command(new Date(), 0, m.n, m.d))
+            let evt = await wool.push(new Command(new Date(), 0, m.n, m.d))
+            if (! evt.isSuccess()) {
+              sendOnConnection(connection, connid, { err: evt.message })
+            }
           }
             break
           default: {

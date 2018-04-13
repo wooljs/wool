@@ -55,12 +55,12 @@ test('integrate: contains spec with an expectation', function(t) {
   .rule(rules)
   .fromFile(__dirname + '/test_load.db')
   .toStream(out)
-  .onReady(function() {
-    this.push(new Command(new Date('2017-05-02T09:48:12.450Z'), 0, 'chatroom:send', {'userId': 'bar', 'chatId': '15bc9f0381e', 'msg': '^^'}))
-    this.push(new Command(new Date('2017-05-02T09:48:42.666Z'), 0, 'chatroom:send', {'userId': 'foo', 'chatId': '15bc9f0381e', 'msg': 'I have to quit, bye'}))
-    this.push(new Command(new Date('2017-05-02T09:49:02.010Z'), 0, 'chatroom:send', {'userId': 'bar', 'chatId': '15bc9f0381e', 'msg': 'ok, bye'}))
-    this.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 0, 'chatroom:leave', {'userId': 'foo', 'chatId': '15bc9f0381e'}))
-    this.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 1, 'chatroom:leave', {'userId': 'bar', 'chatId': '15bc9f0381e'}))
+  .onReady(async function() {
+    await this.push(new Command(new Date('2017-05-02T09:48:12.450Z'), 0, 'chatroom:send', {'userId': 'bar', 'chatId': '15bc9f0381e', 'msg': '^^'}))
+    await this.push(new Command(new Date('2017-05-02T09:48:42.666Z'), 0, 'chatroom:send', {'userId': 'foo', 'chatId': '15bc9f0381e', 'msg': 'I have to quit, bye'}))
+    await this.push(new Command(new Date('2017-05-02T09:49:02.010Z'), 0, 'chatroom:send', {'userId': 'bar', 'chatId': '15bc9f0381e', 'msg': 'ok, bye'}))
+    await this.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 0, 'chatroom:leave', {'userId': 'foo', 'chatId': '15bc9f0381e'}))
+    await this.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 1, 'chatroom:leave', {'userId': 'bar', 'chatId': '15bc9f0381e'}))
     this.end()
   })
   .run()
