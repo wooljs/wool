@@ -40,7 +40,7 @@ test('integrate: contains spec with an expectation', function(t) {
       this.push(data)
       callback()
     })
-    .on('finish', function () {
+    .on('finish', () => {
       t.plan(10)
       t.end()
     })
