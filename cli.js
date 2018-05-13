@@ -37,12 +37,32 @@ $ wool <rule file> [options]
     $ wool rules.js -s store.json -e store.evt
     $ wool rules.js -e init.evt`
   , {
-    alias: {
-      d: 'debug',
-      p: 'port',
-      e: 'event-in',
-      o: 'event-out',
-      i: 'init-store'
+    flags: {
+      debug: {
+        type: 'boolean',
+        alias: 'd',
+        default: false
+      },
+      port: {
+        type: 'string',
+        alias: 'p',
+        default: '3000'
+      },
+      initStore: {
+        type: 'string',
+        alias: 'i',
+        default: undefined
+      },
+      eventIn: {
+        type: 'string',
+        alias: 'e',
+        default: 'event.db'
+      },
+      eventOut: {
+        type: 'string',
+        alias: 'o',
+        default: undefined
+      }
     }
   })
   , path = require('path')
@@ -50,10 +70,11 @@ $ wool <rule file> [options]
 if (cli.input.length===0) {
   cli.showHelp()
 } else {
-  var start = Date.now()
-    , debug = 'debug' in cli.flags
-    , port = 'port' in cli.flags ? +cli.flags.port : 3000
-    , eventDB = path.resolve('eventIn' in cli.flags ? cli.flags.eventIn : 'event.db')
+  //console.log(cli.input, cli.flags)
+  let start = Date.now()
+    , debug = cli.flags.debug
+    , port = +cli.flags.port
+    , eventDB = path.resolve(cli.flags.eventIn)
 
     , bunyan = require('bunyan')
     , logger = bunyan.createLogger({name: 'myapp'})
@@ -61,7 +82,7 @@ if (cli.input.length===0) {
     , wool = require('./lib/wool.js')
 
     , { Store } = require('wool-store')
-    , initStore = 'initStore' in cli.flags ? path.resolve(cli.flags.initStore) : undefined
+    , initStore = cli.flags.initStore ? path.resolve(cli.flags.initStore) : undefined
     , dataStore = Store.build()
 
     , rules = require(path.resolve(cli.input[0]))

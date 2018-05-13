@@ -28,8 +28,8 @@
   "dependencies": {
     "bankai": "^7.6.2",
     "bunyan": "^1.8.12",
-    "meow": "^3.7.0",
-    "websocket": "^1.0.25",
+    "meow": "^5.0.0",
+    "websocket": "^1.0.26",
     "wool-model": "^1.2.3",
     "wool-rule": "^1.2.3",
     "wool-store": "^1.0.0",
@@ -38,11 +38,11 @@
     "yo-yo": "^1.4.1"
   },
   "devDependencies": {
-    "eslint": "^3.19.0",
+    "eslint": "^4.19.1",
     "istanbul": "^0.4.5",
-    "mermaid": "^7.1.2",
-    "nodemon": "^1.17.3",
-    "tap-summary": "^3.0.1",
+    "mermaid": "^8.0.0-rc.8",
+    "nodemon": "^1.17.4",
+    "tap-summary": "^4.0.0",
     "tape": "^4.9.0"
   },
   "optionalDependencies": {}
