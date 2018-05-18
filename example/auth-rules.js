@@ -15,11 +15,23 @@
  *
  */
 const { Rule, InvalidRuleError } = require('wool-rule')
-  , { SessionID, UserID, Login, Passwd, EncryptedPassword, AuthIndex } = require('./rule-params')
+  , { SessionID, UserID, Login, Passwd, AuthIndex } = require('./rule-params')
 
 module.exports = Rule.buildSet('auth',{
   name: 'login',
-  param: [ SessionID.asNew(), Login, Passwd ],
+  param: [
+    SessionID.asNew(),
+    Login,
+    Passwd.check((store, param) => {
+      let { sessid, login } = param
+        , authIndex = await store.get(AuthIndex)
+      if (!(login in authIndex)) throw new InvalidRuleError('login '+login+' is unknown')
+      let userId = authIndex[login]
+        , user = await store.get(UserID.as(userId))
+      if (! user) throw new InvalidRuleError('user with '+login+', userId "'+userId+'" does not exist')
+      return user.password
+    }).drop()
+  ],
   async cond(store, param) {
     let { sessid, login, password } = param
       , authIndex = await store.get(AuthIndex)

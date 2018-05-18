@@ -55,9 +55,7 @@ exports.match = (hash, value) => {
   })
 }
 
-exports.Passwd = RuleParam.STR('password').regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[\.:;,?!@#$%^&*+_\\/'"{}()\[\] -])[A-Za-z\d\.:;,?!@#$%^&*+_\\/'"{}()\[\] -]{8,}$/)
-
-exports.EncryptedPassword = exports.Passwd.crypto({ hash: exports.hash, match: exports.match })
+exports.Passwd = RuleParam.STR('password').regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[\.:;,?!@#$%^&*+_\\/'"{}()\[\] -])[A-Za-z\d\.:;,?!@#$%^&*+_\\/'"{}()\[\] -]{8,}$/).crypto({ hash: exports.hash, match: exports.match })
 
 exports.Msg = RuleParam.STR('msg')
 

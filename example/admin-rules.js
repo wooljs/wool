@@ -15,11 +15,11 @@
  *
  */
 const { Rule, InvalidRuleError } = require('wool-rule')
-  , { SessionID, UserID, Login, EncryptedPassword, AuthIndex } = require('./rule-params')
+  , { SessionID, UserID, Login, Password, AuthIndex } = require('./rule-params')
 
 module.exports = Rule.buildSet('admin', {
   name: 'create_user',
-  param: [ SessionID, UserID.asNew(), Login, EncryptedPassword ],
+  param: [ SessionID, UserID.asNew(), Login, Password ],
   async cond(store, param) {
     let { sessid, userId, login } = param
       , session = await store.get(SessionID.as(sessid))
