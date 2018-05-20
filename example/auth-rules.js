@@ -15,14 +15,14 @@
  *
  */
 const { Rule, InvalidRuleError } = require('wool-rule')
-  , { SessionID, UserID, Login, Passwd, AuthIndex } = require('./rule-params')
+  , { SessionID, UserID, Login, Password, AuthIndex } = require('./rule-params')
 
 module.exports = Rule.buildSet('auth',{
   name: 'login',
   param: [
     SessionID.asNew(),
     Login,
-    Passwd.check((store, param) => {
+    Password.check(async(store, param) => {
       let { sessid, login } = param
         , authIndex = await store.get(AuthIndex)
       if (!(login in authIndex)) throw new InvalidRuleError('login '+login+' is unknown')
@@ -32,23 +32,13 @@ module.exports = Rule.buildSet('auth',{
       return user.password
     }).drop()
   ],
-  async cond(store, param) {
-    let { sessid, login, password } = param
-      , authIndex = await store.get(AuthIndex)
-    if (!(login in authIndex)) throw new InvalidRuleError('login '+login+' is unknown')
-    let userId = authIndex[login]
-      , user = await store.get(UserID.as(userId))
-    if (! user) throw new InvalidRuleError('user with '+login+', userId "'+userId+'" does not exist')
-    if (!(await EncryptedPassword.match(user.password, password))) throw new InvalidRuleError('User> userId "'+userId+'" password does not match')
-    param.userId = userId
-    param.role = user.role
-    delete param.password
-    return true
-  },
   async run(store, param, t) {
-    let { sessid, login, userId, role } = param
+    let { sessid, login } = param
+      , authIndex = await store.get(AuthIndex)
+      , userId = authIndex[login]
+      , user = await store.get(UserID.as(userId))
       , e = new Date(t.getTime() + 2*60*1000) // set expiry within 2 minutes
-    await store.set(SessionID.as(sessid), { userId, login, role, expire: e })
+    await store.set(SessionID.as(sessid), { userId, login, role: user.role, expire: e })
   }
 },{
   name: 'logout',
