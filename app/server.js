@@ -12,12 +12,12 @@
 module.exports = function (logger, debug, port) {
   'use strict'
 
-  var bankai = require('bankai')
+  var bankai = require('bankai/http')
     , http = require('http')
     , path = require('path')
 
     , clientPath = path.join(__dirname, 'client.js')
-    , assets = bankai(clientPath, {
+    , compiler = bankai(clientPath, {
       html: { favicon: 'favicon.ico' },
       js: {debug: debug}
     })
@@ -42,6 +42,11 @@ module.exports = function (logger, debug, port) {
   var server = http.createServer(function (req, res) {
     var log = makeHttpLog(req, res, Date.now())
 
+    compiler(req, res, function () {
+      res.statusCode = 404
+      res.end('not found')
+    })
+/*
     switch (req.url) {
     case '/': return assets.html(req, res).pipe(res).on('finish', log)
     case '/ping': return res.end(new Date().toISOString(), log)
@@ -50,7 +55,7 @@ module.exports = function (logger, debug, port) {
     case '/favicon.ico': res.writeHead(200,{'Content-Type': 'image/x-icon'}); return res.end(favicon, log)
     default: return (res.statusCode = 404) && res.end('404 not found', log)
     }
-
+*/
   }).listen(port)
 
   return server
