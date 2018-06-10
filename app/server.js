@@ -21,10 +21,6 @@ module.exports = function (logger, debug, port) {
       html: { favicon: 'favicon.ico' },
       js: {debug: debug}
     })
-    , fs = require('fs')
-
-    , fav = path.join(__dirname, 'favicon.ico')
-    , favicon = fs.readFileSync(fav)
 
     , extract = function(t,a) {
       return a.reduce(function(p,c){ if (c in t && t[c]) p[c] = t[c]; return p },{})
@@ -46,16 +42,7 @@ module.exports = function (logger, debug, port) {
       res.statusCode = 404
       res.end('not found')
     })
-/*
-    switch (req.url) {
-    case '/': return assets.html(req, res).pipe(res).on('finish', log)
-    case '/ping': return res.end(new Date().toISOString(), log)
-    case '/bundle.js': return assets.js(req, res).pipe(res).on('finish', log)
-    case '/bundle.css': return assets.css(req, res).pipe(res).on('finish', log)
-    case '/favicon.ico': res.writeHead(200,{'Content-Type': 'image/x-icon'}); return res.end(favicon, log)
-    default: return (res.statusCode = 404) && res.end('404 not found', log)
-    }
-*/
+
   }).listen(port)
 
   return server

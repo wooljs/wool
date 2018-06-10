@@ -95,7 +95,7 @@ module.exports = function (logger, server, wool, rules, dataStore) {
         //connection.sendBytes(message.binaryData)
       }
     })
-    connection.on('close', function(reasonCode, description) {
+    connection.on('close', function(/*reasonCode, description*/) {
       logger.info(' Peer %s, connid: %s, disconnected.', connection.remoteAddress, connid)
       dataStore.unsubAll(connid)
     })

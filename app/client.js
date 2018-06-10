@@ -45,13 +45,24 @@ const yo = require('yo-yo')
 
 function main(state) {
   var prefix = css`
+    body {
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+    }
     :host > div {
       display: inline-block;
       vertical-align:top;
     }
     :host > .command {
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      width: 250px;
     }
     :host > .data {
+      position: relative;
+      width: 500px;
     }
     .action {
       color: blue;
@@ -59,33 +70,39 @@ function main(state) {
       cursor: pointer;
     }
   `
+  let savedParam = n => {
+      return yo`<p>${n}: ${state.variable[n]} <span class="action" onclick=${onClickVarDel(n)}>x</span></p>`
+    }
+    , optionCommand = (cmd, i) => {
+      return yo`<option value="${i}" selected=${state.command.i===i?'selected':''}>${cmd.n}</option>`
+    }
+    , inputParam = k => {
+      if (!(k in state.variable)) return yo`<p>${k} (${state.command.cur.p[k]}) <input type="text" id="param-${k}" name="${k}"> <span class="action" onclick=${onClickVarSet(k)}>^</span></p>`
+    }
+    , jsonData = key => {
+      return yo`<li><a name=${key}>${key}</a><pre>${JSON.stringify(state.data[key], null, 3)}</pre></li>`
+    }
   return yo`<div class="${prefix}">
     <div class="command">
       <p>connid: ${state.connid}</p>
-      ${Object.keys(state.variable).map(function(n) {
-        return yo`<p>${n}: ${state.variable[n]} <span class="action" onclick=${onClickVarDel(n)}>x</span></p>`
-      })}
+      ${Object.keys(state.variable).map(savedParam)}
       <p>Command : <select onchange=${onChangeSelectCommand} id="command">
         <option value="-1" selected=${state.command.i===-1?'selected':''}>-</option>
-        ${state.command.list.map(function (cmd, i) { return yo`<option value="${i}" selected=${state.command.i===i?'selected':''}>${cmd.n}</option>` })}
+        ${state.command.list.map(optionCommand)}
         </select>
       </p>
-      ${state.command.cur?Object.keys(state.command.cur.p).map(function (k) {
-        if (!(k in state.variable)) return yo`<p>${k} (${state.command.cur.p[k]}) <input type="text" id="param-${k}" name="${k}"> <span class="action" onclick=${onClickVarSet(k)}>^</span></p>`
-      }):''}
+      ${state.command.cur?Object.keys(state.command.cur.p).map(inputParam):''}
       <button onclick=${onClickSend} disabled=${state.command.i===-1?'disabled':''}>send</button>
     </div>
     <div class="data">
       <ul>
-        ${Object.keys(state.data).map(function (key) {
-          return yo`<li>${key} <pre>${JSON.stringify(state.data[key], null, 3)}</pre></li>`
-        })}
+        ${Object.keys(state.data).map(jsonData)}
       </ul>
     </div>
   </div>`
 }
 
-function onChangeSelectCommand(e) {
+function onChangeSelectCommand(/*e*/) {
   const i = +document.getElementById('command').value
   state.command.i = i
   state.command.cur = i !== -1 ? state.command.list[i] : null
@@ -95,7 +112,7 @@ function onChangeSelectCommand(e) {
 }
 
 function onClickVarSet(k) {
-  return function(e) {
+  return function(/*e*/) {
     var v = document.getElementById('param-'+k).value
     if (v) {
       state.variable[k] = v
@@ -106,14 +123,14 @@ function onClickVarSet(k) {
 }
 
 function onClickVarDel(k) {
-  return function(e) {
+  return function(/*e*/) {
     delete state.variable[k]
     const widget = main(state)
     yo.update(el, widget)
   }
 }
 
-function onClickSend(e) {
+function onClickSend(/*e*/) {
   if (client.readyState === client.OPEN) {
     if (state.command.cur !== null) {
       var m = {}

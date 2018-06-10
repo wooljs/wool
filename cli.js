@@ -36,7 +36,7 @@ $ wool <rule file> [options]
     $ wool rules.js -d -p 8080
     $ wool rules.js -s store.json -e store.evt
     $ wool rules.js -e init.evt`
-  , {
+    , {
     flags: {
       debug: {
         type: 'boolean',

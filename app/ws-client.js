@@ -30,7 +30,7 @@ module.exports = function(onmessage) {
     setTimeout(function() {
       var xhr = require('xhr')
       try {
-        xhr.get('/ping', function (e, r, body) {
+        xhr.get('/ping', function (e, r/*, body*/) {
           console.log(r)
           console.error(e)
           if (r.statusCode === 200) {
