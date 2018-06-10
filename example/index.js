@@ -15,9 +15,9 @@
  *
  */
 
-module.exports = ['./admin-rules'
-  , './auth-rules'
-  , './chatroom-rules'
+module.exports = ['./admin'
+  , './auth'
+  , './chatroom'
 ].reduce((p, c)=> {
   return p.concat(require(c))
 }, [])

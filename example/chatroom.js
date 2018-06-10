@@ -15,7 +15,7 @@
  *
  */
 const { Rule, RuleParam, InvalidRuleError } = require('wool-rule')
-  , { SessionID, UserID, ChatID, Msg } = require('./rule-params')
+  , { SessionID, UserID, ChatID, Msg } = require('./params')
 
 module.exports = Rule.buildSet('chatroom', {
   name: 'create',

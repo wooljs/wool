@@ -18,7 +18,7 @@ var test = require('tape')
   , { Store } = require('wool-store')
   , TestStream = require( __dirname + '/test_stream.js')(util,stream)
   , rules = require( __dirname + '/rules.js')
-  , wool = require( __dirname + '/../lib/wool.js')
+  , wool = require( __dirname + '/../index.js')
 
 test('integrate: contains spec with an expectation', function(t) {
   var count = 0

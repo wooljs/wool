@@ -15,7 +15,7 @@
  *
  */
 const { Rule, InvalidRuleError } = require('wool-rule')
-  , { SessionID, UserID, Login, Password, AuthIndex } = require('./rule-params')
+  , { SessionID, UserID, Login, Password, AuthIndex } = require('./params')
 
 module.exports = Rule.buildSet('admin', {
   name: 'create_user',

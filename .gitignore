@@ -1,7 +1,4 @@
 node_modules/
-example/test_save.db
-example/*/*.db
-example/*/node_modules/*
+example/data/*.db
 coverage/
-data/
 npm-debug.log

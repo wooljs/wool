@@ -16,9 +16,9 @@ exports = module.exports = {}
 
 const sessionIdAlgo = async () => {
   return new Promise((resolve, reject) => {
-    crypto.randomBytes(24, (err, buf) => {
+    crypto.randomBytes(32, (err, buf) => {
       if (err) return reject(err)
-      resolve(buf.toString('base64'))
+      resolve(buf.toString('hex'))
     })
   })
 }
@@ -28,7 +28,7 @@ exports.UserID = RuleParam.ID('userId', {prefix: 'User: '})
 exports.ChatID = RuleParam.ID('chatId', {prefix: 'Chat: '})
 exports.Login = RuleParam.STR('login').regex(/^\w{3,}$/)
 
-exports.hash = (value) => {
+function hash(value) {
   return new Promise((resolve, reject) => {
     crypto.randomBytes(24, (err, buf) => {
       let salt = buf.toString('base64')
@@ -41,7 +41,7 @@ exports.hash = (value) => {
   })
 }
 
-exports.match = (hash, value) => {
+function match(hash, value) {
   return new Promise((resolve, reject) => {
     let buf = Buffer.from(hash)
       , salt = buf.toString('utf8', 0, 32)
@@ -55,7 +55,7 @@ exports.match = (hash, value) => {
   })
 }
 
-exports.Password = RuleParam.STR('password').regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[\.:;,?!@#$%^&*+_\\/'"{}()\[\] -])[A-Za-z\d\.:;,?!@#$%^&*+_\\/'"{}()\[\] -]{8,}$/).crypto({ hash: exports.hash, match: exports.match })
+exports.Password = RuleParam.STR('password').regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[\.:;,?!@#$%^&*+_\\/'"{}()\[\] -])[A-Za-z\d\.:;,?!@#$%^&*+_\\/'"{}()\[\] -]{8,}$/).crypto({ hash, match })
 
 exports.Msg = RuleParam.STR('msg')
 

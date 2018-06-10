@@ -41,6 +41,9 @@ const yo = require('yo-yo')
     // construct a new list and efficiently diff+morph it into the one in the DOM
     const widget = main(state)
     yo.update(el, widget)
+    if (('t' in m) && m.t === 'set') {
+      document.getElementById(m.d.k).scrollIntoView();
+    }
   })
 
 function main(state) {
@@ -58,11 +61,14 @@ function main(state) {
       position: -webkit-sticky;
       position: sticky;
       top: 0;
-      width: 250px;
+      width: 280px;
     }
     :host > .data {
       position: relative;
-      width: 500px;
+      width: 520px;
+    }
+    :host > .data  pre{
+      white-space: pre-wrap;
     }
     .action {
       color: blue;
@@ -76,11 +82,13 @@ function main(state) {
     , optionCommand = (cmd, i) => {
       return yo`<option value="${i}" selected=${state.command.i===i?'selected':''}>${cmd.n}</option>`
     }
+    , isNotSaved = k => (!(k in state.variable))
     , inputParam = k => {
-      if (!(k in state.variable)) return yo`<p>${k} (${state.command.cur.p[k]}) <input type="text" id="param-${k}" name="${k}"> <span class="action" onclick=${onClickVarSet(k)}>^</span></p>`
+      if (state.command.cur.p[k]) return yo`<p>${k} <input type="text" id="param-${k}" name="${k}"> <span class="action" onclick=${onClickVarSet(k)}>^</span></p>`
+      else return yo`<p>${k} <i>to be generated</i></p>`
     }
     , jsonData = key => {
-      return yo`<li><a name=${key}>${key}</a><pre>${JSON.stringify(state.data[key], null, 3)}</pre></li>`
+      return yo`<li id=${key}>${key}<pre>${JSON.stringify(state.data[key], null, 3)}</pre></li>`
     }
   return yo`<div class="${prefix}">
     <div class="command">
@@ -91,7 +99,7 @@ function main(state) {
         ${state.command.list.map(optionCommand)}
         </select>
       </p>
-      ${state.command.cur?Object.keys(state.command.cur.p).map(inputParam):''}
+      ${state.command.cur?Object.keys(state.command.cur.p).filter(isNotSaved).map(inputParam):''}
       <button onclick=${onClickSend} disabled=${state.command.i===-1?'disabled':''}>send</button>
     </div>
     <div class="data">

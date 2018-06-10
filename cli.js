@@ -79,7 +79,7 @@ if (cli.input.length===0) {
     , bunyan = require('bunyan')
     , logger = bunyan.createLogger({name: 'myapp'})
 
-    , wool = require('./lib/wool.js')
+    , wool = require('./')
 
     , { Store } = require('wool-store')
     , initStore = cli.flags.initStore ? path.resolve(cli.flags.initStore) : undefined
