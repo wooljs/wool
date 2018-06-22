@@ -19,7 +19,7 @@
     "test": "tape test/**/*.spec.js |tap-summary --no-progress",
     "autotest": "nodemon -e js,yml -x 'tape test/**/*.spec.js |tap-summary --no-progress'",
     "autolinttest": "nodemon -e js,yml -x 'npm run lint && tape test/**/*.spec.js |tap-summary --no-progress'",
-    "coverage": "istanbul cover tape test/**/*.spec.js",
+    "coverage": "nyc tape test/**/*.spec.js && nyc report --reporter=html",
     "lint": "eslint index.js lib/ test/",
     "autolint": "nodemon -x eslint index.js lib/ test/",
     "app:lint": "eslint -c .app_eslintrc.js cli.js app/",
@@ -34,15 +34,15 @@
     "websocket": "^1.0.26",
     "wool-model": "^1.2.3",
     "wool-rule": "^1.4.0",
-    "wool-store": "^1.0.0",
+    "wool-store": "^1.1.0",
     "wool-stream": "^1.1.1",
     "xhr": "^2.5.0",
     "yo-yo": "^1.4.1"
   },
   "devDependencies": {
     "eslint": "^4.19.1",
-    "istanbul": "^1.1.0-alpha.1",
     "mermaid": "^8.0.0-rc.8",
+    "nyc": "^12.0.2",
     "tap-summary": "^4.0.0",
     "tape": "^4.9.1"
   },
