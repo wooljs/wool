@@ -1,6 +1,6 @@
 {
   "name": "wool",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "author": "Nicolas Lochet",
   "description": "Test some idea about event/log based datastorage, CQRS and fancy stuff.",
   "homepage": "https://github.com/nicocube/wool",
