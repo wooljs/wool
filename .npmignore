@@ -3,3 +3,5 @@ example/*
 coverage/*
 test/*
 doc/*
+.*eslintrc.js
+.nyc_output/
