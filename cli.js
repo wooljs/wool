@@ -77,7 +77,7 @@ if (cli.input.length===0) {
     , eventDB = path.resolve(cli.flags.eventIn)
 
     , bunyan = require('bunyan')
-    , logger = bunyan.createLogger({name: 'myapp'})
+    , logger = bunyan.createLogger({name: 'myapp', level: 'trace'})
 
     , wool = require('./')
 
@@ -87,16 +87,25 @@ if (cli.input.length===0) {
 
     , rules = require(path.resolve(cli.input[0]))
 
-  if (debug) logger.info('Debug mode activated')
+  if (debug) logger.debug('Debug mode activated')
   logger.info('Port %d', port)
-  logger.info('Load events %s', eventDB)
 
   if (initStore) {
+    let startinit = Date.now()
+      , ini = JSON.parse(fs.readFileSync(initStore).toString())
     logger.info('Load init store %s', initStore)
-    var ini = JSON.parse(fs.readFileSync(initStore).toString())
     Object.keys(ini).forEach(function(k){ dataStore.set(k, ini[k]) })
-    if (debug) logger.info(dataStore)
+    if (debug) {
+      let str = ''
+      for (let [k,v] of dataStore.find()) {
+        str += '\n' + k + ': '+JSON.stringify(v/*, null, 2*/)
+      }
+      logger.debug('store>', str)
+    }
+    logger.info('Init store loaded in %sms', Date.now() - startinit)
   }
+
+  logger.info('Load events %s', eventDB)
 
   wool()
   .logger(logger)

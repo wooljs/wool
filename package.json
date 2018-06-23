@@ -24,7 +24,7 @@
     "autolint": "nodemon -x eslint index.js lib/ test/",
     "app:lint": "eslint -c .app_eslintrc.js cli.js app/",
     "app:autolint": "nodemon -x 'eslint -c .app_eslintrc.js cli.js app/'",
-    "link-all": "for u in $(ls -1d ../wool-* | sed -e 's/..\\///'); do npm link $u; done"
+    "link-all": "for u in $(ls -1d node_modules/wool-* | xargs basename -a); do npm link $u; done"
   },
   "dependencies": {
     "bankai": "^9.14.0",
