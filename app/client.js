@@ -141,7 +141,7 @@ function onClickVarDel(k) {
 function onClickSend(/*e*/) {
   if (client.readyState === client.OPEN) {
     if (state.command.cur !== null) {
-      var m = {}
+      let m = {}
         , p = Object.entries(state.command.cur.p)
 
       m.t = 'command'
@@ -151,20 +151,22 @@ function onClickSend(/*e*/) {
       var i = 0
         , l = p.length
       for (; i < l ; i++) {
-        var k = p[i][0]
-          , c = p[i][1]
-          , v = k in state.variable ? state.variable[k] : document.getElementById('param-'+k).value
-        if (v.length === 0) {
-          if (c === 1) {
-            alert('Param '+k+' is mandatory')
-            return
+        let k = p[i][0]
+        if (state.command.cur.p[k]) {
+          let c = p[i][1]
+            , v = k in state.variable ? state.variable[k] : document.getElementById('param-'+k).value
+          if (v.length === 0) {
+            if (c === 1) {
+              alert('Param '+k+' is mandatory')
+              return
+            }
+            // if (c === 0) DO NOTHING
+          } else {
+            m.d[k] = v
           }
-          // if (c === 0) DO NOTHING
-        } else {
-          m.d[k] = v
         }
       }
-
+      
       var payload = JSON.stringify(m)
       console.log('Sent: ' + payload)
       client.send(payload)

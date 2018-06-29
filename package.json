@@ -33,7 +33,7 @@
     "nodemon": "^1.17.5",
     "websocket": "^1.0.26",
     "wool-model": "^1.2.3",
-    "wool-rule": "^1.4.0",
+    "wool-rule": "^1.4.1",
     "wool-store": "^1.1.0",
     "wool-stream": "^1.1.1",
     "xhr": "^2.5.0",

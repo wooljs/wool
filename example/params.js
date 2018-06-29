@@ -55,7 +55,9 @@ function match(hash, value) {
   })
 }
 
-exports.Password = RuleParam.STR('password').regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[\.:;,?!@#$%^&*+_\\/'"{}()\[\] -])[A-Za-z\d\.:;,?!@#$%^&*+_\\/'"{}()\[\] -]{8,}$/).crypto({ hash, match })
+exports.Password = RuleParam.STR('password')
+.regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[\.:;,?!@#$%^&*+_\\/'"{}()\[\] -])[A-Za-z\d\.:;,?!@#$%^&*+_\\/'"{}()\[\] -]{8,}$/)
+.crypto({ hash, match })
 
 exports.Msg = RuleParam.STR('msg')
 
