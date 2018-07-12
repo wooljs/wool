@@ -22,6 +22,7 @@ module.exports = function (logger, debug, port) {
       js: {debug: debug}
     })
 
+    /*
     , extract = function(t,a) {
       return a.reduce(function(p,c){ if (c in t && t[c]) p[c] = t[c]; return p },{})
     }
@@ -34,15 +35,16 @@ module.exports = function (logger, debug, port) {
         logger.info(q, '%s %s - %s in %dms', req.method, req.url, res.statusCode, Date.now() - start)
       }
     }
+    */
 
   var server = http.createServer(function (req, res) {
-    var log = makeHttpLog(req, res, Date.now())
+    //var log = makeHttpLog(req, res, Date.now())
 
     handler(req, res, function () {
       res.statusCode = 404
       res.end('not found')
     })
-/*
+    /*
     switch (req.url) {
     case '/': return assets.html(req, res).pipe(res).on('finish', log)
     case '/ping': return res.end(new Date().toISOString(), log)
@@ -51,7 +53,7 @@ module.exports = function (logger, debug, port) {
     case '/favicon.ico': res.writeHead(200,{'Content-Type': 'image/x-icon'}); return res.end(favicon, log)
     default: return (res.statusCode = 404) && res.end('404 not found', log)
     }
-*/
+    */
 
   }).listen(port)
 

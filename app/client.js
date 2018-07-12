@@ -42,7 +42,7 @@ const yo = require('yo-yo')
     const widget = main(state)
     yo.update(el, widget)
     if (('t' in m) && m.t === 'set') {
-      document.getElementById(m.d.k).scrollIntoView();
+      document.getElementById(m.d.k).scrollIntoView()
     }
   })
 
