@@ -32,16 +32,16 @@
     "meow": "^5.0.0",
     "websocket": "^1.0.26",
     "wool-model": "^1.2.3",
-    "wool-rule": "^1.4.2",
-    "wool-store": "^1.1.1",
+    "wool-rule": "^1.4.3",
+    "wool-store": "^1.2.1",
     "wool-stream": "^1.1.1",
     "xhr": "^2.5.0",
     "yo-yo": "^1.4.1"
   },
   "devDependencies": {
-    "eslint": "^5.1.0",
+    "eslint": "^5.2.0",
     "mermaid": "^8.0.0-rc.8",
-    "nodemon": "^1.18.1",
+    "nodemon": "^1.18.3",
     "nyc": "^12.0.2",
     "tap-summary": "^4.0.0",
     "tape": "^4.9.1"
