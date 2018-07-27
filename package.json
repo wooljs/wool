@@ -33,8 +33,8 @@
     "websocket": "^1.0.26",
     "wool-model": "^1.2.3",
     "wool-rule": "^1.4.3",
-    "wool-store": "^1.2.1",
-    "wool-stream": "^1.1.1",
+    "wool-store": "^1.2.2",
+    "wool-stream": "^1.1.2",
     "xhr": "^2.5.0",
     "yo-yo": "^1.4.1"
   },

@@ -79,7 +79,7 @@ if (cli.input.length===0) {
     , bunyan = require('bunyan')
     , logger = bunyan.createLogger({name: 'myapp', level: 'trace'})
 
-    , wool = require('./')
+    , Wool = require('./')
 
     , { Store } = require('wool-store')
     , initStore = cli.flags.initStore ? path.resolve(cli.flags.initStore) : undefined
@@ -107,7 +107,7 @@ if (cli.input.length===0) {
 
   logger.info('Load events %s', events)
 
-  await wool({
+  let wool = await Wool({
     logger,
     store,
     rules,
@@ -117,7 +117,7 @@ if (cli.input.length===0) {
   })
 
   let server = require('./app/server')(logger, debug, port)
-  require('./app/wss')(logger, server, this, rules, dataStore)
+  require('./app/wss')(logger, server, wool, rules, dataStore)
   logger.info('App ready in %dms', Date.now() - start)
 
 }
