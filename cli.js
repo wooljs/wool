@@ -74,7 +74,7 @@ if (cli.input.length===0) {
   let start = Date.now()
     , debug = cli.flags.debug
     , port = +cli.flags.port
-    , eventDB = path.resolve(cli.flags.eventIn)
+    , events = path.resolve(cli.flags.eventIn)
 
     , bunyan = require('bunyan')
     , logger = bunyan.createLogger({name: 'myapp', level: 'trace'})
@@ -105,19 +105,19 @@ if (cli.input.length===0) {
     logger.info('Init store loaded in %sms', Date.now() - startinit)
   }
 
-  logger.info('Load events %s', eventDB)
+  logger.info('Load events %s', events)
 
-  wool()
-  .logger(logger)
-  .store(dataStore)
-  .rule(rules)
-  .withFile(eventDB)
-  .onReady(function(count) {
+  await wool({
+    logger,
+    store,
+    rules,
+    events
+  }).start((count)=>{
     logger.info('Load %d events in %dms', count, Date.now() - start)
-    var server = require('./app/server')(logger, debug, port)
-    require('./app/wss')(logger, server, this, rules, dataStore)
-    logger.info('App ready in %dms', Date.now() - start)
   })
-  .run()
+
+  let server = require('./app/server')(logger, debug, port)
+  require('./app/wss')(logger, server, this, rules, dataStore)
+  logger.info('App ready in %dms', Date.now() - start)
 
 }

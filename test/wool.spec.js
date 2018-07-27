@@ -14,13 +14,14 @@
 var test = require('tape')
   , stream = require('stream')
   , util = require('util')
+  , fs = require('fs')
   , { Command } = require('wool-model')
   , { Store } = require('wool-store')
   , TestStream = require( __dirname + '/test_stream.js')(util,stream)
   , rules = require( __dirname + '/rules.js')
-  , wool = require( __dirname + '/../index.js')
+  , Wool = require( __dirname + '/../index.js')
 
-test('integrate: contains spec with an expectation', function(t) {
+test('integrate: contains spec with an expectation', async function(t) {
   var count = 0
     , expected = [
       'S: 2017-05-02T09:48:12.450Z-0000 chatroom:send {"userId":"bar","chatId":"15bc9f0381e","msg":"^^"}',
@@ -34,35 +35,37 @@ test('integrate: contains spec with an expectation', function(t) {
       'S: 2017-05-02T09:49:05.234Z-0001 chatroom:leave {"userId":"bar","chatId":"15bc9f0381e"}',
       '\n',
     ]
-    , out = TestStream(function (data, encoding, callback) {
+    , dest = TestStream(function (data, encoding, callback) {
       t.deepEqual(data.toString(),expected[count])
       count += 1
       this.push(data)
       callback()
     })
-    .on('finish', () => {
-      t.plan(10)
-      t.end()
-    })
     , store = Store.build()
 
 
-  store.set('foo', { membership: [] })
-  store.set('bar', { membership: [] })
+  await store.set('foo', { membership: [] })
+  await store.set('bar', { membership: [] })
 
-  wool()
-  .store(store)
-  .rule(rules)
-  .fromFile(__dirname + '/test_load.db')
-  .toStream(out)
-  .onReady(async function() {
-    await this.push(new Command(new Date('2017-05-02T09:48:12.450Z'), 0, 'chatroom:send', {'userId': 'bar', 'chatId': '15bc9f0381e', 'msg': '^^'}))
-    await this.push(new Command(new Date('2017-05-02T09:48:42.666Z'), 0, 'chatroom:send', {'userId': 'foo', 'chatId': '15bc9f0381e', 'msg': 'I have to quit, bye'}))
-    await this.push(new Command(new Date('2017-05-02T09:49:02.010Z'), 0, 'chatroom:send', {'userId': 'bar', 'chatId': '15bc9f0381e', 'msg': 'ok, bye'}))
-    await this.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 0, 'chatroom:leave', {'userId': 'foo', 'chatId': '15bc9f0381e'}))
-    await this.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 1, 'chatroom:leave', {'userId': 'bar', 'chatId': '15bc9f0381e'}))
-    this.end()
+  let wool = await Wool({
+    store,
+    rules,
+    events: {
+      src: fs.createReadStream(__dirname + '/test_load.db', {flags: 'r'}),
+      dest
+    }
+  }).start()
+
+  await wool.push(new Command(new Date('2017-05-02T09:48:12.450Z'), 0, 'chatroom:send', {'userId': 'bar', 'chatId': '15bc9f0381e', 'msg': '^^'}))
+  await wool.push(new Command(new Date('2017-05-02T09:48:42.666Z'), 0, 'chatroom:send', {'userId': 'foo', 'chatId': '15bc9f0381e', 'msg': 'I have to quit, bye'}))
+  await wool.push(new Command(new Date('2017-05-02T09:49:02.010Z'), 0, 'chatroom:send', {'userId': 'bar', 'chatId': '15bc9f0381e', 'msg': 'ok, bye'}))
+  await wool.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 0, 'chatroom:leave', {'userId': 'foo', 'chatId': '15bc9f0381e'}))
+  await wool.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 1, 'chatroom:leave', {'userId': 'bar', 'chatId': '15bc9f0381e'}))
+
+  await new Promise((resolve) => {
+    wool.end(resolve)
   })
-  .run()
 
+  t.plan(10)
+  t.end()
 })

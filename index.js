@@ -14,134 +14,86 @@ const fs = require('fs')
   , { AsyncMapStream, CountStream, StreamSplit, StreamJoin, StreamParse, StreamStringify, PushStream } = require('wool-stream')
   , { Event } = require('wool-model')
   , { RuleEngine } = require('wool-rule')
-  , Store = require('wool-store').Store
+  , { Store } = require('wool-store')
 
 class Wool {
-  constructor() {
-    this._store =
-    this._rule =
-    this._logger =
-    this.src =
-    this.dest =
-    this._onLoad =
-    this._isLoaded =
-    this._onReady =
-    this._isReady =
-    this._stream =
-    undefined
+  constructor(options) {
+    let { logger, store, rules, events } = options
+
+    if (! (store instanceof Store)) throw new Error(store+' is not an instance of Store.')
+    this.store = store
+
+    this.rule = new RuleEngine(this.store)
+    this.rule.addRules(rules)
+
+    this.logger = logger || console
+
+    if (typeof events === 'string') {
+      this.src = fs.createReadStream(events, {flags: 'r'})
+      this.dest = fs.createWriteStream(events, {flags: 'a'})
+    } else if (typeof events === 'object') {
+      let { src, dest } = events
+      if (! (src instanceof Readable)) throw new Error('Given input stream must be a Readable')
+      this.src = src
+      if (! (dest instanceof Writable) && ! (dest instanceof Duplex) && ! (dest instanceof Transform)) throw new Error('Given output stream must be a Writable')
+      this.dest = dest
+    }
+
+    this.stream = undefined
   }
-  static build() {
-    return new Wool()
+  static build(options) {
+    return new Wool(options)
   }
 
   /*
    * Public methods
    */
-  store(store) {
-    if (! (store instanceof Store)) throw new Error(store+' is not an instance of Store.')
-    this._store = store
-    return this
-  }
-  rule(rules) {
-    if (!this._store) throw new Error('Store is not set, please call store method first.')
-    if (!(this._rule instanceof RuleEngine)) this._rule = new RuleEngine(this._store)
-    this._rule.addRules(rules)
-    return this
-  }
-  logger(logger) {
-    if (typeof this._logger === 'undefined') {
-      this._logger = logger || console
-    }
-    if (logger) return this
-    return this._logger
-  }
-  fromFile(file) {
-    return this.fromStream(fs.createReadStream(file, {flags: 'r'}))
-  }
-  fromStream(s) {
-    if (! (s instanceof Readable)) throw new Error('Given input stream must be a Readable')
-    this.src = s
-    return this
-  }
-  onLoad(onLoad) {
-    this._onLoad = onLoad
-    if (this._isLoaded) this._onLoad()
-    return this
-  }
-  toFile(file) {
-    return this.toStream(fs.createWriteStream(file, {flags: 'a'}))
-  }
-  withFile(file) {
-    this.fromFile(file)
-    this.toFile(file)
-    return this
-  }
-  toStream(s) {
-    if (! (s instanceof Writable) && ! (s instanceof Duplex) && ! (s instanceof Transform)) throw new Error('Given output stream must be a Writable')
-    this.dest = s
-    return this
-  }
-  run() {
-    this._load_events().onLoad(count => {
-      this._store_events()
-      if (typeof this._onReady === 'function') { this._onReady(count) } else { this._isReady = true }
+
+
+  async start(onCount) {
+    let evc = CountStream()
+      , buildErrorHandler = str => e => { this.logger.error(str, e) }
+
+    await new Promise((resolve) => {
+      this.src
+      .on('error', buildErrorHandler('While reading:'))
+      .pipe(StreamSplit().on('error', buildErrorHandler('While spliting:')))
+      .pipe(StreamParse(Event.parse).on('error', buildErrorHandler('While parsing:')))
+      .pipe(AsyncMapStream(async e => this.rule.replay(e)).on('error', buildErrorHandler('While replaying events:')))
+      .pipe(evc.on('error', buildErrorHandler('While counting:')))
+      .on('data', () => { /* this empty function maintain the stream flowing */ })
+      .on('finish', () => { resolve() })
+    })
+
+    if (typeof onCount === 'function') onCount(evc.count())
+
+    await new Promise((resolve) => {
+      this.stream = StreamStringify(Event.stringify)
+      this.stream
+      .on('error', buildErrorHandler('While stringifying:'))
+      .pipe(StreamJoin().on('error', buildErrorHandler('While joining:')))
+      .pipe(
+        this.dest
+        .on('error', buildErrorHandler('On Destination'))
+        .on('pipe', () => { resolve() })
+      )
     })
     return this
   }
-  onReady(onReady) {
-    this._onReady = onReady
-    if (this._isReady) this._onReady()
-    return this
-  }
+
   async push(cmd) {
-    let evt = await this._rule.execute(cmd)
-    this._stream.write(evt)
+    let evt = await this.rule.execute(cmd)
+    this.stream.write(evt)
     return evt
   }
-  end(evt) {
-    this._stream.end(evt)
+
+  end(onFinish) {
+    this.stream.on('finish', onFinish)
+    this.stream.end()
   }
-  pushStream() {
+
+  asPushStream() {
     return new PushStream(this)
-  }
-
-  /*
-   * Private methods
-   */
-  _buildErrorHandler(str) {
-    return function(e) { this.logger().error(str, e) }.bind(this)
-  }
-  _onRuleError() {
-    return function(data) {
-      if (data.s === 'I') this.logger().warn('%s, with %s', data.m, data.toString())
-      if (data.s === 'E') this.logger().error('%s, with %s', data.m, data.toString())
-    }.bind(this)
-  }
-  eventReplay() {
-    return AsyncMapStream(async e => this._rule.replay(e))
-  }
-
-  _load_events() {
-    var evc = CountStream()
-    if (! (this.src instanceof Readable)) throw new Error('Wool.fromFile or Wool.fromStream must be called before loading.')
-    this.src
-    .on('error', this._buildErrorHandler('While reading:'))
-    .pipe(StreamSplit().on('error', this._buildErrorHandler('While spliting:')))
-    .pipe(StreamParse(Event.parse).on('error', this._buildErrorHandler('While parsing:')))
-    .pipe(this.eventReplay().on('error', this._buildErrorHandler('While replaying events:')))
-    .pipe(evc.on('error', this._buildErrorHandler('While counting:')))
-    .on('data', () => { /* this empty function maintain the stream flowing */ })
-    .on('finish', () => { if ('_onLoad' in this) { this._onLoad(evc.count()) } else { this._isLoaded = true } })
-    return this
-  }
-  _store_events() {
-    if (! (this.dest instanceof Writable)) throw new Error('Wool.toFile or Wool.toStream must be called before storing.')
-    this._stream = StreamStringify(Event.stringify)
-    this._stream
-    .on('error', this._buildErrorHandler('While stringifying:'))
-    .pipe(StreamJoin().on('error', this._buildErrorHandler('While joining:')))
-    .pipe(this.dest.on('error', this._buildErrorHandler('On Destination')))
-    return this
   }
 
 }
