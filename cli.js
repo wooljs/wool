@@ -83,7 +83,7 @@ if (cli.input.length===0) {
 
     , { Store } = require('wool-store')
     , initStore = cli.flags.initStore ? path.resolve(cli.flags.initStore) : undefined
-    , dataStore = Store.build()
+    , store = Store.build()
 
     , rules = require(path.resolve(cli.input[0]))
 
@@ -94,10 +94,10 @@ if (cli.input.length===0) {
     let startinit = Date.now()
       , ini = JSON.parse(fs.readFileSync(initStore).toString())
     logger.info('Load init store %s', initStore)
-    Object.keys(ini).forEach(function(k){ dataStore.set(k, ini[k]) })
+    Object.keys(ini).forEach(function(k){ store.set(k, ini[k]) })
     if (debug) {
       let str = ''
-      for (let [k,v] of dataStore.find()) {
+      for (let [k,v] of store.find()) {
         str += '\n' + k + ': '+JSON.stringify(v/*, null, 2*/)
       }
       logger.debug('store>', str)
@@ -107,17 +107,20 @@ if (cli.input.length===0) {
 
   logger.info('Load events %s', events)
 
-  let wool = await Wool({
+  Wool({
     logger,
     store,
     rules,
     events
-  }).start((count)=>{
+  }).start( count => {
     logger.info('Load %d events in %dms', count, Date.now() - start)
+  }).then( wool => {
+
+    let server = require('./app/server')(logger, debug, port)
+    require('./app/server/ws-server')(logger, server, wool, rules, store)
+    logger.info('App ready in %dms', Date.now() - start)
+
+  }).catch( e => {
+    logger.error(e)
   })
-
-  let server = require('./app/server')(logger, debug, port)
-  require('./app/wss')(logger, server, wool, rules, dataStore)
-  logger.info('App ready in %dms', Date.now() - start)
-
 }

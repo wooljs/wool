@@ -16,7 +16,7 @@ module.exports = function (logger, debug, port) {
     , http = require('http')
     , path = require('path')
 
-    , clientPath = path.join(__dirname, 'client.js')
+    , clientPath = path.resolve(__dirname, '../client/index.js')
     , handler = bankai(clientPath, {
       html: { favicon: 'favicon.ico' },
       js: {debug: debug}

@@ -13,8 +13,9 @@
   "bin": "cli.js",
   "scripts": {
     "preversion": "npm test",
-    "start": "node cli.js example/index.js -i example/data/init.json -e example/data/events.db | bunyan",
-    "watch": "nodemon -V -w cli.js -w index.js -w example/ ./cli.js -- example/index.js -d -i example/data/init.json -e example/data/events.db | bunyan",
+    "start": "if [ ! -f example/data/events.db ];then echo -n '' > example/data/events.db; fi && node cli.js example/rules/index.js -i example/data/init.json -e example/data/events.db | bunyan",
+    "prewatch": "if [ ! -f example/data/events.db ];then echo -n '' > example/data/events.db; fi",
+    "watch": "nodemon -V -w cli.js -w index.js -w app/server/ -w example/rules/ ./cli.js -- example/rules/index.js -d -i example/data/init.json -e example/data/events.db | bunyan",
     "pretest": "npm run lint",
     "test": "tape test/**/*.spec.js |tap-summary --no-progress",
     "autotest": "nodemon -e js,yml -x 'tape test/**/*.spec.js |tap-summary --no-progress'",
@@ -39,7 +40,7 @@
     "yo-yo": "^1.4.1"
   },
   "devDependencies": {
-    "eslint": "^5.2.0",
+    "eslint": "^5.3.0",
     "mermaid": "^8.0.0-rc.8",
     "nodemon": "^1.18.3",
     "nyc": "^12.0.2",

@@ -9,13 +9,13 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-module.exports = function (logger, server, wool, rules, dataStore) {
+module.exports = function (logger, server, wool, rules, store) {
   'use strict'
 
   var WebSocketServer = require('websocket').server
     , wss = new WebSocketServer({ httpServer: server })
     , { Command } = require('wool-model')
-    , { Store } = require('wool-store')
+    , newId = () => (Date.now().toString(16))
 
   function originIsAllowed(origin) {
     // put logic here to detect whether the specified origin is allowed.
@@ -39,19 +39,16 @@ module.exports = function (logger, server, wool, rules, dataStore) {
     }
 
     let connection = request.accept('echo-protocol', request.origin)
-      , connid = Store.newId()
+      , connid = newId()
     logger.info('Connection accepted for connid: '+connid)
 
-    dataStore.subAll(connid, function(id, v, t) {
-      switch(t) {
-      case 'update':
-        return sendOnConnection(connection, connid, { t: 'set', d : { k : id, v }})
-      case 'delete':
-        return sendOnConnection(connection, connid, { t: 'del', d : { k : id }})
-      }
+    store.subGlobal(connid, function(k, v, t) {
+      return sendOnConnection(connection, connid, { t, d : { k, v }})
+    }).catch(e => {
+      logger.error(e)
     })
 
-    connection.on('message', async function(message) {
+    connection.on('message', function(message) {
       if (message.type === 'utf8') {
         logger.info('Received from '+connid+' Message: \'' + message.utf8Data + '\'')
         var m = JSON.parse(message.utf8Data)
@@ -61,9 +58,9 @@ module.exports = function (logger, server, wool, rules, dataStore) {
           case 'init':{
             r.t ='init'
             let data = {}
-            dataStore.db.forEach((v, k) => {
-              data[k] = v.get()
-            })
+            for (let [k,v] of store.find()) {
+              data[k] = v
+            }
             r.d = {
               connid,
               data,
@@ -76,10 +73,15 @@ module.exports = function (logger, server, wool, rules, dataStore) {
             break
           case 'command': {
             m.d.connid = connid
-            let evt = await wool.push(new Command(new Date(), 0, m.n, m.d))
-            if (! evt.isSuccess()) {
-              sendOnConnection(connection, connid, { err: evt.message })
-            }
+            wool.push(new Command(new Date(), 0, m.n, m.d))
+            .then(evt => {
+              if (! evt.isSuccess()) {
+                sendOnConnection(connection, connid, { err: evt.message })
+              }
+            })
+            .catch(e => {
+              logger.error(e)
+            })
           }
             break
           default: {
@@ -97,7 +99,7 @@ module.exports = function (logger, server, wool, rules, dataStore) {
     })
     connection.on('close', function(/*reasonCode, description*/) {
       logger.info(' Peer %s, connid: %s, disconnected.', connection.remoteAddress, connid)
-      dataStore.unsubAll(connid)
+      store.unsubGlobal(connid).catch(e => { logger.error(e) })
     })
   })
 
