@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-var meow = require('meow')
+const meow = require('meow')
   , fs = require('fs')
   , cli = meow(`
 Usages:
