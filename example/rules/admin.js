@@ -14,7 +14,8 @@
  * This file is a model of Rule file
  *
  */
-const { Rule, InvalidRuleError } = require('wool-rule')
+const { Rule } = require('wool-rule')
+  , { InvalidRuleError } = require('wool-validate')
   , { SessionID, UserID, Login, Password, AuthIndex } = require('./params')
 
 module.exports = Rule.buildSet('admin', {

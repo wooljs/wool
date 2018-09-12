@@ -14,12 +14,13 @@
  * This file is a model of Rule file
  *
  */
-const { Rule, RuleParam, InvalidRuleError } = require('wool-rule')
+const { Rule } = require('wool-rule')
+  , Checks = require('wool-validate')
   , { SessionID, UserID, ChatID, Msg } = require('./params')
 
 module.exports = Rule.buildSet('chatroom', {
   name: 'create',
-  param: [ SessionID, ChatID.asNew(), RuleParam.STR('name') ],
+  param: [ SessionID, ChatID.asNew(), Checks.Str('name') ],
   async run(store, param) {
     let { sessid, chatId, name } = param
       , { userId } = await store.get(SessionID.as(sessid))
@@ -35,7 +36,7 @@ module.exports = Rule.buildSet('chatroom', {
     let { sessid, chatId } = param
       , { userId } = await store.get(SessionID.as(sessid))
       , chatroom = await store.get(ChatID.as(chatId))
-    if (userId in chatroom.members) throw new InvalidRuleError('Chatroom> member "'+userId+'" cannot joiname: already in')
+    if (userId in chatroom.members) throw new Checks.InvalidRuleError('Chatroom> member "'+userId+'" cannot joiname: already in')
     return true
   },
   async run(store, param) {
@@ -56,7 +57,7 @@ module.exports = Rule.buildSet('chatroom', {
     let { sessid, chatId } = param
       , { userId } = await store.get(SessionID.as(sessid))
       , chatroom = await store.get(ChatID.as(chatId))
-    if (! (userId in chatroom.members)) throw new InvalidRuleError('Chatroom> member "'+userId+'" cannot leave: not in')
+    if (! (userId in chatroom.members)) throw new Checks.InvalidRuleError('Chatroom> member "'+userId+'" cannot leave: not in')
     return true
   },
   async run(store, param) {
@@ -77,7 +78,7 @@ module.exports = Rule.buildSet('chatroom', {
     let { sessid, chatId } = param
       , { userId } = await store.get(SessionID.as(sessid))
       , chatroom = await store.get(ChatID.as(chatId))
-    if (! (userId in chatroom.members)) throw new InvalidRuleError('Chatroom> member "'+userId+'" cannot send message: not in')
+    if (! (userId in chatroom.members)) throw new Checks.InvalidRuleError('Chatroom> member "'+userId+'" cannot send message: not in')
     return true
   },
   async run(store, param) {

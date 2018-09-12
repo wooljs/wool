@@ -9,7 +9,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-const { RuleParam } = require('wool-rule')
+const Checks = require('wool-validate')
   , crypto = require('crypto')
 
 exports = module.exports = {}
@@ -23,10 +23,10 @@ const sessionIdAlgo = async () => {
   })
 }
 
-exports.SessionID = RuleParam.ID('sessid', {prefix: 'Session: ', algo: sessionIdAlgo})
-exports.UserID = RuleParam.ID('userId', {prefix: 'User: '})
-exports.ChatID = RuleParam.ID('chatId', {prefix: 'Chat: '})
-exports.Login = RuleParam.STR('login').regex(/^\w{3,}$/)
+exports.SessionID = Checks.Id('sessid', {prefix: 'Session: ', algo: sessionIdAlgo})
+exports.UserID = Checks.Id('userId', {prefix: 'User: '})
+exports.ChatID = Checks.Id('chatId', {prefix: 'Chat: '})
+exports.Login = Checks.Str('login').regex(/^\w{3,}$/)
 
 function hash(value) {
   return new Promise((resolve, reject) => {
@@ -55,10 +55,10 @@ function match(hash, value) {
   })
 }
 
-exports.Password = RuleParam.STR('password')
+exports.Password = Checks.Str('password')
 .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[\.:;,?!@#$%^&*+_\\/'"{}()\[\] -])[A-Za-z\d\.:;,?!@#$%^&*+_\\/'"{}()\[\] -]{8,}$/)
 .crypto({ hash, match })
 
-exports.Msg = RuleParam.STR('msg')
+exports.Msg = Checks.Str('msg')
 
 exports.AuthIndex = "AuthIndex"
