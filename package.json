@@ -42,7 +42,7 @@
     "yo-yo": "^1.4.1"
   },
   "devDependencies": {
-    "eslint": "^5.5.0",
+    "eslint": "^5.6.0",
     "mermaid": "^8.0.0-rc.8",
     "nodemon": "^1.18.4",
     "nyc": "^13.0.1",
