@@ -11,7 +11,7 @@
 
 'use strict'
 
-var test = require('tape')
+const test = require('tape-async')
   , stream = require('stream')
   , util = require('util')
   , fs = require('fs')
