@@ -32,7 +32,7 @@
     "bunyan": "^1.8.12",
     "meow": "^5.0.0",
     "websocket": "^1.0.28",
-    "wool-entity": "^1.2.1",
+    "wool-entity": "^1.2.2",
     "wool-model": "^1.2.4",
     "wool-rule": "^1.5.3",
     "wool-store": "^1.2.4",
