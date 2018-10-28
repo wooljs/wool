@@ -42,10 +42,10 @@
     "yo-yo": "^1.4.1"
   },
   "devDependencies": {
-    "eslint": "^5.6.1",
+    "eslint": "^5.8.0",
     "mermaid": "^8.0.0-rc.8",
-    "nodemon": "^1.18.4",
-    "nyc": "^13.0.1",
+    "nodemon": "^1.18.5",
+    "nyc": "^13.1.0",
     "tap-summary": "^4.0.0",
     "tape": "^4.9.1",
     "tape-async": "^2.3.0"
