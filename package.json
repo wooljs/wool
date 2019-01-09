@@ -12,7 +12,7 @@
   "main": "lib/index.js",
   "bin": "cli.js",
   "scripts": {
-    "preversion": "npm test",
+    "preversion": "npm test && npm outdated",
     "start": "if [ ! -f example/data/events.db ];then echo -n '' > example/data/events.db; fi && node cli.js example/rules/index.js -i example/data/init.json -e example/data/events.db | bunyan",
     "prewatch": "if [ ! -f example/data/events.db ];then echo -n '' > example/data/events.db; fi",
     "watch": "nodemon -V -w cli.js -w index.js -w app/server/ -w example/rules/ ./cli.js -- example/rules/index.js -d -i example/data/init.json -e example/data/events.db | bunyan",
@@ -42,7 +42,7 @@
     "yo-yo": "^1.4.1"
   },
   "devDependencies": {
-    "eslint": "^5.11.1",
+    "eslint": "^5.12.0",
     "mermaid": "^8.0.0",
     "nodemon": "^1.18.9",
     "nyc": "^13.1.0",
