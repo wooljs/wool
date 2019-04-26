@@ -34,7 +34,7 @@
     "websocket": "^1.0.28",
     "wool-entity": "^2.0.0",
     "wool-model": "^1.2.7",
-    "wool-rule": "^2.0.0",
+    "wool-rule": "^2.0.1",
     "wool-store": "^1.2.9",
     "wool-stream": "^1.1.6",
     "wool-validate": "^2.0.1",
