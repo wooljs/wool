@@ -28,26 +28,25 @@
     "link-all": "for u in $(ls -1d node_modules/wool-* | xargs basename -a); do npm link $u; done"
   },
   "dependencies": {
-    "bankai": "^9.15.0",
+    "bankai": "^9.15.1",
     "bunyan": "^1.8.12",
     "meow": "^5.0.0",
-    "websocket": "^1.0.28",
-    "wool-entity": "^2.0.1",
-    "wool-model": "^1.2.7",
-    "wool-rule": "^2.0.2",
-    "wool-store": "^1.2.9",
-    "wool-stream": "^1.1.6",
-    "wool-validate": "^2.0.2",
+    "websocket": "^1.0.29",
+    "wool-entity": "^2.0.4",
+    "wool-model": "^2.0.1",
+    "wool-rule": "^2.0.3",
+    "wool-store": "^1.2.11",
+    "wool-stream": "^1.1.8",
+    "wool-validate": "^2.0.4",
     "xhr": "^2.5.0",
     "yo-yo": "^1.4.1"
   },
   "devDependencies": {
-    "eslint": "^5.16.0",
-    "mermaid": "^8.0.0",
+    "eslint": "^6.0.1",
     "nodemon": "^1.19.1",
     "nyc": "^14.1.1",
     "tap-summary": "^4.0.0",
-    "tape": "^4.10.2",
+    "tape": "^4.11.0",
     "tape-async": "^2.3.0"
   },
   "optionalDependencies": {}
