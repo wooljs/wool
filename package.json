@@ -28,7 +28,7 @@
     "link-all": "for u in $(ls -1d node_modules/wool-* | xargs basename -a); do npm link $u; done"
   },
   "dependencies": {
-    "bankai": "^9.15.1",
+    "bankai": "^9.15.2",
     "bunyan": "^1.8.12",
     "meow": "^5.0.0",
     "websocket": "^1.0.29",
@@ -42,7 +42,7 @@
     "yo-yo": "^1.4.1"
   },
   "devDependencies": {
-    "eslint": "^6.1.0",
+    "eslint": "^6.2.2",
     "nodemon": "^1.19.1",
     "nyc": "^14.1.1",
     "tap-summary": "^4.0.0",
