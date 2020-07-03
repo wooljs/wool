@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "bankai": "^9.15.3",
-    "bunyan": "^1.8.12",
+    "bunyan": "^1.8.14",
     "meow": "^7.0.1",
     "websocket": "^1.0.31",
     "wool-entity": "^2.0.6",
@@ -42,7 +42,7 @@
     "yo-yo": "^1.4.1"
   },
   "devDependencies": {
-    "eslint": "^7.2.0",
+    "eslint": "^7.4.0",
     "nodemon": "^2.0.4",
     "nyc": "^15.1.0",
     "tap-summary": "^4.0.0",
