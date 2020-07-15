@@ -1,8 +1,6 @@
 .git*
-example/*
 coverage/*
 test/*
 doc/*
 .nyc_output/
 .eslintrc.js
-.app_eslintrc.js

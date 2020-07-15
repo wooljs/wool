@@ -10,12 +10,8 @@
     "url": "git://github.com/nicocube/wool.git"
   },
   "main": "lib/index.js",
-  "bin": "cli.js",
   "scripts": {
     "preversion": "npm test && npm outdated",
-    "start": "if [ ! -f example/data/events.db ];then echo -n '' > example/data/events.db; fi && node cli.js example/rules/index.js -i example/data/init.json -e example/data/events.db | bunyan",
-    "prewatch": "if [ ! -f example/data/events.db ];then echo -n '' > example/data/events.db; fi",
-    "watch": "nodemon -V -w cli.js -w index.js -w app/server/ -w example/rules/ ./cli.js -- example/rules/index.js -d -i example/data/init.json -e example/data/events.db | bunyan",
     "pretest": "npm run lint",
     "test": "tape test/**/*.spec.js |tap-summary --no-progress",
     "autotest": "nodemon -e js,yml -x 'tape test/**/*.spec.js |tap-summary --no-progress'",
@@ -23,23 +19,15 @@
     "coverage": "nyc tape test/**/*.spec.js && nyc report --reporter=html",
     "lint": "eslint index.js test/",
     "autolint": "nodemon -x eslint index.js lib/ test/",
-    "app:lint": "eslint -c .app_eslintrc.js cli.js app/",
-    "app:autolint": "nodemon -x 'eslint -c .app_eslintrc.js cli.js app/'",
     "link-all": "for u in $(ls -1d node_modules/wool-* | xargs basename -a); do npm link $u; done"
   },
   "dependencies": {
-    "bankai": "^9.15.3",
-    "bunyan": "^1.8.14",
-    "meow": "^7.0.1",
-    "websocket": "^1.0.31",
     "wool-entity": "^2.0.6",
     "wool-model": "^2.0.4",
     "wool-rule": "^2.0.6",
     "wool-store": "^1.2.14",
     "wool-stream": "^1.1.10",
-    "wool-validate": "^2.1.2",
-    "xhr": "^2.5.0",
-    "yo-yo": "^1.4.1"
+    "wool-validate": "^2.1.2"
   },
   "devDependencies": {
     "eslint": "^7.4.0",
