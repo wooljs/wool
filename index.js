@@ -11,31 +11,35 @@
 
 const fs = require('fs')
   , { Readable, Writable, Duplex, Transform } = require('stream')
-  , { AsyncMapStream, CountStream, StreamSplit, StreamJoin, StreamParse, StreamStringify, PushStream } = require('wool-stream')
+  , { AsyncMapStream, CountStream, StreamSplit, StreamJoin, StreamParse, StreamStringify } = require('wool-stream')
   , { Event } = require('wool-model')
   , { RuleEngine } = require('wool-rule')
   , { Store } = require('wool-store')
+
+class WoolError extends Error {}
 
 class Wool {
   constructor(options) {
     let { logger, store, rules, events } = options
 
-    if (! (store instanceof Store)) throw new Error(store+' is not an instance of Store.')
+    if (! (store instanceof Store)) throw new WoolError(store+' is not an instance of Store.')
     this.store = store
 
+    if(rules.length === 0) throw new WoolError('Cannot accept empty rules list')
     this.rule = new RuleEngine(this.store)
     this.rule.addRules(rules)
 
     this.logger = logger || console
 
     if (typeof events === 'string') {
+      if (events.length === 0) throw new WoolError('Cannot create empty file for db')
       this.src = fs.createReadStream(events, {flags: 'r'})
       this.dest = fs.createWriteStream(events, {flags: 'a'})
     } else if (typeof events === 'object') {
       let { src, dest } = events
-      if (! (src instanceof Readable)) throw new Error('Given input stream must be a Readable')
+      if (! (src instanceof Readable)) throw new WoolError('Given input stream must be a Readable')
       this.src = src
-      if (! (dest instanceof Writable) && ! (dest instanceof Duplex) && ! (dest instanceof Transform)) throw new Error('Given output stream must be a Writable')
+      if (! (dest instanceof Writable) && ! (dest instanceof Duplex) && ! (dest instanceof Transform)) throw new WoolError('Given output stream must be a Writable')
       this.dest = dest
     }
 
@@ -90,10 +94,6 @@ class Wool {
   end(onFinish) {
     this.stream.on('finish', onFinish)
     this.stream.end()
-  }
-
-  asPushStream() {
-    return new PushStream(this)
   }
 
 }

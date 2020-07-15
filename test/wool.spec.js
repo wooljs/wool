@@ -17,11 +17,13 @@ const test = require('tape-async')
   , fs = require('fs')
   , { Command } = require('wool-model')
   , { Store } = require('wool-store')
-  , TestStream = require( __dirname + '/test_stream.js')(util,stream)
-  , rules = require( __dirname + '/rules.js')
-  , Wool = require( __dirname + '/../index.js')
+  , TestStream = require(__dirname + '/test_stream.js')(util, stream)
+  , rules = require(__dirname + '/rules.js')
+  , Wool = require(__dirname + '/../index.js')
+  , TEST_DB = __dirname + '/test_load.db'
+  , TMP_DB = __dirname + '/tmp.db'
 
-test('integrate: contains spec with an expectation', async function(t) {
+test('integrate', async function (t) {
   var count = 0
     , expected = [
       'S: 2017-05-02T09:48:12.450Z-0000 chatroom:send {"userId":"bar","chatId":"15bc9f0381e","msg":"^^"}',
@@ -36,13 +38,12 @@ test('integrate: contains spec with an expectation', async function(t) {
       '\n',
     ]
     , dest = TestStream(function (data, encoding, callback) {
-      t.deepEqual(data.toString(),expected[count])
+      t.deepEqual(data.toString(), expected[count])
       count += 1
       this.push(data)
       callback()
     })
     , store = Store.build()
-
 
   await store.set('foo', { membership: [] })
   await store.set('bar', { membership: [] })
@@ -51,21 +52,164 @@ test('integrate: contains spec with an expectation', async function(t) {
     store,
     rules,
     events: {
-      src: fs.createReadStream(__dirname + '/test_load.db', {flags: 'r'}),
+      src: fs.createReadStream(TEST_DB, { flags: 'r' }),
       dest
     }
   }).start()
 
-  await wool.push(new Command(new Date('2017-05-02T09:48:12.450Z'), 0, 'chatroom:send', {'userId': 'bar', 'chatId': '15bc9f0381e', 'msg': '^^'}))
-  await wool.push(new Command(new Date('2017-05-02T09:48:42.666Z'), 0, 'chatroom:send', {'userId': 'foo', 'chatId': '15bc9f0381e', 'msg': 'I have to quit, bye'}))
-  await wool.push(new Command(new Date('2017-05-02T09:49:02.010Z'), 0, 'chatroom:send', {'userId': 'bar', 'chatId': '15bc9f0381e', 'msg': 'ok, bye'}))
-  await wool.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 0, 'chatroom:leave', {'userId': 'foo', 'chatId': '15bc9f0381e'}))
-  await wool.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 1, 'chatroom:leave', {'userId': 'bar', 'chatId': '15bc9f0381e'}))
+  let foo = await store.get('foo')
+    , bar = await store.get('bar')
+  t.deepEqual(foo, { membership: ['15bc9f0381e'] })
+  t.deepEqual(bar, { membership: ['15bc9f0381e'] })
+
+  let chat = await store.get('15bc9f0381e')
+  t.deepEqual(chat.members, ['foo', 'bar'])
+  t.deepEqual(chat.messages.length, 9)
+
+  await wool.push(new Command(new Date('2017-05-02T09:48:12.450Z'), 0, 'chatroom:send', { 'userId': 'bar', 'chatId': '15bc9f0381e', 'msg': '^^' }))
+  t.deepEqual(chat.members, ['foo', 'bar'])
+  t.deepEqual(chat.messages.length, 10)
+
+  await wool.push(new Command(new Date('2017-05-02T09:48:42.666Z'), 0, 'chatroom:send', { 'userId': 'foo', 'chatId': '15bc9f0381e', 'msg': 'I have to quit, bye' }))
+  t.deepEqual(chat.members, ['foo', 'bar'])
+  t.deepEqual(chat.messages.length, 11)
+
+  await wool.push(new Command(new Date('2017-05-02T09:49:02.010Z'), 0, 'chatroom:send', { 'userId': 'bar', 'chatId': '15bc9f0381e', 'msg': 'ok, bye' }))
+  t.deepEqual(chat.members, ['foo', 'bar'])
+  t.deepEqual(chat.messages.length, 12)
+
+  t.deepEqual(foo, { membership: ['15bc9f0381e'] })
+  t.deepEqual(bar, { membership: ['15bc9f0381e'] })
+
+  await wool.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 0, 'chatroom:leave', { 'userId': 'foo', 'chatId': '15bc9f0381e' }))
+  t.deepEqual(chat.members, ['bar'])
+  t.deepEqual(chat.messages.length, 13)
+
+  t.deepEqual(foo, { membership: [] })
+  t.deepEqual(bar, { membership: ['15bc9f0381e'] })
+
+  await wool.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 1, 'chatroom:leave', { 'userId': 'bar', 'chatId': '15bc9f0381e' }))
+  t.deepEqual(chat.members, [])
+  t.deepEqual(chat.messages.length, 14)
+
+  t.deepEqual(foo, { membership: [] })
+  t.deepEqual(bar, { membership: [] })
 
   await new Promise((resolve) => {
     wool.end(resolve)
   })
 
-  t.plan(10)
+  t.plan(30)
+  t.end()
+})
+
+test('with db in file', async function (t) {
+  if (fs.existsSync(TMP_DB)) {
+    fs.unlinkSync(TMP_DB)
+  }
+  fs.copyFileSync(TEST_DB, TMP_DB)
+
+  let store = Store.build()
+  await store.set('foo', { membership: [] })
+  await store.set('bar', { membership: [] })
+
+  let counter = 0
+
+  let wool = await Wool({
+    store,
+    rules,
+    events: TMP_DB
+  }).start((c) => counter = c)
+
+  t.deepEqual(counter, 9)
+
+  let foo = await store.get('foo')
+    , bar = await store.get('bar')
+  t.deepEqual(foo, { membership: ['15bc9f0381e'] })
+  t.deepEqual(bar, { membership: ['15bc9f0381e'] })
+
+  let chat = await store.get('15bc9f0381e')
+  t.deepEqual(chat.members, ['foo', 'bar'])
+  t.deepEqual(chat.messages.length, 9)
+
+  await wool.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 0, 'chatroom:leave', { 'userId': 'foo', 'chatId': '15bc9f0381e' }))
+  t.deepEqual(chat.members, ['bar'])
+  t.deepEqual(chat.messages.length, 10)
+
+  t.deepEqual(foo, { membership: [] })
+  t.deepEqual(bar, { membership: ['15bc9f0381e'] })
+
+  await wool.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 1, 'chatroom:leave', { 'userId': 'bar', 'chatId': '15bc9f0381e' }))
+  t.deepEqual(chat.members, [])
+  t.deepEqual(chat.messages.length, 11)
+
+  t.deepEqual(foo, { membership: [] })
+  t.deepEqual(bar, { membership: [] })
+
+  t.deepEqual(counter, 9)
+
+  t.plan(14)
+  t.end()
+})
+
+test('error options', async function (t) {
+  try {
+    await Wool({
+      store: {},
+      rules: {},
+      events: ''
+    })
+    t.fail('should throw !')
+  } catch (e) {
+    t.deepEqual(e.toString(), 'Error: [object Object] is not an instance of Store.')
+  }
+
+  try {
+    await Wool({
+      store: Store.build(),
+      rules: [],
+      events: ''
+    })
+    t.fail('should throw !')
+  } catch (e) {
+    t.deepEqual(e.toString(), 'Error: Cannot accept empty rules list')
+  }
+
+  try {
+    await Wool({
+      store: Store.build(),
+      rules: rules,
+      events: ''
+    })
+    t.fail('should throw !')
+  } catch (e) {
+    t.deepEqual(e.toString(), 'Error: Cannot create empty file for db')
+  }
+
+  try {
+    await Wool({
+      store: Store.build(),
+      rules: rules,
+      events: {}
+    })
+    t.fail('should throw !')
+  } catch (e) {
+    t.deepEqual(e.toString(), 'Error: Given input stream must be a Readable')
+  }
+
+  try {
+    await Wool({
+      store: Store.build(),
+      rules: rules,
+      events: {
+        src: fs.createReadStream(TEST_DB, { flags: 'r' })
+      }
+    })
+    t.fail('should throw !')
+  } catch (e) {
+    t.deepEqual(e.toString(), 'Error: Given output stream must be a Writable')
+  }
+
+  t.plan(5)
   t.end()
 })
