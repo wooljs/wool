@@ -22,9 +22,9 @@
     "link-all": "for u in $(ls -1d node_modules/wool-* | xargs basename -a); do npm link $u; done"
   },
   "dependencies": {
-    "wool-entity": "^2.0.6",
+    "wool-entity": "^2.0.8",
     "wool-model": "^2.0.4",
-    "wool-rule": "^2.0.6",
+    "wool-rule": "^2.0.7",
     "wool-store": "^1.2.14",
     "wool-stream": "^1.1.10",
     "wool-validate": "^2.1.3"
