@@ -13,9 +13,9 @@
   "scripts": {
     "preversion": "npm test && npm outdated",
     "pretest": "npm run lint",
-    "test": "tape test/**/*.spec.js |tap-summary --no-progress",
-    "autotest": "nodemon -e js,yml -x 'tape test/**/*.spec.js |tap-summary --no-progress'",
-    "autolinttest": "nodemon -e js,yml -x 'npm run lint && tape test/**/*.spec.js |tap-summary --no-progress'",
+    "test": "tape test/**/*.spec.js |tap-spec-emoji",
+    "autotest": "nodemon -e js,yml -x 'tape test/**/*.spec.js |tap-spec-emoji'",
+    "autolinttest": "nodemon -e js,yml -x 'npm run lint && tape test/**/*.spec.js |tap-spec-emoji'",
     "coverage": "nyc tape test/**/*.spec.js && nyc report --reporter=html",
     "lint": "eslint index.js test/",
     "autolint": "nodemon -x eslint index.js lib/ test/",
@@ -33,9 +33,8 @@
     "eslint": "^7.15.0",
     "nodemon": "^2.0.6",
     "nyc": "^15.1.0",
-    "tap-summary": "^4.0.0",
     "tape": "^5.0.1",
     "tape-async": "^2.3.0"
-  },
-  "optionalDependencies": {}
+    "tap-spec-emoji": "^6.1.2",
+  }
 }
