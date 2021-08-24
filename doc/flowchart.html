@@ -37,8 +37,8 @@ graph TD
   condValid-->|no|storeInvalid
   storeInvalid-->wait
   apply-->condApplication
-  condApplication-->|no|storeError
-  condApplication-->|yes|storeEvent
+  condApplication-->|yes|storeError
+  condApplication-->|no|storeEvent
   storeError-->wait
   storeEvent-->condShutdown
   condShutdown-->|yes|shutdown
