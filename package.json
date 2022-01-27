@@ -22,19 +22,19 @@
     "link-all": "for u in $(ls -1d node_modules/wool-* | xargs basename -a); do npm link $u; done"
   },
   "dependencies": {
-    "wool-entity": "^2.0.8",
-    "wool-model": "^2.0.4",
-    "wool-rule": "^2.0.7",
-    "wool-store": "^1.2.14",
-    "wool-stream": "^1.1.10",
-    "wool-validate": "^2.1.3"
+    "wool-entity": "^2.2.0",
+    "wool-model": "^2.2.0",
+    "wool-rule": "^2.2.0",
+    "wool-store": "^2.2.0",
+    "wool-stream": "^2.2.0",
+    "wool-validate": "^2.2.0"
   },
   "devDependencies": {
-    "eslint": "^7.15.0",
+    "eslint": "^8.7.0",
     "nodemon": "^2.0.6",
     "nyc": "^15.1.0",
+    "tap-spec-emoji": "^6.1.2",
     "tape": "^5.0.1",
     "tape-async": "^2.3.0"
-    "tap-spec-emoji": "^6.1.2",
   }
 }
