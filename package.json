@@ -30,11 +30,11 @@
     "wool-validate": "^2.2.1"
   },
   "devDependencies": {
-    "eslint": "^8.7.0",
+    "eslint": "^8.13.0",
     "nodemon": "^2.0.6",
     "nyc": "^15.1.0",
     "tap-spec-emoji": "^6.1.2",
-    "tape": "^5.0.1",
+    "tape": "^5.5.3",
     "tape-async": "^2.3.0"
   }
 }
