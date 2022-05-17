@@ -96,6 +96,14 @@ class Wool {
     this.stream.end()
   }
 
+  /**
+   * getters
+   */
+
+  getRules() {
+    return this.rule.rules
+  }
+
 }
 
 module.exports = Wool.build
