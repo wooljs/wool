@@ -33,7 +33,7 @@
     "eslint": "^8.16.0",
     "nodemon": "^2.0.16",
     "nyc": "^15.1.0",
-    "@freecube/tap-summary": "^4.0.3",
+    "@freecube/tap-summary": "^4.0.4",
     "tape": "^5.5.3",
     "tape-async": "^2.3.0"
   }
