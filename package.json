@@ -11,7 +11,7 @@
   },
   "main": "lib/index.js",
   "scripts": {
-    "preversion": "npm test && npm outdated",
+    "preversion": "npm test && npm outdated && npm audit --only=prod",
     "pretest": "npm run lint",
     "test": "tape test/**/*.spec.js |tap-summary",
     "autotest": "nodemon -e js,yml -x 'tape test/**/*.spec.js |tap-summary'",
@@ -22,18 +22,18 @@
     "link-all": "for u in $(ls -1d node_modules/wool-* | xargs basename -a); do npm link $u; done"
   },
   "dependencies": {
-    "wool-entity": "^2.2.1",
-    "wool-model": "^2.2.0",
-    "wool-rule": "^2.2.1",
-    "wool-store": "^2.2.0",
-    "wool-stream": "^2.2.0",
-    "wool-validate": "^2.2.1"
+    "wool-entity": "^2.2.2",
+    "wool-model": "^2.2.2",
+    "wool-rule": "^2.2.3",
+    "wool-store": "^2.2.3",
+    "wool-stream": "^2.2.4",
+    "wool-validate": "^2.2.2"
   },
   "devDependencies": {
-    "eslint": "^8.16.0",
+    "@freecube/tap-summary": "^4.0.4",
+    "eslint": "^8.18.0",
     "nodemon": "^2.0.16",
     "nyc": "^15.1.0",
-    "@freecube/tap-summary": "^4.0.4",
     "tape": "^5.5.3",
     "tape-async": "^2.3.0"
   }
