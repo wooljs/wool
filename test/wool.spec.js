@@ -152,6 +152,85 @@ test('with db in file', async function (t) {
   t.end()
 })
 
+
+test('with db in file split output', async function (t) {
+  const ERR_DB = __dirname + '/tmp_err.db'
+  if (fs.existsSync(TMP_DB)) {
+    fs.unlinkSync(TMP_DB)
+  }
+  if (fs.existsSync(ERR_DB)) {
+    fs.unlinkSync(ERR_DB)
+  }
+  fs.copyFileSync(TEST_DB, TMP_DB)
+
+  let store = Store.build()
+  await store.set('foo', { membership: [] })
+  await store.set('bar', { membership: [] })
+
+  let counter = 0
+
+  let wool = await Wool({
+    store,
+    rules,
+    events: {
+      src: TMP_DB,
+      dest: {
+        evt: TMP_DB,
+        err: ERR_DB
+      }
+    }
+  }).start((c) => counter = c)
+
+  t.deepEqual(counter, 9)
+
+  let foo = await store.get('foo')
+    , bar = await store.get('bar')
+  t.deepEqual(foo, { membership: ['15bc9f0381e'] })
+  t.deepEqual(bar, { membership: ['15bc9f0381e'] })
+
+  let chat = await store.get('15bc9f0381e')
+  t.deepEqual(chat.members, ['foo', 'bar'])
+  t.deepEqual(chat.messages.length, 9)
+
+  await wool.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 0, 'chatroom:leave', { 'userId': 'foo', 'chatId': '15bc9f0381e' }))
+  t.deepEqual(chat.members, ['bar'])
+  t.deepEqual(chat.messages.length, 10)
+
+  t.deepEqual(foo, { membership: [] })
+  t.deepEqual(bar, { membership: ['15bc9f0381e'] })
+
+  const evt = await wool.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 1, 'chatroom:leave', { 'userId': 'NONE', 'chatId': 'WRONG' }))
+  t.deepEqual(evt.status, 'I')
+
+  await wool.push(new Command(new Date('2017-05-02T09:49:05.234Z'), 1, 'chatroom:leave', { 'userId': 'bar', 'chatId': '15bc9f0381e' }))
+  t.deepEqual(chat.members, [])
+  t.deepEqual(chat.messages.length, 11)
+
+  t.deepEqual(foo, { membership: [] })
+  t.deepEqual(bar, { membership: [] })
+
+  t.deepEqual(counter, 9)
+
+
+  // wait everythins is finished
+  await new Promise((resolve) => wool.end(() => {
+    Promise.all([
+      new Promise((r) => wool.dest.evt.on('finish', r)),
+      new Promise((r) => wool.dest.err.on('finish', r)),
+    ]).then(resolve)
+  }))
+
+  const evt_data = fs.readFileSync(TMP_DB).toString('utf8').split('\n')
+  t.deepEqual(evt_data.length, 12)
+
+  const err_data = fs.readFileSync(ERR_DB).toString('utf8').split('\n')
+  t.deepEqual(err_data.length, 2)
+
+  t.plan(17)
+  t.end()
+})
+
+
 test('error options', async function (t) {
   try {
     await Wool({

@@ -11,7 +11,7 @@ module.exports = {
     'indent': [
       'error',
       2,
-      { 'MemberExpression': 0 }
+      { 'MemberExpression': 1 }
     ],
     'linebreak-style': [
       'error',
