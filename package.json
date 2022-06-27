@@ -26,7 +26,7 @@
     "wool-model": "^2.2.2",
     "wool-rule": "^2.2.3",
     "wool-store": "^2.2.3",
-    "wool-stream": "^2.2.5",
+    "wool-stream": "^2.2.6",
     "wool-validate": "^2.2.2"
   },
   "devDependencies": {
