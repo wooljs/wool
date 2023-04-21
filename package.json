@@ -27,7 +27,7 @@
     "wool-rule": "^2.2.5",
     "wool-store": "^2.3.0",
     "wool-stream": "^2.2.6",
-    "wool-validate": "^2.2.5"
+    "wool-validate": "^2.2.6"
   },
   "devDependencies": {
     "@freecube/tap-summary": "^4.0.4",
