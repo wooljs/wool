@@ -14,11 +14,10 @@
     "preversion": "npm test && npm outdated && npm audit --only=prod",
     "pretest": "npm run lint",
     "test": "tape test/**/*.spec.js |tap-summary",
-    "autotest": "nodemon -e js,yml -x 'tape test/**/*.spec.js |tap-summary'",
-    "autolinttest": "nodemon -e js,yml -x 'npm run lint && tape test/**/*.spec.js |tap-summary'",
-    "coverage": "nyc tape test/**/*.spec.js && nyc report --reporter=html",
+    "test:watch": "nodemon -x 'tape test/**/*.spec.js |tap-summary'",
+    "coverage": "c8 tape test/**/*.spec.js && c8 report --reporter=html",
     "lint": "eslint index.js test/",
-    "autolint": "nodemon -x eslint index.js lib/ test/",
+    "lint:watch": "nodemon -x eslint index.js lib/ test/",
     "link-all": "for u in $(ls -1d node_modules/wool-* | xargs basename -a); do npm link $u; done"
   },
   "dependencies": {
@@ -31,10 +30,9 @@
   },
   "devDependencies": {
     "@freecube/tap-summary": "^4.0.4",
+    "c8": "^8.0.1",
     "eslint": "^8.38.0",
-    "nodemon": "^2.0.22",
-    "nyc": "^15.1.0",
-    "tape": "^5.6.3",
-    "tape-async": "^2.3.0"
+    "nodemon": "^3.0.1",
+    "tape": "^5.6.3"
   }
 }
