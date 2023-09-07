@@ -21,18 +21,18 @@
     "link-all": "for u in $(ls -1d node_modules/wool-* | xargs basename -a); do npm link $u; done"
   },
   "dependencies": {
-    "wool-entity": "^2.3.6",
+    "wool-entity": "^2.4.0",
     "wool-model": "^2.2.2",
-    "wool-rule": "^2.3.0",
+    "wool-rule": "^2.4.0",
     "wool-store": "^2.3.0",
     "wool-stream": "^2.2.6",
-    "wool-validate": "^2.3.0"
+    "wool-validate": "^2.4.0"
   },
   "devDependencies": {
     "@freecube/tap-summary": "^4.0.4",
     "c8": "^8.0.1",
-    "eslint": "^8.38.0",
+    "eslint": "^8.48.0",
     "nodemon": "^3.0.1",
-    "tape": "^5.6.3"
+    "tape": "^5.6.6"
   }
 }
