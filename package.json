@@ -25,13 +25,13 @@
     "wool-model": "^2.2.2",
     "wool-rule": "^2.4.0",
     "wool-store": "^2.3.0",
-    "wool-stream": "^2.2.6",
+    "wool-stream": "^2.2.7",
     "wool-validate": "^2.4.0"
   },
   "devDependencies": {
     "@freecube/tap-summary": "^4.0.4",
     "c8": "^8.0.1",
-    "eslint": "^8.48.0",
+    "eslint": "^8.49.0",
     "nodemon": "^3.0.1",
     "tape": "^5.6.6"
   }
