@@ -30,5 +30,6 @@ module.exports = {
       { 'skipBlankLines': false }
     ],
     'no-console': 1,
+    'prefer-const': 'error',
   }
 }
