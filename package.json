@@ -23,7 +23,7 @@
   "dependencies": {
     "wool-entity": "^2.4.0",
     "wool-model": "^2.2.2",
-    "wool-rule": "^2.4.0",
+    "wool-rule": "^2.4.1",
     "wool-store": "^2.3.0",
     "wool-stream": "^2.3.0",
     "wool-validate": "^2.4.0"
