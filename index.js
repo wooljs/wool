@@ -11,7 +11,15 @@
 
 const fs = require('fs')
   , { Readable, Writable, Duplex, Transform } = require('stream')
-  , { AsyncMapStream, CountStream, StreamSplit, StreamJoin, StreamParse, StreamStringify, DispatchStream, PushStream } = require('wool-stream')
+  , {
+    AsyncMapStream,
+    CountStream,
+    StreamSplit,
+    StreamJoin,
+    StreamParse,
+    StreamStringify,
+    DispatchStream,
+  } = require('wool-stream')
   , { Event, Command } = require('wool-model')
   , { RuleEngine } = require('wool-rule')
   , { Store } = require('wool-store')
@@ -29,9 +37,19 @@ const filenameOrWritable = (s) => {
 
 class WoolError extends Error { }
 
+class NoConsole {
+  log() { }
+  debug() { }
+  info() { }
+  warn() { }
+  error() { }
+}
+
 class Wool {
   constructor(options) {
     const { logger, store, rules, events } = options
+    this.logger = logger || new NoConsole()
+    this.logger.debug('wool load options')
 
     if (!(store instanceof Store)) throw new WoolError(store + ' is not an instance of Store.')
     this.store = store
@@ -39,8 +57,6 @@ class Wool {
     if (rules.length === 0) throw new WoolError('Cannot accept empty rules list')
     this.rule = new RuleEngine(this.store)
     this.rule.addRules(rules)
-
-    this.logger = logger || console
 
     this.splitIn = false
     this.splitOut = false
@@ -83,6 +99,7 @@ class Wool {
       else throw new WoolError('Given output stream must be a Writable')
     }
 
+    this.logger.debug('wool options loaded')
     this.stream = undefined
   }
   static build(options) {
@@ -94,20 +111,26 @@ class Wool {
    */
 
   async start(onCount) {
-    const evc = CountStream()
-      , buildErrorHandler = str => e => { this.logger.error(str, e) }
+    this.logger.debug('wool starts')
+    const buildErrorHandler = str => e => { this.logger.error(str, e instanceof Error ? e.stack : e); throw e }
 
     let last_time = null
+      , c
+      , count = 0
 
+    this.logger.debug('wool read src')
     if (!this.splitIn) {
-      await this.readSource(this.src, buildErrorHandler, evc)
-      this.src = null
+      [last_time, c] = await this.readSource(this.src, buildErrorHandler)
+      count += c
     } else {
       const { init, evt } = this.src
-      last_time = await this.readSource(init, buildErrorHandler, evc)
-      last_time = await this.readSource(evt, buildErrorHandler, evc)
+      ;[last_time, c] = await this.readSource(init, buildErrorHandler)
+      count += c
+      ;[last_time, c] = await this.readSource(evt, buildErrorHandler)
+      count += c
     }
 
+    this.logger.debug('wool prepare dest')
     if (!this.splitOut) {
       this.stream = await this.prepareDest(this.dest, buildErrorHandler)
     } else {
@@ -124,6 +147,7 @@ class Wool {
 
     if (this.splitIn && ('upgrade' in this.src)) {
       const { upgrade } = this.src
+        , evc = CountStream()
       await new Promise((resolve) => {
         upgrade
           .on('error', buildErrorHandler('While reading:'))
@@ -137,34 +161,45 @@ class Wool {
             // here we push the upgrade event into the dest stream if it comes after last event
             if (e.t > last_time) await this.push(e)
           }).on('error', buildErrorHandler('While replaying events:')))
-          .pipe(PushStream(evc).on('error', buildErrorHandler('While counting:')))
+          .pipe(evc.on('error', buildErrorHandler('While counting:')))
           .on('data', () => { })
           .on('finish', () => { resolve() })
       })
+      count += evc.count()
       this.src = null
     }
 
-    if (typeof onCount === 'function') onCount(evc.count())
+    if (typeof onCount === 'function') onCount(count)
 
     return this
   }
 
-  async readSource(src, buildErrorHandler, evc) {
+  async readSource(src, buildErrorHandler) {
     let last_time
-    await new Promise((resolve) => {
-      src
-        .on('error', buildErrorHandler('While reading:'))
-        .pipe(StreamSplit().on('error', buildErrorHandler('While splitting:')))
-        .pipe(StreamParse(Event.parse).on('error', buildErrorHandler('While parsing:')))
-        .pipe(AsyncMapStream(async (e) => {
-          last_time = e.t
-          await this.rule.replay(e)
-        }).on('error', buildErrorHandler('While replaying events:')))
-        .pipe(PushStream(evc).on('error', buildErrorHandler('While counting:')))
-        .on('data', () => { })
-        .on('finish', () => { resolve() })
-    })
-    return last_time
+      , c = 0
+    const evc = CountStream()
+    try {
+      await new Promise((resolve) => {
+        src
+          .on('error', buildErrorHandler('While reading:'))
+          .pipe(StreamSplit().on('error', buildErrorHandler('While splitting:')))
+          .pipe(StreamParse(Event.parse).on('error', buildErrorHandler('While parsing:')))
+          .pipe(AsyncMapStream(async (e) => {
+            last_time = e.t
+            this.logger.debug(`readSource evt: ${c++}, ${e.toString()}`)
+            await this.rule.replay(e)
+          }).on('error', buildErrorHandler('While replaying events:')))
+          .pipe(evc.on('error', buildErrorHandler('While counting:')))
+          .on('error', buildErrorHandler('While processing:'))
+          .on('data', () => { })
+          .on('finish', () => { resolve() })
+      })
+    } catch (e) {
+      this.logger.error(e.stack)
+      throw e
+    }
+    if (last_time) this.logger.debug('readSource last_time:' + last_time.toISOString())
+    return [last_time, evc.count()]
   }
 
   async prepareDest(dest, buildErrorHandler) {

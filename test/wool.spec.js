@@ -260,6 +260,64 @@ test('with db in file split input', async function (t) {
         '\n',
         'S: 2023-11-10T12:17:10.000Z-0000 version:patch {}',
         '\n',
+        'S: 2023-11-10T12:17:10.001Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.002Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.003Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.004Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.005Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.006Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.007Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.008Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.009Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.010Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.011Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.012Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.013Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.014Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.015Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.016Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.017Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.018Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.019Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.020Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.021Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.022Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.023Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.024Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.025Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.026Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.027Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.028Z-0000 version:patch {}',
+        '\n',
+        'S: 2023-11-10T12:17:10.029Z-0000 version:patch {}',
+        '\n',
       ]
       , expected = [
         'S: 2023-11-10T12:18:12.943Z-0000 version:minor {}',
@@ -280,6 +338,7 @@ test('with db in file split input', async function (t) {
     const wool = await (Wool({
       store,
       rules: rules_version,
+      // logger: console,
       events: {
         src: {
           evt: stream.Readable.from(events),
@@ -289,12 +348,12 @@ test('with db in file split input', async function (t) {
       }
     }).start((c) => counter = c))
 
-    t.deepEqual(counter, 5)
+    t.deepEqual(counter, 34)
 
     t.deepEqual(await store.get('Version'), {
       id: 'Version',
-      t: new Date('2023-11-10T12:17:10.000Z'),
-      version: [2, 0, 1]
+      t: new Date('2023-11-10T12:17:10.029Z'),
+      version: [2, 0, 30]
     })
 
     await wool.push(new Command(new Date('2023-11-10T12:18:12.943Z'), 0, 'version:minor', {}))
