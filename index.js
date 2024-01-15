@@ -123,10 +123,9 @@ class Wool {
       [last_time, c] = await this.readSource(this.src, buildErrorHandler)
       count += c
     } else {
-      const { init, evt } = this.src
-      ;[last_time, c] = await this.readSource(init, buildErrorHandler)
-      count += c
-      ;[last_time, c] = await this.readSource(evt, buildErrorHandler)
+      [last_time, c] = await this.readSource(this.src.init, buildErrorHandler)
+      count += c; // to avoid binding of c and next bracket [
+      [last_time, c] = await this.readSource(this.src.evt, buildErrorHandler)
       count += c
     }
 
@@ -146,8 +145,10 @@ class Wool {
     }
 
     if (this.splitIn && ('upgrade' in this.src)) {
+      this.logger.debug('wool run upgrades commands')
       const { upgrade } = this.src
         , evc = CountStream()
+      c = 0
       await new Promise((resolve) => {
         upgrade
           .on('error', buildErrorHandler('While reading:'))
@@ -155,11 +156,15 @@ class Wool {
           .pipe(StreamParse((s) => {
             //convert events to commands
             const e = Event.parse(s)
+            this.logger.debug(`wool run upgrade:${c++} time: ${e.t > last_time ? 'OK' : 'NO'}, ${e.toString()}`)
             return new Command(e.t, e.o, e.name, e.data)
           }).on('error', buildErrorHandler('While parsing:')))
           .pipe(AsyncMapStream(async (e) => {
             // here we push the upgrade event into the dest stream if it comes after last event
-            if (e.t > last_time) await this.push(e)
+            if (e.t > last_time) {
+              const evt = await this.push(e)
+              this.logger.debug(`wool run upgrade result: ${evt.toString()}`)
+            }
           }).on('error', buildErrorHandler('While replaying events:')))
           .pipe(evc.on('error', buildErrorHandler('While counting:')))
           .on('data', () => { })
