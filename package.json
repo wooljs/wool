@@ -21,12 +21,12 @@
     "link-all": "for u in $(ls -1d node_modules/wool-* | xargs basename -a); do npm link $u; done"
   },
   "dependencies": {
-    "wool-entity": "^2.4.2",
+    "wool-entity": "^2.4.3",
     "wool-model": "^2.2.2",
-    "wool-rule": "^2.4.4",
+    "wool-rule": "^2.4.5",
     "wool-store": "^2.3.0",
     "wool-stream": "^2.3.0",
-    "wool-validate": "^2.4.3"
+    "wool-validate": "^2.4.4"
   },
   "devDependencies": {
     "@freecube/tap-summary": "^4.0.4",
