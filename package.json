@@ -9,7 +9,7 @@
     "type": "git",
     "url": "git://github.com/nicocube/wool.git"
   },
-  "main": "lib/index.js",
+  "main": "index.js",
   "type": "module",
   "scripts": {
     "pretest": "npm run lint",
