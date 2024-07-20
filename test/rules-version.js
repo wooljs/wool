@@ -14,29 +14,29 @@
  * This file is a model of Rule file
  *
  */
-const { Rule } = require('wool-rule')
-  , Checks = require('wool-validate')
-  , VerNum = Checks.Tuple('version', [Checks.Num().asInt(), Checks.Num().asInt(), Checks.Num().asInt()])
-  , K = 'Version'
-  , logger = /**/ { log() { } } //*/ console
+import { Rule } from 'wool-rule'
+import { InvalidRuleError, Num, Tuple } from 'wool-validate'
+const VerNum = Tuple('version', [Num().asInt(), Num().asInt(), Num().asInt()])
+const K = 'Version'
+const logger = /**/ { log () { } } //* / console
 
-module.exports = Rule.buildSet('version', {
+export default Rule.buildSet('version', {
   name: 'init',
   param: [VerNum],
-  async cond(store) {
-    if (await store.has(K)) throw new Checks.InvalidRuleError('version already exists')
+  async cond (store) {
+    if (await store.has(K)) throw new InvalidRuleError('version already exists')
   },
-  async run(store, param, t) {
+  async run (store, param, t) {
     logger.log('version:init')
     const { version } = param
     await store.set(K, { id: K, t, version })
   }
 }, {
   name: 'patch',
-  async cond(store) {
-    if (!await store.has(K)) throw new Checks.InvalidRuleError('version should exists')
+  async cond (store) {
+    if (!await store.has(K)) throw new InvalidRuleError('version should exists')
   },
-  async run(store, param, t) {
+  async run (store, param, t) {
     logger.log('version:patch')
     const ver = await store.get(K)
     ver.t = t
@@ -45,10 +45,10 @@ module.exports = Rule.buildSet('version', {
   }
 }, {
   name: 'minor',
-  async cond(store) {
-    if (!await store.has(K)) throw new Checks.InvalidRuleError('version should exists')
+  async cond (store) {
+    if (!await store.has(K)) throw new InvalidRuleError('version should exists')
   },
-  async run(store, param, t) {
+  async run (store, param, t) {
     logger.log('version:minor')
     const ver = await store.get(K)
     ver.t = t
@@ -58,10 +58,10 @@ module.exports = Rule.buildSet('version', {
   }
 }, {
   name: 'major',
-  async cond(store) {
-    if (!await store.has(K)) throw new Checks.InvalidRuleError('version should exists')
+  async cond (store) {
+    if (!await store.has(K)) throw new InvalidRuleError('version should exists')
   },
-  async run(store, param, t) {
+  async run (store, param, t) {
     logger.log('version:major')
     const ver = await store.get(K)
     ver.t = t
@@ -73,10 +73,10 @@ module.exports = Rule.buildSet('version', {
 }, {
   name: 'set',
   param: [VerNum],
-  async cond(store) {
-    if (!await store.has(K)) throw new Checks.InvalidRuleError('version should exists')
+  async cond (store) {
+    if (!await store.has(K)) throw new InvalidRuleError('version should exists')
   },
-  async run(store, param, t) {
+  async run (store, param, t) {
     logger.log('version:set')
     const { version } = param
     await store.set(K, { id: K, t, version })

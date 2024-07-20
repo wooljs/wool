@@ -9,20 +9,21 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-const fs = require('fs')
-  , { Readable, Writable, Duplex, Transform } = require('stream')
-  , {
-    AsyncMapStream,
-    CountStream,
-    StreamSplit,
-    StreamJoin,
-    StreamParse,
-    StreamStringify,
-    DispatchStream,
-  } = require('wool-stream')
-  , { Event, Command } = require('wool-model')
-  , { RuleEngine } = require('wool-rule')
-  , { Store } = require('wool-store')
+import fs from 'fs'
+import { Readable, Writable, Duplex, Transform } from 'stream'
+import {
+  AsyncMapStream,
+  CountStream,
+  StreamSplit,
+  StreamJoin,
+  StreamParse,
+  StreamStringify,
+  DispatchStream
+} from 'wool-stream'
+import { Event, Command } from 'wool-model'
+
+import { RuleEngine } from 'wool-rule'
+import { Store } from 'wool-store'
 
 const filenameOrReadable = (s) => {
   if (s instanceof Readable) return s
@@ -38,15 +39,15 @@ const filenameOrWritable = (s) => {
 class WoolError extends Error { }
 
 class NoConsole {
-  log() { }
-  debug() { }
-  info() { }
-  warn() { }
-  error() { }
+  log () { }
+  debug () { }
+  info () { }
+  warn () { }
+  error () { }
 }
 
 class Wool {
-  constructor(options) {
+  constructor (options) {
     const { logger, store, rules, events } = options
     this.logger = logger || new NoConsole()
     this.logger.debug('wool load options')
@@ -76,14 +77,13 @@ class Wool {
           this.splitIn = true
           this.src = {
             evt: filenameOrReadable(src.evt),
-            init: filenameOrReadable(src.init),
+            init: filenameOrReadable(src.init)
           }
           if ('upgrade' in src) {
             this.src.upgrade = filenameOrReadable(src.upgrade)
           }
         } else throw new WoolError('Configuration item "events.src" should contain "evt" and "init" (optionally "upgrade")')
-      }
-      else throw new WoolError('Given input stream must be a Readable')
+      } else throw new WoolError('Given input stream must be a Readable')
 
       if (typeof dest === 'string') this.dest = fs.createWriteStream(dest, { flags: 'a' })
       else if ((dest instanceof Writable) || (dest instanceof Duplex) || (dest instanceof Transform)) this.dest = dest
@@ -92,17 +92,17 @@ class Wool {
           this.splitOut = true
           this.dest = {
             evt: filenameOrWritable(dest.evt),
-            err: filenameOrWritable(dest.err),
+            err: filenameOrWritable(dest.err)
           }
         } else throw new WoolError('Configuration item "events.dest" should contain "evt" and "err"')
-      }
-      else throw new WoolError('Given output stream must be a Writable')
+      } else throw new WoolError('Given output stream must be a Writable')
     }
 
     this.logger.debug('wool options loaded')
     this.stream = undefined
   }
-  static build(options) {
+
+  static build (options) {
     return new Wool(options)
   }
 
@@ -110,22 +110,22 @@ class Wool {
    * Public methods
    */
 
-  async start(onCount) {
+  async start (onCount) {
     this.logger.debug('wool starts')
     const buildErrorHandler = str => e => { this.logger.error(str, e instanceof Error ? e.stack : e); throw e }
 
-    let last_time = null
-      , c
-      , count = 0
+    let lastTime = null
+    let c
+    let count = 0
 
     this.logger.debug('wool read src')
     if (!this.splitIn) {
-      [last_time, c] = await this.readSource(this.src, buildErrorHandler)
+      [lastTime, c] = await this.readSource(this.src, buildErrorHandler)
       count += c
     } else {
-      [last_time, c] = await this.readSource(this.src.init, buildErrorHandler)
+      [lastTime, c] = await this.readSource(this.src.init, buildErrorHandler)
       count += c; // to avoid binding of c and next bracket [
-      [last_time, c] = await this.readSource(this.src.evt, buildErrorHandler)
+      [lastTime, c] = await this.readSource(this.src.evt, buildErrorHandler)
       count += c
     }
 
@@ -133,12 +133,12 @@ class Wool {
     if (!this.splitOut) {
       this.stream = await this.prepareDest(this.dest, buildErrorHandler)
     } else {
-      const events_stream = await this.prepareDest(this.dest.evt, buildErrorHandler)
-      const error_stream = await this.prepareDest(this.dest.err, buildErrorHandler)
+      const eventsStream = await this.prepareDest(this.dest.evt, buildErrorHandler)
+      const errorStream = await this.prepareDest(this.dest.err, buildErrorHandler)
 
-      this.stream = DispatchStream([
-        [(e) => e.isSuccess(), events_stream],
-        [() => true, error_stream],
+      this.stream = new DispatchStream([
+        [(e) => e.isSuccess(), eventsStream],
+        [() => true, errorStream]
       ])
       this.stream
         .on('error', buildErrorHandler('While stringifying:'))
@@ -147,21 +147,21 @@ class Wool {
     if (this.splitIn && ('upgrade' in this.src)) {
       this.logger.debug('wool run upgrades commands')
       const { upgrade } = this.src
-        , evc = CountStream()
+      const evc = new CountStream()
       c = 0
       await new Promise((resolve) => {
         upgrade
           .on('error', buildErrorHandler('While reading:'))
-          .pipe(StreamSplit().on('error', buildErrorHandler('While splitting:')))
-          .pipe(StreamParse((s) => {
-            //convert events to commands
+          .pipe(new StreamSplit().on('error', buildErrorHandler('While splitting:')))
+          .pipe(new StreamParse((s) => {
+            // convert events to commands
             const e = Event.parse(s)
-            this.logger.debug(`wool run upgrade:${c++} time: ${e.t > last_time ? 'OK' : 'NO'}, ${e.toString()}`)
+            this.logger.debug(`wool run upgrade:${c++} time: ${e.t > lastTime ? 'OK' : 'NO'}, ${e.toString()}`)
             return new Command(e.t, e.o, e.name, e.data)
           }).on('error', buildErrorHandler('While parsing:')))
-          .pipe(AsyncMapStream(async (e) => {
+          .pipe(new AsyncMapStream(async (e) => {
             // here we push the upgrade event into the dest stream if it comes after last event
-            if (e.t > last_time) {
+            if (e.t > lastTime) {
               const evt = await this.push(e)
               this.logger.debug(`wool run upgrade result: ${evt.toString()}`)
             }
@@ -179,18 +179,18 @@ class Wool {
     return this
   }
 
-  async readSource(src, buildErrorHandler) {
-    let last_time
-      , c = 0
-    const evc = CountStream()
+  async readSource (src, buildErrorHandler) {
+    let lastTime
+    let c = 0
+    const evc = new CountStream()
     try {
       await new Promise((resolve) => {
         src
           .on('error', buildErrorHandler('While reading:'))
-          .pipe(StreamSplit().on('error', buildErrorHandler('While splitting:')))
-          .pipe(StreamParse(Event.parse).on('error', buildErrorHandler('While parsing:')))
-          .pipe(AsyncMapStream(async (e) => {
-            last_time = e.t
+          .pipe(new StreamSplit().on('error', buildErrorHandler('While splitting:')))
+          .pipe(new StreamParse(Event.parse).on('error', buildErrorHandler('While parsing:')))
+          .pipe(new AsyncMapStream(async (e) => {
+            lastTime = e.t
             this.logger.debug(`readSource evt: ${c++}, ${e.toString()}`)
             await this.rule.replay(e)
           }).on('error', buildErrorHandler('While replaying events:')))
@@ -203,29 +203,29 @@ class Wool {
       this.logger.error(e.stack)
       throw e
     }
-    if (last_time) this.logger.debug('readSource last_time:' + last_time.toISOString())
-    return [last_time, evc.count()]
+    if (lastTime) this.logger.debug('readSource last_time:' + lastTime.toISOString())
+    return [lastTime, evc.count()]
   }
 
-  async prepareDest(dest, buildErrorHandler) {
+  async prepareDest (dest, buildErrorHandler) {
     return await new Promise((resolve) => {
-      const res = StreamStringify(Event.stringify)
+      const res = new StreamStringify(Event.stringify)
       dest
         .on('error', buildErrorHandler('On Destination'))
         .on('pipe', () => { resolve(res) })
       res.on('error', buildErrorHandler('While stringifying:'))
-        .pipe(StreamJoin().on('error', buildErrorHandler('While joining:')))
+        .pipe(new StreamJoin().on('error', buildErrorHandler('While joining:')))
         .pipe(dest)
     })
   }
 
-  async push(cmd) {
+  async push (cmd) {
     const evt = await this.rule.execute(cmd)
     this.stream.write(evt)
     return evt
   }
 
-  end(onFinish) {
+  end (onFinish) {
     this.stream.on('finish', onFinish)
     this.stream.end()
   }
@@ -234,10 +234,9 @@ class Wool {
    * getters
    */
 
-  getRules() {
+  getRules () {
     return this.rule.rules
   }
-
 }
 
-module.exports = Wool.build
+export default Wool.build

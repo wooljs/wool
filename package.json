@@ -10,29 +10,36 @@
     "url": "git://github.com/nicocube/wool.git"
   },
   "main": "lib/index.js",
+  "type": "module",
   "scripts": {
-    "preversion": "npm test && npm audit --only=prod # && npm outdated",
     "pretest": "npm run lint",
     "test": "tape test/**/*.spec.js |tap-summary",
     "test:watch": "nodemon -x 'clear; npm test'",
     "coverage": "c8 tape test/**/*.spec.js && c8 report --reporter=html",
-    "lint": "eslint index.js test/",
-    "lint:watch": "nodemon -x eslint index.js lib/ test/",
-    "link-all": "for u in $(ls -1d node_modules/wool-* | xargs basename -a); do npm link $u; done"
+    "lint": "standard --fix *.js test/",
+    "lint:watch": "nodemon -x 'npm run lint'",
+    "preversion": "npm test && npm outdated && npm audit",
+    "sync:rule": "rsync -rvc --exclude=.git* --exclude=node_modules/ --exclude=coverage/ ../wool-rule/package.json ../wool-rule/index.js ../wool-rule/lib node_modules/wool-rule/",
+    "sync:entity": "rsync -rvc --exclude=.git* --exclude=node_modules/ --exclude=coverage/ ../wool-entity/package.json ../wool-entity/index.js node_modules/wool-entity/",
+    "sync:validate": "rsync -rvc --exclude=.git* --exclude=node_modules/ --exclude=coverage/ ../wool-validate/package.json ../wool-validate/index.js ../wool-validate/lib node_modules/wool-validate/",
+    "sync:stream": "rsync -rvc --exclude=.git* --exclude=node_modules/ --exclude=coverage/ ../wool-stream/package.json ../wool-stream/index.js ../wool-stream/lib node_modules/wool-stream/",
+    "sync:store": "rsync -rvc --exclude=.git* --exclude=node_modules/ --exclude=coverage/ ../wool-store/package.json ../wool-store/index.js node_modules/wool-store/",
+    "sync:model": "rsync -rvc --exclude=.git* --exclude=node_modules/ --exclude=coverage/ ../wool-model/package.json ../wool-model/index.js node_modules/wool-model/",
+    "sync:watch:all": "nodemon -w ../wool-rule/ -w ../wool-entity/ -w ../wool-validate/ -w ../wool-stream/ -w ../wool-store/ -w ../wool-model/ -x 'npm run sync:rule && npm run sync:entity && npm run sync:validate && npm run sync:stream && npm run sync:store && npm run sync:model'"
   },
   "dependencies": {
-    "wool-entity": "^2.4.3",
-    "wool-model": "^2.2.2",
-    "wool-rule": "^2.4.5",
-    "wool-store": "^2.3.0",
-    "wool-stream": "^2.3.0",
-    "wool-validate": "^2.4.4"
+    "wool-entity": "^2.5.0",
+    "wool-model": "^2.3.0",
+    "wool-rule": "^2.5.0",
+    "wool-store": "^2.4.0",
+    "wool-stream": "^2.4.0",
+    "wool-validate": "^2.5.0"
   },
   "devDependencies": {
     "@freecube/tap-summary": "^4.0.4",
-    "c8": "^8.0.1",
-    "eslint": "^8.57.0",
-    "nodemon": "^3.1.0",
-    "tape": "^5.7.5"
+    "c8": "^10.1.2",
+    "nodemon": "^3.1.4",
+    "standard": "^17.1.0",
+    "tape": "^5.8.1"
   }
 }

@@ -14,76 +14,77 @@
  * This file is a model of Rule file
  *
  */
-const { Rule } = require('wool-rule')
-  , Checks = require('wool-validate')
-  , UserID = Checks.Id('userId')
-  , ChatID = Checks.Id('chatId')
+import { Rule } from 'wool-rule'
 
-module.exports = Rule.buildSet('chatroom', {
+import { Id, InvalidRuleError, Str } from 'wool-validate'
+const UserID = Id('userId')
+const ChatID = Id('chatId')
+
+export default Rule.buildSet('chatroom', {
   name: 'create',
-  param: [ UserID, ChatID.asNew() ],
-  async run(store, param) {
+  param: [UserID, ChatID.asNew()],
+  async run (store, param) {
     const { chatId, userId } = param
-      , user = await store.get(userId)
-    await store.set(chatId, { members: [ userId ], messages: [ '* Chatroom created by '+userId ] })
+    const user = await store.get(userId)
+    await store.set(chatId, { members: [userId], messages: ['* Chatroom created by ' + userId] })
     user.membership.push(chatId)
     await store.set(userId, user)
   }
-},{
+}, {
   name: 'join',
-  param: [ UserID, ChatID ],
-  async cond(store, param) {
-    const {chatId, userId} = param
-      , chatroom = await store.get(chatId)
-    if (chatroom.members.indexOf(userId) !== -1) throw new Checks.InvalidRuleError('Chatroom> member "'+userId+'" cannot join: already in')
+  param: [UserID, ChatID],
+  async cond (store, param) {
+    const { chatId, userId } = param
+    const chatroom = await store.get(chatId)
+    if (chatroom.members.indexOf(userId) !== -1) throw new InvalidRuleError('Chatroom> member "' + userId + '" cannot join: already in')
     return true
   },
-  async run(store, param) {
-    const {chatId, userId} = param
-      , chatroom = await store.get(chatId)
-      , user = await store.get(userId)
+  async run (store, param) {
+    const { chatId, userId } = param
+    const chatroom = await store.get(chatId)
+    const user = await store.get(userId)
     chatroom.members.push(userId)
-    chatroom.messages.push('* Chatroom joined by '+userId)
+    chatroom.messages.push('* Chatroom joined by ' + userId)
     await store.set(chatId, chatroom)
     user.membership.push(chatId)
     await store.set(userId, user)
   }
-},{
+}, {
   name: 'leave',
-  param: [ UserID, ChatID ],
-  async cond(store, param) {
-    const {chatId, userId} = param
-      , chatroom = await store.get(chatId)
-    if (chatroom.members.indexOf(userId) === -1) throw new Checks.InvalidRuleError('Chatroom> member "'+userId+'" cannot leave: not in')
+  param: [UserID, ChatID],
+  async cond (store, param) {
+    const { chatId, userId } = param
+    const chatroom = await store.get(chatId)
+    if (chatroom.members.indexOf(userId) === -1) throw new InvalidRuleError('Chatroom> member "' + userId + '" cannot leave: not in')
     return true
   },
-  async run(store, param) {
-    const {chatId, userId} = param
-      , chatroom = await store.get(chatId)
-      , user = await store.get(userId)
-    chatroom.members = chatroom.members.filter(u => u !== userId )
-    chatroom.messages.push('* Chatroom left by '+userId)
+  async run (store, param) {
+    const { chatId, userId } = param
+    const chatroom = await store.get(chatId)
+    const user = await store.get(userId)
+    chatroom.members = chatroom.members.filter(u => u !== userId)
+    chatroom.messages.push('* Chatroom left by ' + userId)
     await store.set(chatId, chatroom)
     user.membership = user.membership.filter(x => x !== chatId)
   }
-},{
+}, {
   name: 'send',
-  param: [ UserID, ChatID, Checks.Str('msg') ],
-  async cond(store, param) {
-    const {chatId, userId} = param
-      , chatroom = await store.get(chatId)
-    if (chatroom.members.indexOf(userId) === -1) throw new Checks.InvalidRuleError('Chatroom> member "'+userId+'" cannot send message: not in')
+  param: [UserID, ChatID, Str('msg')],
+  async cond (store, param) {
+    const { chatId, userId } = param
+    const chatroom = await store.get(chatId)
+    if (chatroom.members.indexOf(userId) === -1) throw new InvalidRuleError('Chatroom> member "' + userId + '" cannot send message: not in')
     return true
   },
-  async run(store, param) {
-    const {chatId, userId, msg} = param
-      , chatroom = await store.get(chatId)
+  async run (store, param) {
+    const { chatId, userId, msg } = param
+    const chatroom = await store.get(chatId)
     chatroom.messages.push(userId + ': ' + msg)
     await store.set(chatId, chatroom)
   }
-},{
+}, {
   name: 'err',
-  async run() {
-    throw new Checks.InvalidRuleError('ERROR!')
+  async run () {
+    throw new InvalidRuleError('ERROR!')
   }
 })

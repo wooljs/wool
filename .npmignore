@@ -3,4 +3,3 @@ coverage/*
 test/*
 doc/*
 .nyc_output/
-.eslintrc.js
