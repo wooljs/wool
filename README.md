@@ -1,7 +1,7 @@
 Wool
 =
 
-An exploration on CQRS, EventSourcing, Reactive, Flux and all this kind of sh*t.
+An exploration on Rule-Engine based development, CQRS and EventSourcing.
 
 Work in progress
 
