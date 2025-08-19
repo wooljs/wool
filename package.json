@@ -28,18 +28,18 @@
     "sync:watch:all": "nodemon -w ../wool-rule/ -w ../wool-entity/ -w ../wool-validate/ -w ../wool-stream/ -w ../wool-store/ -w ../wool-model/ -x 'npm run sync:rule && npm run sync:entity && npm run sync:validate && npm run sync:stream && npm run sync:store && npm run sync:model'"
   },
   "dependencies": {
-    "wool-entity": "^2.5.2",
-    "wool-model": "^2.4.0",
+    "wool-entity": "^2.5.4",
+    "wool-model": "^2.5.0",
     "wool-rule": "^2.6.1",
-    "wool-store": "^2.4.0",
+    "wool-store": "^2.5.0",
     "wool-stream": "^2.4.0",
     "wool-validate": "^2.5.1"
   },
   "devDependencies": {
     "@freecube/tap-summary": "^4.0.4",
-    "c8": "^10.1.2",
-    "nodemon": "^3.1.4",
-    "standard": "^17.1.0",
-    "tape": "^5.8.1"
+    "c8": "^10.1.3",
+    "nodemon": "^3.1.10",
+    "standard": "^17.1.2",
+    "tape": "^5.9.0"
   }
 }
